@@ -4,6 +4,7 @@ const G = {
   hintsUsed: 0,
   hintLevel: 0,
   roomStart: 0,
+  missionStart: 0,
   fileEditDone: false,
   savedProgress: JSON.parse(localStorage.getItem('vz_progress') || '{}')
 };
@@ -39,12 +40,32 @@ function tcmd(cmd) {
   out.scrollTop = out.scrollHeight;
 }
 
+function getMissionTime() {
+  const elapsed = Math.floor((Date.now() - (G.missionStart || Date.now())) / 1000);
+  const base = 2 * 3600 + elapsed;
+  const h = Math.floor(base / 3600) % 24;
+  const m = Math.floor((base % 3600) / 60);
+  const s = base % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
 function foxMsg(text, type) {
   const wrap = document.getElementById('foxMessages');
-  const d = document.createElement('div');
-  d.className = 'fox-msg' + (type === 'sys' ? ' sys' : '');
-  d.innerHTML = `<span class="fox-tag">FOX</span>${text}`;
-  wrap.appendChild(d);
+
+  const row = document.createElement('div');
+  row.className = 'fox-msg-row';
+
+  const ts = document.createElement('span');
+  ts.className = 'fox-ts';
+  ts.textContent = getMissionTime();
+
+  const msg = document.createElement('div');
+  msg.className = 'fox-msg' + (type === 'sys' ? ' sys' : '');
+  msg.textContent = `[fox] > ${text}`;
+
+  row.appendChild(ts);
+  row.appendChild(msg);
+  wrap.appendChild(row);
   wrap.scrollTop = wrap.scrollHeight;
 }
 
@@ -159,8 +180,15 @@ function defaultStatus() {
 // STAGE / ROOM ADVANCEMENT
 // ═══════════════════════════════════════════════════════════════════════
 
+function updateActiveBranch(treeKey) {
+  const el = document.getElementById('activeBranch');
+  if (!el) return;
+  const isFeature = treeKey && (treeKey.includes('r3') || treeKey.includes('r4') || treeKey.includes('entry'));
+  el.textContent = isFeature ? 'local/operative' : 'local/main';
+}
+
 function advance(treeState) {
-  if (treeState) renderTree(treeState);
+  if (treeState) { renderTree(treeState); updateActiveBranch(treeState); }
 
   const nextIdx = G.stageIdx + 1;
   if (nextIdx >= room().stages.length) {
@@ -228,7 +256,9 @@ function loadRoom() {
 
   out.innerHTML = '';
   document.getElementById('foxMessages').innerHTML = '';
-  document.getElementById('roomInfo').textContent = `ROOM ${r.id} — ${r.name}`;
+  const roomSlug = r.name.toLowerCase().replace(/\s+/g, '_');
+  document.getElementById('roomInfo').textContent = `room_0${r.id} // ${roomSlug}`;
+  updateActiveBranch('r' + r.id + '_initial');
 
   tprint([
     ['', ''],
@@ -374,6 +404,7 @@ function startGame() {
   document.getElementById('introScreen').style.display = 'none';
   const shell = document.getElementById('gameShell');
   shell.style.display = 'flex';
+  G.missionStart = Date.now();
   G.roomStart = Date.now();
   loadRoom();
 }

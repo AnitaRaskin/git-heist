@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VAULT ZERO — Git Escape Room</title>
+<title>VAULT_ZERO // SYSTEM_BREACH</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -30,9 +30,24 @@
 <!-- ═══ GAME SHELL ════════════════════════════════════════════ -->
 <div id="gameShell">
   <div class="top-bar">
-    <div class="vault-tag">VAULT ZERO</div>
-    <div id="roomInfo">ROOM 1 — THE ACCESS MAP</div>
-    <button class="hint-btn" onclick="openHint()">NEED A HINT?</button>
+    <div class="top-bar-left">
+      <div class="vault-tag">vault_zero_v1</div>
+      <div class="top-bar-meta">
+        <span>sec_protocol: aes-256</span>
+        <span>latency: 24ms</span>
+      </div>
+    </div>
+    <div id="roomInfo">target // vault zero online banking system</div>
+    <div class="top-bar-right">
+      <span class="sec-status">security_layer_01: bypassed // layer_02: probing</span>
+      <div class="sec-dots">
+        <span class="sec-dot active"></span>
+        <span class="sec-dot probing"></span>
+        <span class="sec-dot"></span>
+        <span class="sec-dot"></span>
+      </div>
+      <button class="hint-btn" onclick="openHint()">[cmd: hint]</button>
+    </div>
   </div>
   <div class="progress-bar">
     <div class="progress-fill" id="progressFill" style="width:0%"></div>
@@ -40,22 +55,45 @@
   <div class="panels">
     <!-- Fox comms -->
     <div class="panel fox-panel">
-      <div class="panel-header">FOX'S COMMS</div>
+      <div class="fox-header">
+        <div class="fox-header-title">fox // signal encrypted</div>
+        <div class="fox-header-sub">connection: stable // encryption: active</div>
+      </div>
       <div class="fox-messages" id="foxMessages"></div>
+      <div class="fox-footer">
+        <span class="fox-stream-end">-- end_of_stream --</span>
+        <span class="fox-conn-status">connection: stable</span>
+      </div>
     </div>
     <!-- Terminal -->
     <div class="panel terminal-panel" onclick="document.getElementById('termInput').focus()">
-      <div class="panel-header">TERMINAL</div>
+      <div class="terminal-header">
+        <span class="operative-tag">operative@layer-01:~/vault-repo$</span>
+        <div class="terminal-node-meta">
+          <span>system_node: banking-core-relay</span>
+          <span>tty1</span>
+        </div>
+      </div>
       <div class="terminal-out" id="termOut"></div>
       <div class="terminal-in-row">
-        <span class="prompt">operative@vault-zero:~/repo$&nbsp;</span>
-        <input type="text" id="termInput" autocomplete="off" spellcheck="false">
+        <span class="prompt">&gt;</span>
+        <input type="text" id="termInput" autocomplete="off" spellcheck="false" placeholder="awaiting input...">
+        <span class="cursor-blink"></span>
       </div>
     </div>
     <!-- Git tree -->
     <div class="panel tree-panel">
       <div class="panel-header">REPO STATE</div>
       <svg id="gitTree" viewBox="0 0 240 360" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="tree-meta">
+        <div class="tree-meta-title">network_topology // recursive_scan</div>
+        <div class="tree-meta-env-label">active_env</div>
+        <div class="tree-meta-chip">
+          <span class="tree-meta-chip-val" id="activeBranch">local/main</span>
+          <span class="tree-meta-chip-right">secure_link</span>
+        </div>
+        <div class="tree-meta-info">integrity: verified<br>auth_level: operative_01<br>encryption: aes-256</div>
+      </div>
     </div>
   </div>
 </div>
