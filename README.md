@@ -14,7 +14,7 @@ open vault-zero/index.html
 
 ## What it is
 
-A bank heist escape room where each "room" teaches one cluster of Git concepts. You play a rookie operative proving yourself to the crew before the real job. Fox — your crew contact — guides you through via encrypted comms.
+A cyber heist escape room where each "room" teaches one cluster of Git concepts. You're a hacker breaking into an online bank's system. Fox — your crew contact — guides you through via encrypted comms.
 
 You can only move forward by typing the correct Git command. No clicking through slides. No multiple choice. Real commands, real output, real feedback.
 
@@ -22,7 +22,7 @@ You can only move forward by typing the correct Git command. No clicking through
 
 | Room | Name | Concepts |
 |------|------|----------|
-| 1 | The Blueprint | `git branch -a`, `git checkout`, `git log`, `git show` |
+| 1 | The Access Map | `git branch -a`, `git checkout`, `git log`, `git show` |
 | 2 | Get a Copy | `git remote -v`, fork, `git clone` |
 | 3 | Into Position | `git status`, `git checkout -b`, `git add`, `git commit` |
 | 4 | Send the Signal | `git push`, upstream tracking |
