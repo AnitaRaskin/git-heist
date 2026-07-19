@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAULT ZERO — Git Escape Room</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #050505;
+  color: #c8c8c8;
+  font-family: 'Courier New', Courier, monospace;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── INTRO ───────────────────────────────────────────────── */
+#introScreen {
+  position: fixed;
+  inset: 0;
+  background: #030303;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  flex-direction: column;
+}
+.transmission {
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+.tx-header {
+  color: #d4a017;
+  font-size: 11px;
+  letter-spacing: 5px;
+  margin-bottom: 20px;
+  animation: blink 1.5s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.vault-logo {
+  font-size: 44px;
+  color: #d4a017;
+  letter-spacing: 10px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px #d4a01755;
+}
+.vault-sub {
+  font-size: 10px;
+  color: #444;
+  letter-spacing: 6px;
+  margin-bottom: 40px;
+}
+.tx-body {
+  color: #a0c8a0;
+  font-size: 13px;
+  line-height: 2;
+  border-left: 2px solid #4caf50;
+  padding: 20px 25px;
+  text-align: left;
+  margin-bottom: 30px;
+  background: #0a150a;
+}
+.tx-body strong { color: #d4a017; }
+.enter-btn {
+  background: transparent;
+  border: 1px solid #d4a017;
+  color: #d4a017;
+  padding: 12px 40px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.enter-btn:hover { background: #d4a01722; }
+
+/* ─── GAME SHELL ──────────────────────────────────────────── */
+#gameShell {
+  display: none;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 20px;
+  background: #0a0a0a;
+  border-bottom: 1px solid #1e1a0a;
+  flex-shrink: 0;
+}
+.vault-tag {
+  color: #d4a017;
+  font-size: 13px;
+  letter-spacing: 5px;
+  font-weight: bold;
+}
+#roomInfo {
+  color: #888;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+.hint-btn {
+  background: transparent;
+  border: 1px solid #d4a01766;
+  color: #d4a017;
+  padding: 4px 14px;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.hint-btn:hover { background: #d4a01718; }
+
+.progress-bar {
+  height: 2px;
+  background: #111;
+  flex-shrink: 0;
+}
+.progress-fill {
+  height: 100%;
+  background: #d4a017;
+  transition: width 0.6s ease;
+  box-shadow: 0 0 8px #d4a01788;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: 250px 1fr 250px;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid #141414;
+}
+.panel:last-child { border-right: none; }
+
+.panel-header {
+  padding: 7px 15px;
+  background: #0a0a0a;
+  color: #d4a017;
+  font-size: 10px;
+  letter-spacing: 4px;
+  border-bottom: 1px solid #141414;
+  flex-shrink: 0;
+}
+
+/* ─── FOX COMMS ───────────────────────────────────────────── */
+.fox-panel { background: #060b06; }
+.fox-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.fox-msg {
+  background: #0a160a;
+  border-left: 2px solid #4caf5088;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #90b890;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: slideIn 0.4s ease forwards;
+}
+.fox-msg .fox-tag {
+  color: #d4a017;
+  font-size: 9px;
+  letter-spacing: 3px;
+  display: block;
+  margin-bottom: 8px;
+}
+.fox-msg.sys {
+  background: #141008;
+  border-left-color: #d4a01788;
+  color: #c0b080;
+}
+@keyframes slideIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── TERMINAL ────────────────────────────────────────────── */
+.terminal-panel { background: #020202; }
+.terminal-out {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  line-height: 1.75;
+  min-height: 0;
+}
+.t { white-space: pre-wrap; word-break: break-all; }
+.t.cmd  { color: #555; }
+.t.ok   { color: #44cc77; }
+.t.err  { color: #ff5533; }
+.t.warn { color: #ffaa33; }
+.t.br   { color: #88aaff; }
+.t.cm   { color: #ffcc44; }
+.t.hl   { color: #d4a017; }
+.t.dim  { color: #444; }
+.t.sys  { color: #c8c8c8; }
+
+.terminal-in-row {
+  display: flex;
+  align-items: center;
+  padding: 9px 14px;
+  border-top: 1px solid #111;
+  background: #020202;
+  flex-shrink: 0;
+}
+.prompt {
+  color: #d4a017;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+#termInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e8e8e8;
+  font-family: inherit;
+  font-size: 12.5px;
+  caret-color: #d4a017;
+}
+
+/* ─── GIT TREE ────────────────────────────────────────────── */
+.tree-panel { background: #040408; }
+#gitTree {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+/* ─── HINT MODAL ──────────────────────────────────────────── */
+#hintModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+#hintModal.open { display: flex; }
+.hint-box {
+  background: #0a0a0a;
+  border: 1px solid #d4a017;
+  padding: 28px 32px;
+  max-width: 460px;
+  width: 90%;
+}
+.hint-lvl {
+  color: #d4a017;
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+}
+.hint-txt {
+  color: #c8c8c8;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 22px;
+}
+.hint-txt code {
+  color: #d4a017;
+  background: #111;
+  padding: 1px 5px;
+}
+.modal-btns { display: flex; gap: 10px; }
+.btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #777;
+  padding: 6px 18px;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: #ffffff0d; }
+.btn.gold {
+  border-color: #d4a017;
+  color: #d4a017;
+}
+
+/* ─── ROOM COMPLETE ───────────────────────────────────────── */
+#roomDone {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000dd;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+#roomDone.open { display: flex; }
+.done-box {
+  background: #080808;
+  border: 1px solid #d4a017;
+  padding: 40px 50px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+.done-title {
+  color: #d4a017;
+  font-size: 18px;
+  letter-spacing: 6px;
+  margin-bottom: 14px;
+}
+.done-stats {
+  color: #555;
+  font-size: 11px;
+  margin-bottom: 22px;
+  line-height: 2;
+}
+.done-msg {
+  color: #90b890;
+  font-size: 12.5px;
+  font-style: italic;
+  margin-bottom: 28px;
+  padding: 14px 18px;
+  border-left: 2px solid #4caf50;
+  text-align: left;
+  background: #0a150a;
+  line-height: 1.7;
+}
+
+/* ─── FILE EDITOR OVERLAY ─────────────────────────────────── */
+#fileEditor {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+}
+#fileEditor.open { display: flex; }
+.editor-box {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  padding: 24px 28px;
+  width: 520px;
+  max-width: 95vw;
+}
+.editor-title {
+  color: #d4a017;
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+#fileContent {
+  width: 100%;
+  height: 150px;
+  background: #050505;
+  border: 1px solid #1e1e1e;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 12px;
+  outline: none;
+  resize: vertical;
+  line-height: 1.6;
+}
+.editor-hint {
+  color: #555;
+  font-size: 11px;
+  margin: 10px 0 14px;
+}
+
+/* ─── END SCREEN ──────────────────────────────────────────── */
+#endScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #030303;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+#endScreen.open { display: flex; }
+.end-inner { max-width: 600px; width: 90%; text-align: center; }
+.end-logo {
+  font-size: 36px;
+  color: #d4a017;
+  letter-spacing: 8px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 30px #d4a01777;
+}
+
+/* ─── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ INTRO ════════════════════════════════════════════════ -->
+<div id="introScreen">
+  <div class="transmission">
+    <div class="tx-header">▓ ENCRYPTED TRANSMISSION ▓</div>
+    <div class="vault-logo">VAULT ZERO</div>
+    <div class="vault-sub">A GIT LEARNING ESCAPE ROOM</div>
+    <div class="tx-body">
+      <strong>From: Fox</strong><br><br>
+      "You want in on the Vault Zero job? Prove you can handle the tools first.<br><br>
+      A previous crew hid the schematics in a repo years ago. Never merged. Could be anywhere.<br><br>
+      Find it. I'll be watching."
+    </div>
+    <button class="enter-btn" onclick="startGame()">[ ENTER THE REPO ]</button>
+  </div>
+</div>
+
+<!-- ═══ GAME SHELL ════════════════════════════════════════════ -->
+<div id="gameShell">
+  <div class="top-bar">
+    <div class="vault-tag">VAULT ZERO</div>
+    <div id="roomInfo">ROOM 1 — THE BLUEPRINT</div>
+    <button class="hint-btn" onclick="openHint()">NEED A HINT?</button>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="panels">
+    <!-- Fox comms -->
+    <div class="panel fox-panel">
+      <div class="panel-header">FOX'S COMMS</div>
+      <div class="fox-messages" id="foxMessages"></div>
+    </div>
+    <!-- Terminal -->
+    <div class="panel terminal-panel" onclick="document.getElementById('termInput').focus()">
+      <div class="panel-header">TERMINAL</div>
+      <div class="terminal-out" id="termOut"></div>
+      <div class="terminal-in-row">
+        <span class="prompt">operative@vault-zero:~/repo$&nbsp;</span>
+        <input type="text" id="termInput" autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <!-- Git tree -->
+    <div class="panel tree-panel">
+      <div class="panel-header">REPO STATE</div>
+      <svg id="gitTree" viewBox="0 0 240 360" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HINT MODAL ════════════════════════════════════════════ -->
+<div id="hintModal">
+  <div class="hint-box">
+    <div class="hint-lvl" id="hintLvl">HINT 1 OF 3</div>
+    <div class="hint-txt" id="hintTxt"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeHint()">CLOSE</button>
+      <button class="btn gold" id="nextHintBtn" onclick="moreHint()">DEEPER HINT →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ROOM COMPLETE ═════════════════════════════════════════ -->
+<div id="roomDone">
+  <div class="done-box">
+    <div class="done-title">ROOM CLEARED</div>
+    <div class="done-stats" id="doneStats"></div>
+    <div class="done-msg" id="doneMsg"></div>
+    <button class="btn gold" onclick="goNextRoom()">NEXT ROOM →</button>
+  </div>
+</div>
+
+<!-- ═══ FILE EDITOR ═══════════════════════════════════════════ -->
+<div id="fileEditor">
+  <div class="editor-box">
+    <div class="editor-title">EDIT FILE: security-config.json</div>
+    <textarea id="fileContent"></textarea>
+    <div class="editor-hint">change <code>"entry_window": null</code> → <code>"entry_window": "02:00"</code></div>
+    <div class="modal-btns">
+      <button class="btn gold" onclick="saveFile()">SAVE FILE</button>
+      <button class="btn" onclick="cancelFile()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ END SCREEN ════════════════════════════════════════════ -->
+<div id="endScreen">
+  <div class="end-inner">
+    <div class="tx-header">▓ TRANSMISSION ▓</div>
+    <div class="end-logo">OPERATION COMPLETE</div>
+    <div class="tx-body">
+      <strong>From: Fox</strong><br><br>
+      "Vault Zero is open. The crew is in.<br><br>
+      You handled the repo. You handled the history. You handled the mess.<br><br>
+      That's all git ever is — knowing where you are, where you've been, and how to undo what went wrong.<br><br>
+      Welcome to the crew."
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// ROOM DATA
+// Each stage: foxMessage, task, accepted[], output[], treeState, wrong{}
+// ═══════════════════════════════════════════════════════════════════════
+
+const ROOMS = [
+
+  // ──────────────────────────────────────────────────────
+  // ROOM 1: THE BLUEPRINT
+  // git branch -a, checkout, log --oneline, cat / git show
+  // ──────────────────────────────────────────────────────
+  {
+    id: 1,
+    name: 'THE BLUEPRINT',
+    intro: 'The vault schematics were hidden in this repo by a previous operative. Never merged. Find the branch, find the commit, read the file.',
+    stages: [
+      {
+        foxMsg: "the blueprint exists. someone hid it and never merged it. start by figuring out what branches are in this repo.",
+        task: "Find ALL branches including remote ones.",
+        accepted: ["git branch -a"],
+        output: [
+          ["* main", "br"],
+          ["  remotes/origin/main", "dim"],
+          ["  remotes/origin/security-audit-2019", "dim"],
+          ["  remotes/origin/fox/vault-schematics", "hl"],
+        ],
+        tree: "r1_branches",
+        wrong: {
+          "git branch": [
+            ["* main", "br"],
+            ["", ""],
+            ["Tip: that only shows local branches. try -a to see all branches including remote.", "warn"]
+          ],
+          "git log": [["fatal: unable to read history — find the branches first.", "err"]],
+          "ls": [["README.md  access-routes.json  vault.txt", "sys"]],
+          "git status": [["On branch main", "br"], ["nothing to commit, working tree clean", "dim"]]
+        }
+      },
+      {
+        foxMsg: "one of those branches has what you need. the name should give it away.",
+        task: "Switch to the branch that has the schematics.",
+        accepted: ["git checkout fox/vault-schematics", "git switch fox/vault-schematics",
+                   "git checkout origin/fox/vault-schematics"],
+        output: [
+          ["Branch 'fox/vault-schematics' set up to track 'origin/fox/vault-schematics'.", "sys"],
+          ["Switched to a new branch 'fox/vault-schematics'", "ok"],
+        ],
+        tree: "r1_on_fox",
+        wrong: {
+          "git checkout security-audit-2019": [
+            ["Switched to branch 'security-audit-2019'", "warn"],
+            ["", ""],
+            ["old audit logs from 2019. dead end. try the other one.", "err"]
+          ],
+          "git checkout main": [["you're already on main. look for a different branch.", "warn"]]
+        }
+      },
+      {
+        foxMsg: "someone was here before you. check the history. find the commit where it was hidden.",
+        task: "View the commit log on this branch.",
+        accepted: ["git log --oneline", "git log", "git log --all", "git log --oneline --all"],
+        output: [
+          ["a3f9c12 (HEAD -> fox/vault-schematics) hide the blueprint — do not merge", "cm"],
+          ["b7e2d45 update access routes", "sys"],
+          ["c1a8f33 initial repo setup", "dim"],
+        ],
+        tree: "r1_on_fox",
+        wrong: {}
+      },
+      {
+        foxMsg: "that commit at a3f9c12. go there. you'll detach from the branch — that's expected. read-only.",
+        task: "Checkout the specific commit where the blueprint was hidden.",
+        accepted: ["git checkout a3f9c12"],
+        output: [
+          ["Note: switching to 'a3f9c12'.", "sys"],
+          ["", ""],
+          ["You are in 'detached HEAD' state. You can look around and make experimental", "warn"],
+          ["changes and commit them, but they won't be tracked to any branch.", "warn"],
+          ["", ""],
+          ["HEAD is now at a3f9c12 hide the blueprint — do not merge", "cm"],
+        ],
+        tree: "r1_detached",
+        wrong: {
+          "git checkout b7e2d45": [["that's the wrong commit. check the log again — you want a3f9c12.", "warn"]]
+        }
+      },
+      {
+        foxMsg: "you're there. read it.",
+        task: "Read the contents of vault.txt.",
+        accepted: ["cat vault.txt", "git show HEAD:vault.txt", "git show"],
+        output: [
+          ["", ""],
+          ["┌─────────────────────────────────┐", "hl"],
+          ["│       VAULT ZERO BLUEPRINT      │", "hl"],
+          ["│                                 │", "hl"],
+          ["│  Level B2  ┌──┐  ┌──┐  ┌──┐   │", "hl"],
+          ["│  ──────────┤  ├──┤  ├──┤  │   │", "hl"],
+          ["│  Corridor  │  │  │  │  │V0│   │", "hl"],
+          ["│  ──────────┤  ├──┤  ├──┤  │   │", "hl"],
+          ["│            └──┘  └──┘  └──┘   │", "hl"],
+          ["│  Entry: North corridor, B2      │", "hl"],
+          ["│  Window: 02:00 — 02:15          │", "hl"],
+          ["└─────────────────────────────────┘", "hl"],
+          ["", ""],
+          ["entry window opens at 02:00. fifteen minutes.", "ok"],
+        ],
+        tree: "r1_detached",
+        wrong: {
+          "ls": [["README.md  access-routes.json  vault.txt", "sys"]]
+        },
+        completionMsg: "good. you know how to read a repo. now we can talk about the real job."
+      }
+    ],
+    hints: [
+      // per stage, 3 levels each
+      [
+        "the repo has more than just main. there's a command that lists ALL branches — local and remote.",
+        "the command starts with 'git branch'. there's a flag that means 'all'.",
+        "run: git branch -a"
+      ],
+      [
+        "look at the branch names. one of them has something to do with the vault schematics.",
+        "you switch branches with git checkout or git switch, followed by the branch name.",
+        "run: git checkout fox/vault-schematics"
+      ],
+      [
+        "you need to see the history of this branch — every commit that was made, in order.",
+        "git log shows the commit history. --oneline makes it compact and readable.",
+        "run: git log --oneline"
+      ],
+      [
+        "you found the commit hash in the log. now you need to go TO that exact commit.",
+        "git checkout works with commit hashes, not just branch names. use the 7-character hash.",
+        "run: git checkout a3f9c12"
+      ],
+      [
+        "you're at the right commit. the file is there — just read it.",
+        "cat reads a file's contents. git show displays what a commit contains.",
+        "run: cat vault.txt"
+      ]
+    ]
+  },
+
+  // ──────────────────────────────────────────────────────
+  // ROOM 2: GET A COPY
+  // git remote -v, fork, git clone
+  // ──────────────────────────────────────────────────────
+  {
+    id: 2,
+    name: 'GET A COPY',
+    intro: "The syndicate's server has the live vault access system. You can't touch the original — any write operation trips the alarm. You need your own working copy.",
+    stages: [
+      {
+        foxMsg: "the access system is on their server. you touch the original, we're burned. first — check where this repo came from.",
+        task: "Inspect the remote connections for this repo.",
+        accepted: ["git remote -v", "git remote"],
+        output: [
+          ["origin  https://syndicate-server.vault/access-system.git (fetch)", "sys"],
+          ["origin  https://syndicate-server.vault/access-system.git (push)", "sys"],
+          ["", ""],
+          ["⚠  this is their server. writing here triggers the alarm.", "warn"],
+        ],
+        tree: "r2_remote",
+        wrong: {
+          "git remote show": [
+            ["* remote origin", "sys"],
+            ["  Fetch URL: https://syndicate-server.vault/access-system.git", "sys"],
+            ["  Push  URL: https://syndicate-server.vault/access-system.git", "sys"]
+          ]
+        }
+      },
+      {
+        foxMsg: "fork it first. create a version that belongs to you — on your own account on the server. no writes to theirs.",
+        task: "Fork the repository to your own account.",
+        accepted: ["gh repo fork", "fork"],
+        output: [
+          ["✓ Created fork operative/access-system", "ok"],
+          ["", ""],
+          ["  Your fork: https://operative.vault/access-system.git", "hl"],
+          ["  Upstream:  https://syndicate-server.vault/access-system.git", "dim"],
+          ["", ""],
+          ["the original is untouched. you now have your own copy on the server.", "sys"],
+        ],
+        tree: "r2_fork",
+        wrong: {
+          "git fork": [["not a standard git command. use: gh repo fork (GitHub CLI style)", "warn"]]
+        }
+      },
+      {
+        foxMsg: "now pull it down to your machine. you need it local.",
+        task: "Clone your fork locally.",
+        accepted: [
+          "git clone https://operative.vault/access-system.git",
+          "git clone operative/access-system"
+        ],
+        output: [
+          ["Cloning into 'access-system'...", "sys"],
+          ["remote: Counting objects: 47, done.", "dim"],
+          ["remote: Compressing objects: 100% (31/31), done.", "dim"],
+          ["Receiving objects: 100% (47/47), 22.1 KiB | 4.4 MiB/s, done.", "sys"],
+          ["", ""],
+          ["✓ local copy ready. origin points to your fork.", "ok"],
+          ["  upstream (syndicate) is read-only — no trace.", "dim"],
+        ],
+        tree: "r2_cloned",
+        wrong: {
+          "git clone https://syndicate-server.vault/access-system.git": [
+            ["⚠  ALARM TRIGGERED — write access to syndicate server detected.", "err"],
+            ["", ""],
+            ["clone from YOUR fork, not the original.", "warn"]
+          ]
+        },
+        completionMsg: "it's yours. local copy, your remote, no trace on theirs. now we can work."
+      }
+    ],
+    hints: [
+      [
+        "there's a command to see what remote server this repo is connected to.",
+        "it starts with 'git remote'. the -v flag gives you the full URLs.",
+        "run: git remote -v"
+      ],
+      [
+        "forking means creating a copy of the repo on the server under your own account — not downloading it yet.",
+        "the GitHub CLI command for forking is a single command.",
+        "run: gh repo fork"
+      ],
+      [
+        "cloning downloads the repo to your local machine. you want to clone YOUR fork, not the syndicate's.",
+        "git clone <url> — use the URL of your fork: https://operative.vault/access-system.git",
+        "run: git clone https://operative.vault/access-system.git"
+      ]
+    ]
+  },
+
+  // ──────────────────────────────────────────────────────
+  // ROOM 3: INTO POSITION
+  // git status, git checkout -b, edit file, git add, git commit
+  // ──────────────────────────────────────────────────────
+  {
+    id: 3,
+    name: 'INTO POSITION',
+    intro: "You're inside the access system. You need to modify the security config — but not on main. Work on your own route. Save checkpoints as you go.",
+    stages: [
+      {
+        foxMsg: "before you touch anything — where are you? what state is the repo in?",
+        task: "Check the current state of the repository.",
+        accepted: ["git status"],
+        output: [
+          ["On branch main", "br"],
+          ["Your branch is up to date with 'origin/main'.", "dim"],
+          ["", ""],
+          ["nothing to commit, working tree clean", "ok"],
+        ],
+        tree: "r3_clean",
+        wrong: {}
+      },
+      {
+        foxMsg: "don't work on main. create your own branch and switch to it. call it operative/entry-window.",
+        task: "Create and switch to a new branch called operative/entry-window.",
+        accepted: ["git checkout -b operative/entry-window", "git switch -c operative/entry-window"],
+        output: [
+          ["Switched to a new branch 'operative/entry-window'", "ok"],
+        ],
+        tree: "r3_feature",
+        wrong: {
+          "git branch operative/entry-window": [
+            ["branch created. but you're still on main.", "warn"],
+            ["", ""],
+            ["Tip: use -b with checkout or -c with switch to create AND switch in one step.", "warn"],
+          ]
+        }
+      },
+      {
+        foxMsg: "modify the config. the entry window needs to open at 02:00. i've opened the file for you.",
+        task: "Edit security-config.json, then stage it with git add.",
+        fileEdit: true,
+        accepted: ["git add security-config.json", "git add ."],
+        output: [
+          ["Changes staged for commit:", "sys"],
+          ["    modified:   security-config.json", "ok"],
+        ],
+        tree: "r3_staged",
+        wrong: {
+          "git commit": [["nothing staged yet. edit the file first, then: git add security-config.json", "warn"]],
+          "git commit -m": [["stage the file first: git add security-config.json", "warn"]]
+        }
+      },
+      {
+        foxMsg: "save your work. every checkpoint matters — write a useful message. this is for the crew.",
+        task: "Commit the staged change with a descriptive message.",
+        flexCommit: true,
+        accepted: ["git commit -m \"open entry window at 02:00\""],
+        output: [],
+        tree: "r3_committed",
+        wrong: {
+          "git commit": [["add -m and a message in quotes: git commit -m \"your message\"", "warn"]]
+        },
+        completionMsg: "good. that's a checkpoint. the repo remembers exactly what you did and when."
+      }
+    ],
+    hints: [
+      [
+        "there's a command that tells you which branch you're on and what files have changed.",
+        "it's one of the most-used git commands. just two words.",
+        "run: git status"
+      ],
+      [
+        "you need to create a new branch AND switch to it — both at once.",
+        "git checkout -b <name> does both: create and switch. same with git switch -c.",
+        "run: git checkout -b operative/entry-window"
+      ],
+      [
+        "after editing the file, you need to tell git you want this change in the next commit.",
+        "git add stages files. you can specify a filename or use . for all changes.",
+        "run: git add security-config.json"
+      ],
+      [
+        "a commit is a saved snapshot with a message describing what you did.",
+        "git commit -m \"...\" sets the message inline. make it readable.",
+        "run: git commit -m \"open entry window at 02:00\""
+      ]
+    ]
+  },
+
+  // ──────────────────────────────────────────────────────
+  // ROOM 4: SEND THE SIGNAL
+  // git push, git push -u
+  // ──────────────────────────────────────────────────────
+  {
+    id: 4,
+    name: 'SEND THE SIGNAL',
+    intro: "Your modified config is ready locally. The rest of the crew needs it. Upload your branch to the shared server.",
+    stages: [
+      {
+        foxMsg: "you've got the change locally. the crew doesn't have it yet. check what you have that hasn't been pushed.",
+        task: "Check the status — see that you're ahead of remote.",
+        accepted: ["git status"],
+        output: [
+          ["On branch operative/entry-window", "br"],
+          ["Your branch is 1 commit ahead of 'origin/operative/entry-window'.", "warn"],
+          ["", ""],
+          ["  (use \"git push\" to publish your local commits)", "dim"],
+        ],
+        tree: "r4_ahead",
+        wrong: {}
+      },
+      {
+        foxMsg: "send it. upload your branch to the crew server.",
+        task: "Push your branch to origin.",
+        accepted: [
+          "git push origin operative/entry-window",
+          "git push -u origin operative/entry-window",
+          "git push"
+        ],
+        output: [
+          ["Enumerating objects: 5, done.", "dim"],
+          ["Counting objects: 100% (5/5), done.", "dim"],
+          ["Writing objects: 100% (3/3), 312 bytes, done.", "dim"],
+          ["", ""],
+          ["To https://operative.vault/access-system.git", "sys"],
+          [" * [new branch]      operative/entry-window -> operative/entry-window", "ok"],
+          ["", ""],
+          ["Branch 'operative/entry-window' set up to track 'origin/operative/entry-window'.", "dim"],
+        ],
+        tree: "r4_pushed",
+        wrong: {
+          "git push origin main": [["you're not on main. push your feature branch.", "warn"]]
+        },
+        completionMsg: "the crew has it. your branch is on the server."
+      }
+    ],
+    hints: [
+      [
+        "git has a way to show you how your local branch compares to the remote version.",
+        "git status always shows if you're ahead or behind the remote.",
+        "run: git status"
+      ],
+      [
+        "pushing uploads your commits from local to remote so others can see them.",
+        "git push origin <branchname> — or just git push if upstream is already set.",
+        "run: git push origin operative/entry-window"
+      ]
+    ]
+  },
+
+  // ──────────────────────────────────────────────────────
+  // ROOM 5: READ THE ROOM
+  // git status, git log --oneline, git show / git diff
+  // ──────────────────────────────────────────────────────
+  {
+    id: 5,
+    name: 'READ THE ROOM',
+    intro: "The alarm tripped at 01:47. Something changed that shouldn't have. Find what happened, when, and who did it — before the guards trace it to the crew.",
+    stages: [
+      {
+        foxMsg: "something's wrong. before anything else — what state is the repo in right now?",
+        task: "Check the current repo state.",
+        accepted: ["git status"],
+        output: [
+          ["On branch main", "br"],
+          ["", ""],
+          ["Changes not staged for commit:", "sys"],
+          ["    modified:   alarm-config.json", "err"],
+          ["    modified:   access-log.txt", "err"],
+          ["", ""],
+          ["Untracked files:", "sys"],
+          ["    temp-override.sh", "warn"],
+        ],
+        tree: "r5_dirty",
+        wrong: {}
+      },
+      {
+        foxMsg: "when did this happen? walk back through the history.",
+        task: "Find the suspicious commit in the log.",
+        accepted: ["git log --oneline", "git log", "git log --all --oneline", "git log --oneline --all"],
+        output: [
+          ["d8f2a11 (HEAD -> main) merge alarm bypass — URGENT", "cm"],
+          ["e3c4b20 temp fix — remove before push", "err"],
+          ["f1a9c33 update guard rotation schedule", "sys"],
+          ["a3f9c12 open entry window at 02:00", "sys"],
+          ["c1a8f33 initial repo setup", "dim"],
+          ["", ""],
+          ["⚠  note e3c4b20 — 'remove before push'. it was pushed.", "warn"],
+        ],
+        tree: "r5_dirty",
+        wrong: {}
+      },
+      {
+        foxMsg: "what did commit e3c4b20 actually do? line by line.",
+        task: "Inspect the exact changes made by commit e3c4b20.",
+        accepted: ["git show e3c4b20", "git diff e3c4b20^ e3c4b20", "git diff e3c4b20^..e3c4b20"],
+        output: [
+          ["commit e3c4b20", "cm"],
+          ["Author: unknown operative <redacted@vault.local>", "dim"],
+          ["Date:   Sat Jul 19 01:44:03 2026 +0000", "dim"],
+          ["", ""],
+          ["    temp fix — remove before push", "sys"],
+          ["", ""],
+          ["diff --git a/alarm-config.json b/alarm-config.json", "dim"],
+          ["--- a/alarm-config.json", "dim"],
+          ["+++ b/alarm-config.json", "dim"],
+          ["-    \"trigger_threshold\": 5", "err"],
+          ["+    \"trigger_threshold\": 1", "ok"],
+          ["", ""],
+          ["⚠  there it is. threshold lowered from 5 to 1. tripped on the first guard movement.", "warn"],
+        ],
+        tree: "r5_dirty",
+        wrong: {
+          "git diff": [
+            ["--- a/alarm-config.json  b/alarm-config.json (working dir)", "dim"],
+            ["shows current working directory changes — not what's IN a commit.", "warn"],
+            ["try: git show e3c4b20  to inspect a specific commit's changes.", "dim"]
+          ]
+        },
+        completionMsg: "there it is. now you know. now fix it."
+      }
+    ],
+    hints: [
+      [
+        "before anything else, find out what git thinks is dirty — what's changed, staged, or untracked.",
+        "there's a two-word command for this.",
+        "run: git status"
+      ],
+      [
+        "git records every commit with a timestamp. there's a way to list them all.",
+        "git log --oneline gives a compact history. look for anything that doesn't belong.",
+        "run: git log --oneline"
+      ],
+      [
+        "you have the commit hash. you can see exactly what changed in that commit.",
+        "git show <hash> displays the commit message and the full diff of what changed.",
+        "run: git show e3c4b20"
+      ]
+    ]
+  },
+
+  // ──────────────────────────────────────────────────────
+  // ROOM 6: ERASE THE TRAIL
+  // git clean -fd, git restore, git revert, git reset
+  // ──────────────────────────────────────────────────────
+  {
+    id: 6,
+    name: 'ERASE THE TRAIL',
+    intro: "The 'temp fix' commit is in shared history. It needs to go — but logs are monitored. You can't rewrite shared history. Undo it officially. And clean up the local mess first.",
+    stages: [
+      {
+        foxMsg: "there are untracked files lying around. temp-override.sh. clean them up — no trace.",
+        task: "Remove all untracked files from the working directory.",
+        accepted: ["git clean -fd", "git clean -f"],
+        output: [
+          ["Removing temp-override.sh", "warn"],
+          ["", ""],
+          ["working directory clean.", "ok"],
+        ],
+        tree: "r6_dirty",
+        wrong: {
+          "git clean -n": [
+            ["Would remove temp-override.sh", "dim"],
+            ["", ""],
+            ["-n is a dry run — shows what WOULD be removed. use -f to actually do it.", "warn"],
+          ],
+          "rm temp-override.sh": [
+            ["removed. but git clean -fd is the git-aware way — handles all untracked files and dirs.", "dim"]
+          ]
+        }
+      },
+      {
+        foxMsg: "alarm-config.json has an unstaged modification. discard it — restore the version from the last commit.",
+        task: "Discard the unstaged change to alarm-config.json.",
+        accepted: ["git restore alarm-config.json", "git checkout -- alarm-config.json"],
+        output: [
+          ["restored alarm-config.json to last committed state.", "ok"],
+          ["trigger_threshold is back to 5.", "dim"],
+        ],
+        tree: "r6_partial",
+        wrong: {
+          "git reset alarm-config.json": [
+            ["that unstages a staged file — alarm-config.json isn't staged, it's modified in the working dir.", "warn"],
+            ["use git restore <file> to discard working directory changes.", "dim"]
+          ],
+          "git reset --hard": [
+            ["that resets the entire working directory — too broad. target just the one file.", "warn"],
+            ["use: git restore alarm-config.json", "dim"]
+          ]
+        }
+      },
+      {
+        foxMsg: "that bad commit is on the shared branch. you can't rewrite history — the server logs every push. undo it officially.",
+        task: "Safely undo commit e3c4b20 without rewriting shared history.",
+        accepted: ["git revert e3c4b20", "git revert e3c4b20 --no-edit"],
+        output: [
+          ["[main 9a1c3e7] Revert \"temp fix — remove before push\"", "cm"],
+          [" 1 file changed, 1 deletion(-), 1 insertion(+)", "sys"],
+          ["", ""],
+          ["✓ a new commit was created. the bad change is undone.", "ok"],
+          ["  the original commit e3c4b20 is still in history — that's correct.", "dim"],
+          ["  revert adds a commit that cancels it out. history stays intact.", "dim"],
+        ],
+        tree: "r6_reverted",
+        wrong: {
+          "git reset --hard e3c4b20": [
+            ["⚠  that rewrites history — removes commits entirely.", "err"],
+            ["this is a SHARED branch. others have already pulled it.", "err"],
+            ["rewriting it would break their repos.", "err"],
+            ["", ""],
+            ["use git revert instead — it adds a new commit that undoes the change.", "warn"],
+          ],
+          "git reset --soft HEAD~1": [
+            ["⚠  this is a shared branch. don't reset shared history.", "err"],
+            ["use git revert instead.", "warn"]
+          ],
+          "git reset --hard HEAD~1": [
+            ["⚠  this is a shared branch. don't reset shared history.", "err"],
+            ["use git revert instead.", "warn"]
+          ]
+        },
+        completionMsg: "revert when it's shared. reset when it's only yours. never the other way around."
+      }
+    ],
+    hints: [
+      [
+        "there are untracked files (not tracked by git at all). git clean handles these.",
+        "git clean removes untracked files. -f forces the removal (required safety flag).",
+        "run: git clean -fd"
+      ],
+      [
+        "you want to throw away the current working-directory changes to one file and go back to what was last committed.",
+        "git restore <filename> discards working directory changes for that file.",
+        "run: git restore alarm-config.json"
+      ],
+      [
+        "the commit is on a shared branch that others have already pulled. you can't erase it — you must officially undo it.",
+        "git revert <hash> creates a new commit that reverses the changes from that commit.",
+        "run: git revert e3c4b20"
+      ]
+    ]
+  }
+
+]; // end ROOMS
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// GIT TREE STATE DEFINITIONS
+// Each state defines: branches (name, commits, y, color, dashed?),
+//                     HEAD (type, ref/commitId),
+//                     labels [], extras []
+// ═══════════════════════════════════════════════════════════════════════
+
+const TREE = {
+  r1_initial: {
+    branches: [
+      { name: "main", y: 60, color: "#4caf50", commits: [{x:40}, {x:90}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 1 }
+  },
+  r1_branches: {
+    branches: [
+      { name: "main",                   y: 50,  color: "#4caf50", commits: [{x:40}, {x:85}] },
+      { name: "security-audit-2019",    y: 130, color: "#555",    commits: [{x:40}, {x:85}, {x:130}] },
+      { name: "fox/vault-schematics",   y: 210, color: "#d4a017", commits: [{x:40}, {x:85}, {x:130}, {x:175}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 1 },
+    headBranchY: 50
+  },
+  r1_on_fox: {
+    branches: [
+      { name: "main",                 y: 55,  color: "#4caf50", commits: [{x:40}, {x:85}] },
+      { name: "fox/vault-schematics", y: 160, color: "#d4a017", commits: [{x:40}, {x:85}, {x:130}, {x:175}] }
+    ],
+    HEAD: { type: "branch", ref: "fox/vault-schematics", ci: 3, branchY: 160 }
+  },
+  r1_detached: {
+    branches: [
+      { name: "main",                 y: 55,  color: "#4caf50", commits: [{x:40}, {x:85}] },
+      { name: "fox/vault-schematics", y: 160, color: "#d4a017", commits: [{x:40}, {x:85}, {x:130}, {x:175}] }
+    ],
+    HEAD: { type: "detached", cx: 130, cy: 160 }
+  },
+  r2_remote: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 2, branchY: 80 },
+    extras: [
+      { type: "remote-box", x: 165, y: 65, label: "origin (syndicate)", color: "#cc4444" }
+    ]
+  },
+  r2_fork: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 2, branchY: 80 },
+    extras: [
+      { type: "remote-box", x: 30,  y: 160, label: "upstream (syndicate)", color: "#555" },
+      { type: "remote-box", x: 130, y: 160, label: "origin (your fork)",   color: "#d4a017" },
+      { type: "arrow", x1: 140, y1: 100, x2: 170, y2: 155 }
+    ]
+  },
+  r2_cloned: {
+    branches: [
+      { name: "main (local)",  y: 70,  color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] },
+      { name: "origin/main",   y: 140, color: "#d4a01799", commits: [{x:40}, {x:90}, {x:140}], dashed: true }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 2, branchY: 70 }
+  },
+  r3_clean: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 2, branchY: 80 }
+  },
+  r3_feature: {
+    branches: [
+      { name: "main",                    y: 60,  color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] },
+      { name: "operative/entry-window",  y: 140, color: "#88aaff", commits: [{x:140}] }
+    ],
+    HEAD: { type: "branch", ref: "operative/entry-window", ci: 0, branchY: 140 }
+  },
+  r3_staged: {
+    branches: [
+      { name: "main",                    y: 60,  color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] },
+      { name: "operative/entry-window",  y: 140, color: "#88aaff", commits: [{x:140}] }
+    ],
+    HEAD: { type: "branch", ref: "operative/entry-window", ci: 0, branchY: 140 },
+    extras: [{ type: "staged-indicator", x: 10, y: 240 }]
+  },
+  r3_committed: {
+    branches: [
+      { name: "main",                    y: 60,  color: "#4caf50", commits: [{x:40}, {x:90}, {x:140}] },
+      { name: "operative/entry-window",  y: 140, color: "#88aaff", commits: [{x:140}, {x:190}] }
+    ],
+    HEAD: { type: "branch", ref: "operative/entry-window", ci: 1, branchY: 140 }
+  },
+  r4_ahead: {
+    branches: [
+      { name: "main",                    y: 55,  color: "#4caf50", commits: [{x:40}, {x:85}, {x:130}] },
+      { name: "operative/entry-window",  y: 120, color: "#88aaff", commits: [{x:130}, {x:180}] },
+      { name: "origin/entry-window",     y: 185, color: "#88aaff55", commits: [{x:130}], dashed: true }
+    ],
+    HEAD: { type: "branch", ref: "operative/entry-window", ci: 1, branchY: 120 }
+  },
+  r4_pushed: {
+    branches: [
+      { name: "main",                    y: 55,  color: "#4caf50", commits: [{x:40}, {x:85}, {x:130}] },
+      { name: "operative/entry-window",  y: 120, color: "#88aaff", commits: [{x:130}, {x:180}] },
+      { name: "origin/entry-window",     y: 185, color: "#88aaff55", commits: [{x:130}, {x:180}], dashed: true }
+    ],
+    HEAD: { type: "branch", ref: "operative/entry-window", ci: 1, branchY: 120 }
+  },
+  r5_dirty: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:30}, {x:70}, {x:110}, {x:150}, {x:190}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 4, branchY: 80 },
+    extras: [{ type: "dirty-indicator", x: 10, y: 200 }]
+  },
+  r6_dirty: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:30}, {x:70}, {x:110}, {x:150}, {x:190}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 4, branchY: 80 },
+    extras: [{ type: "dirty-indicator", x: 10, y: 200 }]
+  },
+  r6_partial: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:30}, {x:70}, {x:110}, {x:150}, {x:190}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 4, branchY: 80 }
+  },
+  r6_reverted: {
+    branches: [
+      { name: "main", y: 80, color: "#4caf50", commits: [{x:25}, {x:60}, {x:95}, {x:130}, {x:165}, {x:205}] }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 5, branchY: 80 },
+    extras: [{ type: "revert-label", x: 205, y: 80 }]
+  }
+};
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// SVG TREE RENDERER
+// ═══════════════════════════════════════════════════════════════════════
+
+const NS = "http://www.w3.org/2000/svg";
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function renderTree(stateKey) {
+  const svg = document.getElementById('gitTree');
+  svg.innerHTML = '';
+
+  // Defs (arrowhead marker)
+  const defs = svgEl('defs', {});
+  const marker = svgEl('marker', { id:'arr', markerWidth:'7', markerHeight:'5', refX:'0', refY:'2.5', orient:'auto' });
+  const poly = svgEl('polygon', { points:'0 0, 7 2.5, 0 5', fill:'#888' });
+  marker.appendChild(poly);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  const state = TREE[stateKey];
+  if (!state) {
+    const t = svgEl('text', { x:'20', y:'30', fill:'#333', 'font-size':'10', 'font-family':'Courier New' });
+    t.textContent = stateKey ? `state: ${stateKey}` : 'initial state';
+    svg.appendChild(t);
+    return;
+  }
+
+  // Branch lines + commits
+  (state.branches || []).forEach(branch => {
+    const cs = branch.commits;
+    if (cs.length > 1) {
+      for (let i = 0; i < cs.length - 1; i++) {
+        svg.appendChild(svgEl('line', {
+          x1: cs[i].x, y1: branch.y,
+          x2: cs[i+1].x, y2: branch.y,
+          stroke: branch.color,
+          'stroke-width': branch.dashed ? '1' : '1.5',
+          'stroke-dasharray': branch.dashed ? '5,4' : 'none',
+          opacity: branch.dashed ? '0.45' : '1'
+        }));
+      }
+    }
+    // Commit circles
+    cs.forEach(c => {
+      svg.appendChild(svgEl('circle', {
+        cx: c.x, cy: branch.y, r: '5',
+        fill: '#080808',
+        stroke: branch.color,
+        'stroke-width': branch.dashed ? '1' : '1.5',
+        opacity: branch.dashed ? '0.5' : '1'
+      }));
+    });
+
+    // Branch label (right of last commit)
+    const last = cs[cs.length - 1];
+    const labelX = last.x + 9;
+    const lbl = svgEl('text', {
+      x: labelX, y: branch.y + 4,
+      fill: branch.dashed ? branch.color : branch.color,
+      'font-size': '8.5',
+      'font-family': 'Courier New',
+      opacity: branch.dashed ? '0.5' : '0.8'
+    });
+    lbl.textContent = branch.name;
+    svg.appendChild(lbl);
+  });
+
+  // HEAD indicator
+  const h = state.HEAD;
+  if (h) {
+    if (h.type === 'detached') {
+      // Diamond
+      const cx = h.cx, cy = h.cy;
+      svg.appendChild(svgEl('polygon', {
+        points: `${cx},${cy-11} ${cx+9},${cy} ${cx},${cy+11} ${cx-9},${cy}`,
+        fill: 'none', stroke: '#ff6644', 'stroke-width': '1.5'
+      }));
+      const t = svgEl('text', { x: cx, y: cy - 17, fill: '#ff6644', 'font-size': '9', 'font-family': 'Courier New', 'text-anchor': 'middle' });
+      t.textContent = 'HEAD (detached)';
+      svg.appendChild(t);
+    } else {
+      // Find the commit position
+      const branch = (state.branches || []).find(b =>
+        b.name === h.ref || (h.branchY !== undefined && b.y === h.branchY)
+      );
+      if (branch && h.ci !== undefined) {
+        const c = branch.commits[h.ci];
+        if (c) {
+          // Small arrow above commit
+          svg.appendChild(svgEl('line', {
+            x1: c.x, y1: branch.y - 14,
+            x2: c.x, y2: branch.y - 7,
+            stroke: '#ffffff88', 'stroke-width': '1',
+            'marker-end': 'url(#arr)'
+          }));
+          const t = svgEl('text', {
+            x: c.x, y: branch.y - 18,
+            fill: '#ffffffaa', 'font-size': '9', 'font-family': 'Courier New', 'text-anchor': 'middle'
+          });
+          t.textContent = 'HEAD';
+          svg.appendChild(t);
+        }
+      }
+    }
+  }
+
+  // Extras
+  (state.extras || []).forEach(ex => {
+    if (ex.type === 'remote-box') {
+      svg.appendChild(svgEl('rect', { x: ex.x, y: ex.y, width: '90', height: '22', rx: '2', fill: 'none', stroke: ex.color, 'stroke-width': '1', opacity: '0.6' }));
+      const t = svgEl('text', { x: ex.x + 4, y: ex.y + 14, fill: ex.color, 'font-size': '8', 'font-family': 'Courier New', opacity: '0.8' });
+      t.textContent = ex.label;
+      svg.appendChild(t);
+    } else if (ex.type === 'arrow') {
+      svg.appendChild(svgEl('line', { x1: ex.x1, y1: ex.y1, x2: ex.x2, y2: ex.y2, stroke: '#555', 'stroke-width': '1', 'stroke-dasharray': '3,3', 'marker-end': 'url(#arr)' }));
+    } else if (ex.type === 'staged-indicator') {
+      const t = svgEl('text', { x: ex.x, y: ex.y, fill: '#44cc77', 'font-size': '9', 'font-family': 'Courier New' });
+      t.textContent = '● changes staged';
+      svg.appendChild(t);
+    } else if (ex.type === 'dirty-indicator') {
+      const t = svgEl('text', { x: ex.x, y: ex.y, fill: '#ff6644', 'font-size': '9', 'font-family': 'Courier New' });
+      t.textContent = '⚠ working tree dirty';
+      svg.appendChild(t);
+    } else if (ex.type === 'revert-label') {
+      const t = svgEl('text', { x: ex.x - 3, y: ex.y - 14, fill: '#44cc77', 'font-size': '8', 'font-family': 'Courier New', 'text-anchor': 'middle' });
+      t.textContent = 'revert↑';
+      svg.appendChild(t);
+    }
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════════════════
+
+const G = {
+  roomIdx:  0,
+  stageIdx: 0,
+  hintsUsed: 0,
+  hintLevel: 0,
+  roomStart: 0,
+  fileEditDone: false,
+  savedProgress: JSON.parse(localStorage.getItem('vz_progress') || '{}')
+};
+
+function room()  { return ROOMS[G.roomIdx]; }
+function stage() { return room().stages[G.stageIdx]; }
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TERMINAL
+// ═══════════════════════════════════════════════════════════════════════
+
+const out  = document.getElementById('termOut');
+const inp  = document.getElementById('termInput');
+let cmdHist = [], histIdx = -1;
+
+function tprint(lines) {
+  if (typeof lines === 'string') lines = [[lines, '']];
+  lines.forEach(([text, cls]) => {
+    const d = document.createElement('div');
+    d.className = 't ' + (cls || '');
+    d.textContent = text;
+    out.appendChild(d);
+  });
+  out.scrollTop = out.scrollHeight;
+}
+
+function tcmd(cmd) {
+  const d = document.createElement('div');
+  d.className = 't cmd';
+  d.textContent = '$ ' + cmd;
+  out.appendChild(d);
+  out.scrollTop = out.scrollHeight;
+}
+
+function foxMsg(text, type) {
+  const wrap = document.getElementById('foxMessages');
+  const d = document.createElement('div');
+  d.className = 'fox-msg' + (type === 'sys' ? ' sys' : '');
+  d.innerHTML = `<span class="fox-tag">FOX</span>${text}`;
+  wrap.appendChild(d);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// COMMAND PARSING
+// ═══════════════════════════════════════════════════════════════════════
+
+function normalise(s) { return s.trim().replace(/\s+/g, ' '); }
+
+function parseCmd(raw) {
+  const cmd = normalise(raw);
+  const s = stage();
+
+  // Always-available
+  if (cmd === 'clear') { out.innerHTML = ''; return {}; }
+  if (cmd === 'hint')  { openHint(); return {}; }
+  if (cmd === 'help')  {
+    tprint([
+      [`ROOM ${room().id}: ${room().name}`, 'hl'],
+      [`Stage ${G.stageIdx+1}: ${s.task}`, ''],
+      ['', ''],
+      ['git status       — always works', 'dim'],
+      ['git log          — always works', 'dim'],
+      ['hint             — get a hint', 'dim'],
+      ['clear            — clear terminal', 'dim']
+    ]);
+    return {};
+  }
+
+  // File edit trigger
+  if (s.fileEdit && (cmd === 'edit security-config.json' || cmd === 'nano security-config.json' || cmd === 'vim security-config.json')) {
+    openEditor(); return {};
+  }
+
+  // Flexible commit (Room 3 Stage 4)
+  if (s.flexCommit) {
+    if (/^git commit -m ['"].+['"]/.test(cmd) || /^git commit -m .+/.test(cmd)) {
+      const m = cmd.match(/^git commit -m ['"]?(.+?)['"]?$/) || [];
+      const msg = m[1] || 'committed';
+      const output = [
+        [`[operative/entry-window f4a2b19] ${msg}`, 'cm'],
+        [' 1 file changed, 1 insertion(+), 1 deletion(-)', 'sys'],
+        ['', '']
+      ];
+      if (!msg || msg.length < 5 || /^(wip|fix|test|asdf|temp|x+|update)$/i.test(msg)) {
+        output.push(["commit messages are for the crew. make them readable.", "warn"]);
+        output.push(['', '']);
+      }
+      tprint(output);
+      advance(s.tree);
+      return {};
+    }
+  }
+
+  // Exact + near matches
+  const accepted = (s.accepted || []).map(normalise);
+  if (accepted.includes(cmd)) {
+    if (s.fileEdit && !G.fileEditDone) {
+      tprint([["no changes to stage. edit the file first — type: edit security-config.json", "warn"]]);
+      return {};
+    }
+    tprint(s.output || []);
+    advance(s.tree);
+    return {};
+  }
+
+  // Wrong-command responses
+  if (s.wrong) {
+    for (const [wCmd, wOut] of Object.entries(s.wrong)) {
+      if (cmd === normalise(wCmd) || cmd.startsWith(normalise(wCmd) + ' ')) {
+        tprint(wOut); return {};
+      }
+    }
+  }
+
+  // Soft fallbacks
+  if (cmd === 'git status') { tprint(defaultStatus()); return {}; }
+  if (cmd === 'git log' || cmd === 'git log --oneline') {
+    tprint([['view git log once you\'re on the right branch', 'dim']]); return {};
+  }
+
+  tprint([["command not recognized in this environment. type 'help' for available commands.", 'warn']]);
+  return {};
+}
+
+
+function defaultStatus() {
+  const s = stage();
+  if ((s.tree || '').includes('dirty') || (s.tree || '').includes('r5') || (s.tree || '').includes('r6_dirty')) {
+    return [
+      ['On branch main', 'br'],
+      ['', ''],
+      ['Changes not staged for commit:', 'sys'],
+      ['    modified:   alarm-config.json', 'err'],
+      ['    modified:   access-log.txt', 'err'],
+      ['', ''],
+      ['Untracked files:', 'sys'],
+      ['    temp-override.sh', 'warn']
+    ];
+  }
+  const b = (s.tree || '').includes('feature') || (s.tree || '').includes('r3') || (s.tree || '').includes('r4')
+    ? 'operative/entry-window' : 'main';
+  return [
+    [`On branch ${b}`, 'br'],
+    ['nothing to commit, working tree clean', 'dim']
+  ];
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// STAGE / ROOM ADVANCEMENT
+// ═══════════════════════════════════════════════════════════════════════
+
+function advance(treeState) {
+  if (treeState) renderTree(treeState);
+
+  const nextIdx = G.stageIdx + 1;
+  if (nextIdx >= room().stages.length) {
+    completeRoom();
+  } else {
+    G.stageIdx = nextIdx;
+    G.hintLevel = 0;
+    G.fileEditDone = false;
+    updateProgress();
+
+    setTimeout(() => {
+      foxMsg(stage().foxMessage || stage().foxMsg);
+      if (stage().fileEdit) {
+        setTimeout(openEditor, 900);
+      }
+    }, 700);
+  }
+}
+
+function completeRoom() {
+  const t = Math.floor((Date.now() - G.roomStart) / 1000);
+  const m = Math.floor(t / 60);
+  const s = (t % 60).toString().padStart(2, '0');
+  const completionMsg = room().stages[room().stages.length - 1].completionMsg || 'room cleared.';
+
+  G.savedProgress[`room${room().id}`] = { complete: true, hints: G.hintsUsed, time: t };
+  localStorage.setItem('vz_progress', JSON.stringify(G.savedProgress));
+
+  document.getElementById('doneStats').textContent = `Time: ${m}:${s}  ·  Hints used: ${G.hintsUsed}`;
+  document.getElementById('doneMsg').textContent = `"${completionMsg}"`;
+
+  setTimeout(() => document.getElementById('roomDone').classList.add('open'), 1200);
+}
+
+function goNextRoom() {
+  document.getElementById('roomDone').classList.remove('open');
+  const next = G.roomIdx + 1;
+  if (next >= ROOMS.length) {
+    document.getElementById('endScreen').classList.add('open');
+    return;
+  }
+  G.roomIdx  = next;
+  G.stageIdx = 0;
+  G.hintsUsed = 0;
+  G.hintLevel = 0;
+  G.fileEditDone = false;
+  G.roomStart = Date.now();
+  loadRoom();
+}
+
+function updateProgress() {
+  const total = ROOMS.reduce((s, r) => s + r.stages.length, 0);
+  const done  = ROOMS.slice(0, G.roomIdx).reduce((s, r) => s + r.stages.length, 0) + G.stageIdx;
+  document.getElementById('progressFill').style.width = ((done / total) * 100) + '%';
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// LOAD ROOM
+// ═══════════════════════════════════════════════════════════════════════
+
+function loadRoom() {
+  const r = room();
+  const s = stage();
+
+  out.innerHTML = '';
+  document.getElementById('foxMessages').innerHTML = '';
+  document.getElementById('roomInfo').textContent = `ROOM ${r.id} — ${r.name}`;
+
+  tprint([
+    ['', ''],
+    [`  ╔══════════════════════════════════════╗`, 'dim'],
+    [`  ║  ROOM ${r.id}: ${r.name.padEnd(32)}║`, 'hl'],
+    [`  ╚══════════════════════════════════════╝`, 'dim'],
+    ['', ''],
+    [r.intro, 'sys'],
+    ['', ''],
+    [`  ──────────────────────────────────────`, 'dim'],
+    ['', '']
+  ]);
+
+  updateProgress();
+  renderTree('r' + r.id + '_initial');
+
+  setTimeout(() => {
+    foxMsg(s.foxMessage || s.foxMsg);
+    if (s.fileEdit) setTimeout(openEditor, 1000);
+  }, 400);
+
+  inp.focus();
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// FILE EDITOR (Room 3 Stage 3)
+// ═══════════════════════════════════════════════════════════════════════
+
+const FILE_BEFORE = `{
+  "facility": "vault-zero",
+  "entry_window": null,
+  "alarm_threshold": 5,
+  "guard_rotation": "04:00"
+}`;
+
+function openEditor() {
+  const fc = document.getElementById('fileContent');
+  fc.value = FILE_BEFORE;
+  document.getElementById('fileEditor').classList.add('open');
+  fc.focus();
+}
+
+function saveFile() {
+  const val = document.getElementById('fileContent').value;
+  document.getElementById('fileEditor').classList.remove('open');
+
+  if (val.includes('"entry_window": "02:00"')) {
+    G.fileEditDone = true;
+    tprint([
+      ['security-config.json saved.', 'ok'],
+      ['', ''],
+      ['  "entry_window": null  →  "entry_window": "02:00"', 'dim'],
+      ['', ''],
+      ['now stage the change.', 'sys']
+    ]);
+  } else {
+    tprint([
+      ['file saved but the change is wrong.', 'err'],
+      ['entry_window should be "02:00", not null.', 'warn'],
+      ['type: edit security-config.json to try again.', 'dim']
+    ]);
+  }
+  inp.focus();
+}
+
+function cancelFile() {
+  document.getElementById('fileEditor').classList.remove('open');
+  inp.focus();
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// HINT SYSTEM
+// ═══════════════════════════════════════════════════════════════════════
+
+function openHint() {
+  const hints = room().hints[G.stageIdx];
+  if (!hints) return;
+  const lvl = Math.min(G.hintLevel, hints.length - 1);
+  document.getElementById('hintLvl').textContent = `HINT ${lvl + 1} OF ${hints.length}`;
+  document.getElementById('hintTxt').textContent = hints[lvl];
+  document.getElementById('nextHintBtn').style.display = lvl < hints.length - 1 ? '' : 'none';
+  document.getElementById('hintModal').classList.add('open');
+  G.hintsUsed++;
+}
+
+function moreHint() {
+  const hints = room().hints[G.stageIdx];
+  G.hintLevel = Math.min(G.hintLevel + 1, hints.length - 1);
+  const lvl = G.hintLevel;
+  document.getElementById('hintLvl').textContent = `HINT ${lvl + 1} OF ${hints.length}`;
+  document.getElementById('hintTxt').textContent = hints[lvl];
+  document.getElementById('nextHintBtn').style.display = lvl < hints.length - 1 ? '' : 'none';
+}
+
+function closeHint() {
+  document.getElementById('hintModal').classList.remove('open');
+  G.hintLevel = 0;
+  inp.focus();
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// INPUT EVENTS
+// ═══════════════════════════════════════════════════════════════════════
+
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const raw = inp.value.trim();
+    if (!raw) return;
+    cmdHist.unshift(raw);
+    histIdx = -1;
+    inp.value = '';
+    tcmd(raw);
+    parseCmd(raw);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx < cmdHist.length - 1) inp.value = cmdHist[++histIdx];
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    inp.value = histIdx > 0 ? cmdHist[--histIdx] : (histIdx = -1, '');
+  }
+});
+
+// Keep focus when clicking terminal panel
+document.querySelector('.terminal-panel').addEventListener('click', () => inp.focus());
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+
+// Initial tree states per room (before any command succeeds)
+TREE['r1_initial'] = { branches: [{name:'main', y:90, color:'#4caf50', commits:[{x:40},{x:100}]}], HEAD: {type:'branch', ref:'main', ci:1, branchY:90} };
+TREE['r2_initial'] = TREE['r2_remote'];
+TREE['r3_initial'] = TREE['r3_clean'];
+TREE['r4_initial'] = TREE['r4_ahead'];
+TREE['r5_initial'] = TREE['r5_dirty'];
+TREE['r6_initial'] = TREE['r6_dirty'];
+
+function startGame() {
+  document.getElementById('introScreen').style.display = 'none';
+  const shell = document.getElementById('gameShell');
+  shell.style.display = 'flex';
+  G.roomStart = Date.now();
+  loadRoom();
+}
+
+</script>
+</body>
+</html>
