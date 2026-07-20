@@ -1,43 +1,67 @@
 /* ─── DESIGN TOKENS ───────────────────────────────────────── */
 :root {
-  --bg:           #0d0f0e;
-  --surface:      #1a1c1b;
-  --surface-hi:   #1e201f;
-  --surface-top:  #282a29;
-  --border:       #2a2c2b;
-  --border-dim:   #3d4943;
-  --primary:      #1D9E75;
-  --primary-dim:  #68dbae;
-  --text:         #d1d5db;
-  --text-dim:     #87948c;
-  --text-muted:   #3d4943;
-  --ok:           #68dbae;
-  --err:          #ffb4ab;
-  --warn:         #c8a87a;
-  --font:         'JetBrains Mono', 'Courier New', monospace;
+  /* surfaces */
+  --bg:              #0a0f0d;
+  --surface-0:       #111614;
+  --surface-1:       #181d1a;
+  --surface-2:       #1e2420;
+  --surface-3:       #272e29;
+
+  /* borders */
+  --border:          rgba(255,255,255,0.07);
+  --border-hi:       #2d3530;
+
+  /* brand */
+  --primary:         #68dbae;
+  --secondary:       #9fcaff;
+  --amber:           #c8a87a;
+
+  /* text */
+  --text:            #dfe4e0;
+  --text-dim:        #bccac1;
+  --text-muted:      #87948c;
+  --text-faint:      #3d4943;
+
+  /* state */
+  --ok:              #68dbae;
+  --err:             #ffb4ab;
+  --warn:            #c8a87a;
+
+  /* typography */
+  --font-display:    'Sora', sans-serif;
+  --font-body:       'Inter', sans-serif;
+  --font-mono:       'JetBrains Mono', 'Courier New', monospace;
+
+  /* game compat */
+  --surface:         #1e2420;
+  --surface-hi:      #272e29;
+  --surface-top:     #313633;
+  --border-solid:    #3d4943;
+  --border-dim:      #3d4943;
+  --primary-dim:     #26a37a;
+  --text-muted-old:  #87948c;
+  --font:            'JetBrains Mono', 'Courier New', monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; cursor: crosshair !important; }
 
-/* ─── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 2px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--surface-top); }
+::-webkit-scrollbar-thumb { background: var(--surface-3); }
 
 /* ─── SCANLINE ────────────────────────────────────────────── */
 .scanline {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(to bottom, transparent, rgba(29,158,117,0.13), transparent);
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(159,202,255,0.1), transparent);
   pointer-events: none;
   z-index: 999;
-  animation: scanline 9s linear infinite;
+  animation: scanline 14s linear infinite;
 }
 
-/* ─── SHARED KEYFRAMES ────────────────────────────────────── */
+/* ─── KEYFRAMES ───────────────────────────────────────────── */
 @keyframes scanline  { from { transform: translateY(-4px); } to { transform: translateY(100vh); } }
-@keyframes blink     { 50% { opacity: 0.3; } }
-@keyframes fadeUp    { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes blink     { 50% { opacity: 0.25; } }
+@keyframes fadeUp    { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes cur-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes dotPulse  { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }

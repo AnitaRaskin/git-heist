@@ -6,7 +6,7 @@
 <title>VAULT_ZERO // OPERATIVE TRAINING</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/shared.css">
 <link rel="stylesheet" href="css/hub.css">
 </head>
@@ -16,176 +16,228 @@
 <div class="hub-bg"></div>
 
 <!-- ─── TOP BAR ─────────────────────────────────────────── -->
-<div class="hub-topbar">
-  <div class="hub-topbar-brand">VAULT_ZERO // OPERATIVE TRAINING</div>
+<header class="hub-topbar">
+  <div class="hub-topbar-brand">VAULT_ZERO</div>
   <div class="hub-topbar-meta">
     <span>node: training-relay-01</span>
     <span>enc: aes-256</span>
     <span>signal: stable</span>
   </div>
-</div>
+</header>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
-<div class="hub-hero">
-  <div class="hub-hero-tag">▓ classified access only ▓</div>
-  <div class="hub-hero-title">ESCAPE ROOM FOR <span>LEARNING</span><div class="hub-cursor"></div></div>
-  <div class="hub-hero-sub">hands-on missions // learn by doing // no lectures</div>
-</div>
-
-<!-- ─── DIVIDER ───────────────────────────────────────────── -->
-<div class="hub-divider">
-  <div class="hub-divider-line"></div>
-  <div class="hub-divider-label">// select mission</div>
-  <div class="hub-divider-line"></div>
-</div>
-
-<!-- ─── CARDS ─────────────────────────────────────────────── -->
-<div class="hub-grid">
-
-  <!-- GIT HEIST -->
-  <a class="room-card" href="git-heist.html">
-    <div class="card-preview">
-      <div class="cp-topbar">
-        <div class="cp-topbar-tag">GIT_HEIST_V1</div>
-        <div class="cp-topbar-dots">
-          <div class="cp-dot active"></div>
-          <div class="cp-dot probe"></div>
-          <div class="cp-dot"></div>
-          <div class="cp-dot"></div>
-        </div>
+<section class="hub-hero">
+  <div class="hub-hero-content">
+    <div class="hub-hero-tag" id="heroTag"></div>
+    <h1 class="hub-hero-title">Escape Room<br>for <span>Learning</span><span class="hub-cursor"></span></h1>
+    <p class="hub-hero-sub">Hands-on missions. Real commands. Each room teaches a cluster of dev concepts — learn by surviving the scenario.</p>
+    <div class="hub-stats">
+      <div class="hub-stat">
+        <span class="hub-stat-num">3</span>
+        <span class="hub-stat-label">Missions</span>
       </div>
-      <div class="cp-panels">
-        <!-- fox panel -->
-        <div class="cp-panel cp-panel-fox">
-          <div class="cp-line accent"></div>
-          <div class="cp-line short dim"></div>
-          <div class="cp-line med dim"></div>
-          <div class="cp-line short dim"></div>
-          <div class="cp-line long dim"></div>
-          <div class="cp-line med dim"></div>
-          <div class="cp-line short dim"></div>
-          <div class="cp-line accent short"></div>
-        </div>
-        <!-- terminal panel -->
-        <div class="cp-panel cp-panel-term">
-          <div class="cp-line accent med"></div>
-          <div class="cp-line long dim"></div>
-          <div class="cp-line med dim"></div>
-          <div class="cp-line short dim"></div>
-          <div class="cp-line long dim"></div>
-          <div class="cp-line med dim"></div>
-          <div class="cp-prompt">
-            <div class="cp-prompt-arrow"></div>
-            <div class="cp-prompt-text"></div>
-          </div>
-        </div>
-        <!-- tree panel -->
-        <div class="cp-panel cp-panel-tree">
-          <div class="cp-line accent short"></div>
-          <div class="cp-tree-col">
-            <div class="cp-node filled"></div>
-            <div class="cp-node-line"></div>
-            <div class="cp-node filled"></div>
-            <div class="cp-node-line"></div>
-            <div class="cp-node"></div>
-            <div class="cp-node-line"></div>
-            <div class="cp-node"></div>
-          </div>
-        </div>
+      <div class="hub-stat-sep"></div>
+      <div class="hub-stat">
+        <span class="hub-stat-num">1</span>
+        <span class="hub-stat-label">Active</span>
       </div>
-    </div>
-    <div class="card-body">
-      <div class="card-status-row">
-        <div class="card-status-dot"></div>
-        <div class="card-status-label">active // available now</div>
+      <div class="hub-stat-sep"></div>
+      <div class="hub-stat">
+        <span class="hub-stat-num">2</span>
+        <span class="hub-stat-label">Encrypted</span>
       </div>
-      <div class="card-title">GIT_HEIST</div>
-      <div class="card-desc">
-        A previous crew left access credentials buried in a repo — never merged, still in there. Navigate branches, stash work, rebase history, and extract the data before the police close in.
-      </div>
-      <div class="card-tags">
-        <div class="card-tag">git branch</div>
-        <div class="card-tag">git stash</div>
-        <div class="card-tag">git rebase</div>
-        <div class="card-tag">git log</div>
-      </div>
-      <div class="card-enter">[ ENTER THE REPO ]</div>
-    </div>
-  </a>
-
-  <!-- COMING SOON 1 -->
-  <div class="room-card locked">
-    <div class="card-preview" style="opacity:0.3">
-      <div class="cp-topbar">
-        <div class="cp-topbar-tag">MERGE_CONFLICT_V1</div>
-      </div>
-      <div class="cp-panels">
-        <div class="cp-panel cp-panel-term" style="flex:1">
-          <div class="cp-line short dim"></div>
-          <div class="cp-line med dim"></div>
-          <div class="cp-line short dim"></div>
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-status-row">
-        <div class="card-status-dot locked-dot"></div>
-        <div class="card-status-label locked-label">coming soon // locked</div>
-      </div>
-      <div class="card-title">MERGE_CONFLICT</div>
-      <div class="card-desc">
-        Two operatives edited the same file. The CI is red. The deploy is blocked. Resolve it before the window closes.
-      </div>
-      <div class="card-tags">
-        <div class="card-tag">git merge</div>
-        <div class="card-tag">conflict resolution</div>
-      </div>
-      <div class="card-locked-enter">[ CLASSIFIED ]</div>
     </div>
   </div>
 
-  <!-- COMING SOON 2 -->
-  <div class="room-card locked">
-    <div class="card-preview" style="opacity:0.3">
-      <div class="cp-topbar">
-        <div class="cp-topbar-tag">TIME_MACHINE_V1</div>
-      </div>
-      <div class="cp-panels">
-        <div class="cp-panel cp-panel-term" style="flex:1">
-          <div class="cp-line short dim"></div>
-          <div class="cp-line med dim"></div>
-          <div class="cp-line short dim"></div>
+  <aside class="hub-hero-tele" aria-hidden="true">
+    <div class="tele-label-row">SYSTEM TELEMETRY</div>
+    <div class="tele-row"><span class="tele-k">SYS_TIME</span><span class="tele-v" id="teleClock">--:--:-- UTC</span></div>
+    <div class="tele-row"><span class="tele-k">OPERATIVE</span><span class="tele-v tele-warn">UNVERIFIED</span></div>
+    <div class="tele-row"><span class="tele-k">NODE</span><span class="tele-v">training-relay-01</span></div>
+    <div class="tele-row"><span class="tele-k">SIGNAL</span><span class="tele-v tele-ok">STABLE</span></div>
+    <div class="tele-row"><span class="tele-k">CLEARANCE</span><span class="tele-v tele-warn">PENDING</span></div>
+    <div class="tele-divider"></div>
+    <div class="tele-row"><span class="tele-k">MISSIONS</span><span class="tele-v">3 LOADED</span></div>
+    <div class="tele-row"><span class="tele-k">ACTIVE</span><span class="tele-v tele-ok">1</span></div>
+    <div class="tele-row"><span class="tele-k">ENCRYPTED</span><span class="tele-v">2</span></div>
+  </aside>
+</section>
+
+<!-- ─── MISSION FILES ────────────────────────────────────── -->
+<div class="hub-section-label">
+  <span class="hub-section-text">Mission Files</span>
+  <div class="hub-section-line"></div>
+</div>
+
+<div class="hub-missions">
+  <!-- ═══ MISSION 001: GIT HEIST ═══ -->
+  <a class="mission-card mission-card--active" href="git-heist.html" style="--card-accent: #68dbae">
+    <div class="mission-preview">
+      <div class="mp-topbar">
+        <span class="mp-tag">vault_repo // live session</span>
+        <div class="mp-dots">
+          <span class="mp-dot mp-dot--on"></span>
+          <span class="mp-dot mp-dot--pulse"></span>
+          <span class="mp-dot"></span>
         </div>
       </div>
+      <div class="fp-terminal">
+        <div class="fp-cmd">$ git log --oneline --all</div>
+        <div class="fp-commit"><span class="fp-hash">f4a2c3d</span> (main) security: rotate API keys</div>
+        <div class="fp-commit"><span class="fp-hash">8e3b901</span> fix: remove debug output</div>
+        <div class="fp-commit fp-commit--hot"><span class="fp-hash">e72d4f1</span> (feature/vault) WIP: hide credentials</div>
+        <div class="fp-commit"><span class="fp-hash">c8f2a14</span> feat: vault access module</div>
+        <div class="fp-commit"><span class="fp-hash">31d4e7a</span> init: banking-core setup</div>
+        <div class="fp-spacer"></div>
+        <div class="fp-prompt">$ <span class="fp-cursor"></span></div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="card-status-row">
-        <div class="card-status-dot locked-dot"></div>
-        <div class="card-status-label locked-label">coming soon // locked</div>
+
+    <div class="mission-body">
+      <div class="mission-header">
+        <div class="mission-id">MISSION_001 <span class="mission-id-sep">//</span> GIT</div>
+        <div class="mission-badge mission-badge--active">● Active</div>
       </div>
-      <div class="card-title">TIME_MACHINE</div>
-      <div class="card-desc">
-        A bad commit went to production. Roll it back, cherry-pick the good parts, and recover the lost work — without breaking the timeline.
+      <h2 class="mission-title">Git Heist</h2>
+      <p class="mission-story">A previous crew broke into the target bank and buried the access credentials inside their own repo — never merged, still buried in the history. Navigate branches, recover stashed work, and extract the data before the security sweep closes your window.</p>
+      <div class="mission-tools">
+        <div class="mission-tools-label">Tools Required</div>
+        <div class="mission-tools-tags">
+          <span>git log</span><span>git branch</span><span>git stash</span><span>git rebase</span><span>git diff</span>
+        </div>
       </div>
-      <div class="card-tags">
-        <div class="card-tag">git revert</div>
-        <div class="card-tag">git cherry-pick</div>
-        <div class="card-tag">git reflog</div>
+      <div class="mission-meta">
+        <span>~45 min</span>
+        <span class="mission-diff">
+          <span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+          Medium
+        </span>
+        <span>9 rooms</span>
       </div>
-      <div class="card-locked-enter">[ CLASSIFIED ]</div>
+      <div class="mission-cta">[ Enter the Repo ]</div>
+    </div>
+  </a>
+</div>
+
+<!-- ─── UPCOMING ──────────────────────────────────────────── -->
+<div class="hub-section-label" style="margin-top: 48px">
+  <span class="hub-section-text">Upcoming Missions</span>
+  <div class="hub-section-line"></div>
+</div>
+
+<div class="hub-upcoming-grid">
+
+  <!-- ═══ MISSION 002: OPERATION GOLDSTREAM ═══ -->
+  <div class="mission-card" style="--card-accent: #9fcaff">
+    <div class="mission-preview mission-preview--blurred">
+      <div class="mp-topbar">
+        <span class="mp-tag">goldstream // encrypted</span>
+      </div>
+      <div class="fp-terminal">
+        <div class="fp-cmd">$ git merge feature/agent-b</div>
+        <div class="fp-commit fp-commit--hot">CONFLICT: ops/extraction.sh</div>
+        <div class="fp-commit">Automatic merge failed.</div>
+        <div class="fp-commit">Fix conflicts and commit.</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-header">
+        <div class="mission-id">MISSION_002 <span class="mission-id-sep">//</span> GIT</div>
+        <div class="mission-badge mission-badge--locked">⊘ Encrypted</div>
+      </div>
+      <h2 class="mission-title">Operation: Goldstream</h2>
+      <p class="mission-story">Two agents worked the same files. The CI is red, the deploy is blocked, and the target is live. Resolve the conflict before <span class="redact">CLASSIFIED // CLEARANCE REQUIRED</span> and the whole operation burns.</p>
+      <div class="mission-tools">
+        <div class="mission-tools-label">Tools Required</div>
+        <div class="mission-tools-tags">
+          <span>git merge</span><span>git diff</span><span>conflict resolution</span>
+        </div>
+      </div>
+      <div class="mission-meta">
+        <span class="redact">XX min</span>
+        <span class="mission-diff">
+          <span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip"></span>
+          Hard
+        </span>
+        <span class="redact">X rooms</span>
+      </div>
+      <div class="mission-cta mission-cta--locked">[ Encrypted ]</div>
+    </div>
+  </div>
+
+  <!-- ═══ MISSION 003: COLONY ZERO ═══ -->
+  <div class="mission-card" style="--card-accent: #c8a87a">
+    <div class="mission-preview mission-preview--blurred">
+      <div class="mp-topbar">
+        <span class="mp-tag">colony-zero // encrypted</span>
+      </div>
+      <div class="fp-terminal">
+        <div class="fp-cmd">$ git reflog</div>
+        <div class="fp-commit fp-commit--hot">HEAD@{0} reset: moving to HEAD~3</div>
+        <div class="fp-commit">HEAD@{1} commit: deploy v2.4.1</div>
+        <div class="fp-commit">HEAD@{2} commit: hotfix: patch auth</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-header">
+        <div class="mission-id">MISSION_003 <span class="mission-id-sep">//</span> GIT</div>
+        <div class="mission-badge mission-badge--locked">⊘ Encrypted</div>
+      </div>
+      <h2 class="mission-title">Colony Zero</h2>
+      <p class="mission-story">A bad deploy is spreading node to node and production is down. Revert the damage, recover the lost work, and close every exit before <span class="redact">CLASSIFIED // CLEARANCE REQUIRED</span>.</p>
+      <div class="mission-tools">
+        <div class="mission-tools-label">Tools Required</div>
+        <div class="mission-tools-tags">
+          <span>git revert</span><span>git cherry-pick</span><span>git reflog</span>
+        </div>
+      </div>
+      <div class="mission-meta">
+        <span class="redact">XX min</span>
+        <span class="mission-diff">
+          <span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span>
+          Expert
+        </span>
+        <span class="redact">X rooms</span>
+      </div>
+      <div class="mission-cta mission-cta--locked">[ Encrypted ]</div>
     </div>
   </div>
 
 </div>
 
 <!-- ─── FOOTER ────────────────────────────────────────────── -->
-<div class="hub-footer">
-  <span>vault_zero // operative training facility</span>
+<footer class="hub-footer">
+  <span>VAULT_ZERO // OPERATIVE TRAINING FACILITY</span>
   <div class="hub-footer-live">
     <div class="hub-footer-live-dot"></div>
-    <span>live_feed</span>
+    <span>LIVE FEED</span>
   </div>
-</div>
+</footer>
 
+<script>
+(function() {
+  // Typing animation for hero tag
+  var el = document.getElementById('heroTag');
+  var msg = '// incoming transmission // you have been selected';
+  var i = 0;
+  function tick() {
+    el.textContent = msg.slice(0, i);
+    if (i < msg.length) { i++; setTimeout(tick, 38); }
+  }
+  setTimeout(tick, 500);
+
+  // Live UTC clock in telemetry panel
+  var clock = document.getElementById('teleClock');
+  function updateClock() {
+    var t = new Date();
+    var h = String(t.getUTCHours()).padStart(2, '0');
+    var m = String(t.getUTCMinutes()).padStart(2, '0');
+    var s = String(t.getUTCSeconds()).padStart(2, '0');
+    clock.textContent = h + ':' + m + ':' + s + ' UTC';
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+})();
+</script>
 </body>
 </html>
