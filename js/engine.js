@@ -851,8 +851,16 @@ async function submitScore() {
     const board = await getLeaderboard();
     renderLeaderboard(board);
   } else {
-    btn.textContent = '[ ERROR — TRY AGAIN ]';
+    btn.textContent = '[ SAVE FAILED — CHECK CONSOLE ]';
     btn.disabled = false;
+    const section = document.getElementById('scoreSection');
+    let errNote = section.querySelector('.score-err-note');
+    if (!errNote) {
+      errNote = document.createElement('div');
+      errNote.className = 'score-err-note';
+      section.appendChild(errNote);
+    }
+    errNote.textContent = 'could not write to leaderboard. supabase RLS policies may not be set — check console for details.';
   }
 }
 

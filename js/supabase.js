@@ -1,3 +1,19 @@
+// ─── Supabase setup ──────────────────────────────────────────
+// Table: scores
+//   id             int8 primary key identity
+//   codename       text not null
+//   total_time     int8
+//   rooms_completed int8
+//   hints_used     int8
+//   commands_used  text
+//   completed_at   timestamptz
+//
+// Run once in Supabase SQL Editor to enable public read/write:
+//   ALTER TABLE scores ENABLE ROW LEVEL SECURITY;
+//   CREATE POLICY "anyone can insert" ON scores FOR INSERT WITH CHECK (true);
+//   CREATE POLICY "anyone can read"   ON scores FOR SELECT USING (true);
+// ─────────────────────────────────────────────────────────────
+
 const SUPABASE_URL = 'https://dcmbfeammfoagarfejsf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_diY2UT6oSYW_7sgNzNE-UA_tY0SQz1s';
 
@@ -12,6 +28,9 @@ async function saveScore({ codename, totalTime, roomsCompleted, hintsUsed, comma
     commands_used:   JSON.stringify(commandsUsed),
     completed_at:    new Date().toISOString()
   });
+  if (error) {
+    console.error('[vault-zero] saveScore failed:', error.message, error.code);
+  }
   return !error;
 }
 
