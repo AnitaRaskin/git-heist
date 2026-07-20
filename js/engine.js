@@ -716,8 +716,14 @@ function runBootSequence() {
   let idx = 0;
   let skipped = false;
 
+  function hideSkipBtn() {
+    const sb = document.getElementById('bootSkipBtn');
+    if (sb) sb.style.display = 'none';
+  }
+
   function revealEnd() {
     if (skipped) return;
+    hideSkipBtn();
     txBody.style.opacity = '1';
     txBody.style.transform = 'translateY(0)';
     setTimeout(() => {
@@ -737,6 +743,7 @@ function runBootSequence() {
   function skip() {
     if (skipped) return;
     skipped = true;
+    hideSkipBtn();
     container.innerHTML = BOOT_LINES.map(l =>
       `<span class="boot-line ${l.cls || 'dim'}">${l.text}</span>`
     ).join('');
