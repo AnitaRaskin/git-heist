@@ -619,8 +619,8 @@ function goNextRoom() {
   clearPolice(true); // reset silently between rooms
   const next = G.roomIdx + 1;
   if (next >= ROOMS.length) {
-    buildEndScreen();
-    document.getElementById('endScreen').classList.add('open');
+    buildQuiz();
+    document.getElementById('quizScreen').classList.add('open');
     return;
   }
   G.roomIdx        = next;
@@ -970,6 +970,300 @@ function buildEndScreen() {
     setTimeout(typeChar, i * 220);
   });
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// VERIFICATION QUIZ
+// ═══════════════════════════════════════════════════════════════════════
+
+const CMD_QUIZ_POOL = {
+  'git stash': {
+    q: "You ran `git stash` to hide your changes. Where do they go?",
+    options: ["Permanently deleted", "A private LIFO stack, separate from commits", "A temporary branch", "The staging area"],
+    correct: 1,
+    explain: "git stash saves to a private stack. git stash list shows everything in it. git stash pop restores the latest."
+  },
+  'git stash pop': {
+    q: "What's the difference between `git stash pop` and `git stash apply`?",
+    options: ["No difference", "pop restores and removes the entry; apply restores but keeps it in the list", "apply is faster", "pop only works on the latest stash"],
+    correct: 1,
+    explain: "pop = restore + delete the stash entry. apply = restore only. Use apply when you want the stash to stay for reuse."
+  },
+  'git push': {
+    q: "When you ran `git push`, what was actually sent to the remote?",
+    options: ["All local files", "Your entire git history", "Only the commits the remote didn't already have", "Your working directory changes"],
+    correct: 2,
+    explain: "git push sends only the delta — commits the remote is missing. Not your working directory, not your whole history."
+  },
+  'git pull': {
+    q: "What does `git pull` do under the hood?",
+    options: ["It's just git fetch", "git fetch + git merge combined", "It overwrites local files", "It's git push in reverse"],
+    correct: 1,
+    explain: "git pull = git fetch (download) + git merge (integrate). You can split these for more control."
+  },
+  'git revert': {
+    q: "Why use `git revert` instead of `git reset` to undo a commit on a shared branch?",
+    options: ["git reset doesn't work on commits", "git revert is faster", "git revert adds an undo commit — history stays intact, safe for others who have pulled", "They're identical on shared branches"],
+    correct: 2,
+    explain: "git revert is non-destructive — it adds a new commit. git reset rewrites history, which breaks anyone who already pulled."
+  },
+  'git checkout': {
+    q: "When you used `git checkout` to switch branches, what actually changed?",
+    options: ["Only HEAD moved", "HEAD moved and your working directory updated to match that branch", "Nothing — checkout is read-only", "The remote was updated"],
+    correct: 1,
+    explain: "git checkout updates HEAD AND rewrites your working directory to reflect the checked-out state."
+  },
+  'git branch -a': {
+    q: "What does the `-a` flag in `git branch -a` add over plain `git branch`?",
+    options: ["Alphabetically sorted output", "All authors who created branches", "Remote-tracking branches alongside local ones", "Archived branches"],
+    correct: 2,
+    explain: "git branch shows local only. -a (all) also shows remotes/origin/* — the local cache of what the remote has."
+  },
+  'git show': {
+    q: "What does `git show <hash>` display?",
+    options: ["Current unstaged diff", "The full diff of that specific commit — what changed, in which files", "The full commit list", "The remote URL"],
+    correct: 1,
+    explain: "git show <hash> = that commit's message, author, and exact line-by-line diff."
+  },
+  'git diff': {
+    q: "With no arguments, what does `git diff` compare?",
+    options: ["Two branches", "The last two commits", "Your working directory vs the staging area", "Local vs remote"],
+    correct: 2,
+    explain: "git diff (no args) = unstaged changes. git diff --cached = staged vs last commit. git diff <branch> = branch comparison."
+  },
+  'git clean -fd': {
+    q: "Why is `git clean -fd` potentially dangerous?",
+    options: ["It's not dangerous", "It force-pushes to the remote", "It permanently deletes untracked files — no undo", "It resets staged changes"],
+    correct: 2,
+    explain: "Untracked files aren't in git history, so clean removes them forever. Run git clean -n first to preview."
+  },
+  'git restore': {
+    q: "What does `git restore <file>` do to an unstaged change?",
+    options: ["Stages the file", "Discards the working-directory change, reverting to the last commit", "Creates a file backup", "Moves the change to stash"],
+    correct: 1,
+    explain: "git restore discards unstaged changes. It's the modern replacement for git checkout -- <file>."
+  },
+  'git add': {
+    q: "What does staging a file with `git add` actually do?",
+    options: ["Commits it immediately", "Adds it to the index — marks it for inclusion in the next commit", "Uploads it to the remote", "Creates a copy"],
+    correct: 1,
+    explain: "Staging adds the file to git's index (staging area). git commit then includes everything currently staged."
+  },
+  'git clone': {
+    q: "What does `git clone` do that `git init` doesn't?",
+    options: ["Nothing — they're equivalent", "Creates a copy of an existing remote repo including full history and origin remote", "Initialises git tracking in any folder", "Downloads only the latest commit"],
+    correct: 1,
+    explain: "git init starts a new empty repo. git clone copies a remote repo with all history and the origin remote already wired up."
+  },
+  'git remote -v': {
+    q: "What does `git remote -v` show?",
+    options: ["All local branches", "The verbose git log", "The remote connections and their fetch/push URLs", "Your git config"],
+    correct: 2,
+    explain: "git remote -v lists each named remote (usually origin) and the URLs git uses to fetch and push."
+  },
+};
+
+const STATIC_QUIZ = [
+  {
+    q: "You resolve a merge conflict in a file. What's the next step?",
+    options: ["git merge again", "git pull to update", "git add the file, then git commit", "git reset --hard to restart"],
+    correct: 2,
+    explain: "After manually resolving: git add marks the conflict resolved, then git commit seals the merge."
+  },
+  {
+    q: "What does HEAD mean in a git repo?",
+    options: ["The first commit ever made", "The latest commit pushed to the remote", "A pointer to the currently checked-out commit or branch tip", "The main branch"],
+    correct: 2,
+    explain: "HEAD is just a pointer — usually to your current branch tip. Detached HEAD means it points directly to a commit, not a branch."
+  },
+  {
+    q: "What's the key difference between `git merge` and `git rebase`?",
+    options: ["They're identical", "Merge keeps full history with a merge commit; rebase replays commits linearly", "Rebase is always safer", "Merge only works on main"],
+    correct: 1,
+    explain: "Merge adds a merge commit showing where branches joined. Rebase rewrites commits as if they branched off later — never rebase shared branches."
+  },
+  {
+    q: "When would you stash instead of commit?",
+    options: ["When changes are final", "When you want to discard changes", "When work-in-progress isn't commit-ready but you need to switch context", "When the remote is down"],
+    correct: 2,
+    explain: "Stash is for temporary context-switching — hide WIP, do other work, restore later. Commit when work is logically complete."
+  },
+  {
+    q: "Why is `git push --force` dangerous on a shared branch?",
+    options: ["It's not dangerous", "It rewrites remote history, overwriting commits others may have pulled", "It's slower", "It only works on private repos"],
+    correct: 1,
+    explain: "Force-push overwrites the remote branch tip. Anyone who pulled before now has diverged history. Only force-push branches only you own."
+  },
+  {
+    q: "What does `git log --oneline` show that `git log` doesn't?",
+    options: ["More detail per commit", "A compact one-line-per-commit view — hash + message only", "Remote branch info", "Author names"],
+    correct: 1,
+    explain: "--oneline condenses each commit to one line: short hash + subject. Useful for scanning history quickly."
+  },
+  {
+    q: "If you committed to the wrong branch by mistake, what's the safest fix?",
+    options: ["Delete the branch", "git push --force", "git revert on the wrong branch, then cherry-pick or re-commit on the right one", "Nothing you can do"],
+    correct: 2,
+    explain: "Revert undoes it safely on the wrong branch. Then bring the change to the right branch via cherry-pick or re-doing the work."
+  },
+];
+
+let quizQuestions  = [];
+let quizIdx        = 0;
+let quizCorrect    = 0;
+let quizTimerInt   = null;
+let quizTimeLeft   = 20;
+let quizAnswered   = false;
+
+function buildQuiz() {
+  // Up to 2 dynamic questions from the player's own cmdLog
+  const picked = [];
+  const usedKeys = new Set();
+  for (const { cmd } of cmdLog) {
+    for (const key of Object.keys(CMD_QUIZ_POOL)) {
+      if (!usedKeys.has(key) && (cmd === key || cmd.startsWith(key + ' '))) {
+        picked.push(CMD_QUIZ_POOL[key]);
+        usedKeys.add(key);
+        break;
+      }
+    }
+    if (picked.length >= 2) break;
+  }
+
+  // Fill to 4 with shuffled static questions
+  const shuffled = STATIC_QUIZ.slice().sort(() => 0.5 - Math.random());
+  for (const q of shuffled) {
+    if (picked.length >= 4) break;
+    picked.push(q);
+  }
+
+  quizQuestions = picked.slice(0, 4);
+  quizIdx       = 0;
+  quizCorrect   = 0;
+
+  // Fox intro (typewriter style)
+  const speech = document.getElementById('quizFoxSpeech');
+  speech.textContent = '';
+  const intro = '"I need to know it\'s really you — not someone who got lucky. Prove it."';
+  let ci = 0;
+  function typeIntro() {
+    if (ci < intro.length) { speech.textContent += intro[ci++]; setTimeout(typeIntro, 18); }
+    else { setTimeout(() => showQuizQuestion(0), 900); }
+  }
+
+  document.getElementById('quizBody').style.display = '';
+  document.getElementById('quizResult').style.display = 'none';
+  setTimeout(typeIntro, 400);
+}
+
+function showQuizQuestion(idx) {
+  const q = quizQuestions[idx];
+  if (!q) { showQuizResult(); return; }
+
+  quizAnswered = false;
+  document.getElementById('quizNum').textContent = `QUESTION ${idx + 1} / ${quizQuestions.length}`;
+  document.getElementById('quizQ').textContent   = q.q;
+
+  const fb = document.getElementById('quizFeedback');
+  fb.textContent = '';
+  fb.className   = 'quiz-feedback';
+
+  const optsEl = document.getElementById('quizOpts');
+  optsEl.innerHTML = '';
+  ['A','B','C','D'].forEach((letter, i) => {
+    if (i >= q.options.length) return;
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt-btn';
+    btn.innerHTML = `<span class="quiz-opt-letter">${letter}</span>${q.options[i]}`;
+    btn.addEventListener('click', () => answerQuiz(i));
+    optsEl.appendChild(btn);
+  });
+
+  startQuizTimer();
+}
+
+function startQuizTimer() {
+  stopQuizTimer();
+  quizTimeLeft = 20;
+  updateQuizTimerUI();
+  quizTimerInt = setInterval(() => {
+    quizTimeLeft--;
+    updateQuizTimerUI();
+    if (quizTimeLeft <= 0) answerQuiz(-1); // timeout = wrong
+  }, 1000);
+}
+
+function stopQuizTimer() {
+  clearInterval(quizTimerInt);
+  quizTimerInt = null;
+}
+
+function updateQuizTimerUI() {
+  const numEl  = document.getElementById('quizTimerNum');
+  const fillEl = document.getElementById('quizTimerFill');
+  if (!numEl || !fillEl) return;
+  numEl.textContent  = '0:' + String(quizTimeLeft).padStart(2, '0');
+  fillEl.style.width = ((quizTimeLeft / 20) * 100) + '%';
+  fillEl.classList.toggle('urgent', quizTimeLeft <= 7);
+}
+
+function answerQuiz(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  stopQuizTimer();
+
+  const q       = quizQuestions[quizIdx];
+  const correct = chosen === q.correct;
+  if (correct) { quizCorrect++; addScore(5); }
+
+  // Highlight buttons
+  document.querySelectorAll('.quiz-opt-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === chosen && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('quizFeedback');
+  const prefix = chosen === -1 ? 'TIME UP — ' : correct ? '✓ CORRECT — ' : '✗ WRONG — ';
+  fb.textContent = prefix + q.explain;
+  fb.className   = 'quiz-feedback ' + (correct ? 'show-ok' : 'show-err');
+
+  quizIdx++;
+  setTimeout(() => {
+    if (quizIdx < quizQuestions.length) showQuizQuestion(quizIdx);
+    else showQuizResult();
+  }, 2600);
+}
+
+function showQuizResult() {
+  stopQuizTimer();
+  document.getElementById('quizBody').style.display = 'none';
+
+  const total = quizQuestions.length;
+  const pct   = quizCorrect / total;
+  let verdict;
+  if (pct === 1)     verdict = '"Perfect. Identity confirmed. You didn\'t just get lucky — you know this. The vault is yours."';
+  else if (pct >= 0.5) verdict = '"Close enough. You know the tools that matter. The vault is open."';
+  else               verdict = '"Shaky. But you made it this far. The vault opens. Study up."';
+
+  const speech = document.getElementById('quizFoxSpeech');
+  speech.textContent = '';
+  let ci = 0;
+  function typeVerdict() {
+    if (ci < verdict.length) { speech.textContent += verdict[ci++]; setTimeout(typeVerdict, 14); }
+  }
+  setTimeout(typeVerdict, 200);
+
+  document.getElementById('quizResultScore').textContent = `${quizCorrect} / ${total}`;
+  document.getElementById('quizResult').style.display = '';
+}
+
+function finishQuiz() {
+  document.getElementById('quizScreen').classList.remove('open');
+  buildEndScreen();
+  document.getElementById('endScreen').classList.add('open');
+}
+
 
 function runBootSequence() {
   const container = document.getElementById('bootTerminal');

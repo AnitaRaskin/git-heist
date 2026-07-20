@@ -88,8 +88,25 @@
     <!-- Fox comms -->
     <div class="panel fox-panel">
       <div class="fox-header">
-        <div class="fox-header-title">fox // signal encrypted</div>
-        <div class="fox-header-sub">connection: stable // encryption: active</div>
+        <svg class="fox-avatar-sm" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="47" fill="none" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
+          <circle cx="50" cy="54" r="34" fill="#131514"/>
+          <polygon points="19,47 28,10 44,43" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="56,43 72,10 81,47" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="23,45 29,17 41,42" fill="rgba(200,168,122,0.22)"/>
+          <polygon points="59,42 71,17 77,45" fill="rgba(200,168,122,0.22)"/>
+          <circle cx="50" cy="54" r="34" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
+          <rect x="21" y="49" width="58" height="17" rx="5" fill="#0d0f0e" stroke="#1D9E75" stroke-width="1.5"/>
+          <ellipse cx="36" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="36" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="36" cy="57.5" r="2.5" fill="#68dbae"/>
+          <ellipse cx="64" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="64" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="64" cy="57.5" r="2.5" fill="#68dbae"/>
+          <rect x="44" y="55" width="12" height="2" rx="1" fill="#0d0f0e"/>
+          <ellipse cx="50" cy="76" rx="7" ry="4" fill="rgba(200,168,122,0.15)" stroke="#1D9E75" stroke-width="0.8" opacity="0.7"/>
+          <polygon points="47,75 50,79 53,75" fill="rgba(200,168,122,0.35)"/>
+        </svg>
+        <div>
+          <div class="fox-header-title">fox // signal encrypted</div>
+          <div class="fox-header-sub">connection: stable // encryption: active</div>
+        </div>
       </div>
       <div class="fox-messages" id="foxMessages"></div>
       <div class="fox-footer">
@@ -215,6 +232,56 @@
         <button class="btn" onclick="closeCheatSheet()">CLOSE</button>
         <button class="btn primary" onclick="downloadCheatSheet()">DOWNLOAD ↓</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VERIFICATION QUIZ ════════════════════════════════════ -->
+<div id="quizScreen">
+  <div class="quiz-inner">
+    <div class="quiz-header-row">
+      <div class="fox-avatar-wrap">
+        <svg class="fox-avatar-lg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="47" fill="none" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
+          <circle cx="50" cy="54" r="34" fill="#131514"/>
+          <polygon points="19,47 28,10 44,43" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="56,43 72,10 81,47" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="23,45 29,17 41,42" fill="rgba(200,168,122,0.22)"/>
+          <polygon points="59,42 71,17 77,45" fill="rgba(200,168,122,0.22)"/>
+          <circle cx="50" cy="54" r="34" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
+          <rect x="21" y="49" width="58" height="17" rx="5" fill="#0d0f0e" stroke="#1D9E75" stroke-width="1.5"/>
+          <ellipse cx="36" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="36" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="36" cy="57.5" r="2.5" fill="#68dbae"/>
+          <ellipse cx="64" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="64" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="64" cy="57.5" r="2.5" fill="#68dbae"/>
+          <rect x="44" y="55" width="12" height="2" rx="1" fill="#0d0f0e"/>
+          <ellipse cx="50" cy="76" rx="7" ry="4" fill="rgba(200,168,122,0.15)" stroke="#1D9E75" stroke-width="0.8" opacity="0.7"/>
+          <polygon points="47,75 50,79 53,75" fill="rgba(200,168,122,0.35)"/>
+        </svg>
+        <div class="fox-avatar-tag">// FOX</div>
+      </div>
+      <div class="quiz-title-col">
+        <div class="quiz-title-tag">▓ IDENTITY VERIFICATION ▓</div>
+        <div class="quiz-title-sub">encrypted channel // auth: final check</div>
+      </div>
+    </div>
+
+    <div class="quiz-fox-speech" id="quizFoxSpeech"></div>
+
+    <div id="quizBody">
+      <div class="quiz-meta-row">
+        <span class="quiz-num" id="quizNum">QUESTION 1 / 4</span>
+        <div class="quiz-timer-wrap">
+          <span class="quiz-timer-num" id="quizTimerNum">0:20</span>
+          <div class="quiz-timer-bar"><div class="quiz-timer-fill" id="quizTimerFill"></div></div>
+        </div>
+      </div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+    </div>
+
+    <div id="quizResult" style="display:none">
+      <div class="quiz-result-score" id="quizResultScore"></div>
+      <button class="btn primary quiz-vault-btn" onclick="finishQuiz()">ENTER THE VAULT →</button>
     </div>
   </div>
 </div>
