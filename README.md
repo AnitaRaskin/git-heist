@@ -39,6 +39,7 @@ You can only move forward by typing the correct Git command. No clicking through
 - **Repo state panel** — live SVG diagram of branches, commits, and HEAD — updates as you work
 - **Hint system** — 3 levels per stage; the third reveals the answer and costs points
 - **Live score** — starts at 0, +10 per stage, deductions for hints and wrong answers
+- **Police Are Coming** — alarm mechanic: 3 wrong answers or a destructive command (e.g. `git reset --hard`) triggers a 30-second countdown. Beat the step in time or lose 10 points. At 10 seconds: red screen vignette, pulsing alert, synthesised footsteps. At 6 seconds: browser speaks *"who's there?"*
 - **Command log** — `[cmd: log]` button tracks every command you've used; downloadable as a cheat sheet
 - **Per-room clue fragments** — each room leaves a piece of the access credentials, assembled on the end screen
 - **Leaderboard** — finish the game and your score is saved (Supabase)
