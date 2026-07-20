@@ -30,7 +30,7 @@ async function saveScore({ codename, totalTime, roomsCompleted, hintsUsed, final
     completed_at:    new Date().toISOString()
   });
   if (error) {
-    console.error('[vault-zero] saveScore failed:', error.message, error.code);
+    console.error('[git-heist] saveScore failed:', error.message, error.code);
   }
   return !error;
 }

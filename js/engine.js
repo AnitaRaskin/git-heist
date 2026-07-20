@@ -80,15 +80,15 @@ function closeCheatSheet() {
 }
 
 function downloadCheatSheet() {
-  const lines = ['VAULT ZERO // COMMAND RECORD', '═'.repeat(40), ''];
+  const lines = ['GIT HEIST // COMMAND RECORD', '═'.repeat(40), ''];
   cmdLog.forEach(({ cmd, desc }) => {
     lines.push(`  ${cmd.padEnd(28)}${desc}`);
   });
-  lines.push('', '═'.repeat(40), 'vault-zero-v1 // operative record');
+  lines.push('', '═'.repeat(40), 'git-heist-v1 // operative record');
   const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'vault-zero-commands.txt';
+  a.download = 'git-heist-commands.txt';
   a.click();
 }
 
@@ -525,14 +525,14 @@ function loadRoom() {
 // ═══════════════════════════════════════════════════════════════════════
 
 const FILE_BEFORE = `{
-  "system": "vault-zero",
+  "system": "git-heist",
   "maintenance_window": null,
   "ids_threshold": 5,
   "monitoring_cycle": "04:00"
 }`;
 
 const FILE_CONFLICT = `{
-  "system": "vault-zero",
+  "system": "git-heist",
   "entry_tokens": [
 <<<<<<< HEAD
     "tok_operative_7a2f",
@@ -780,7 +780,7 @@ function updateSecurityDots() {
 }
 
 const BOOT_LINES = [
-  { text: '> initializing secure tunnel to vault_zero_banking_system...', cls: 'dim', pause: 180 },
+  { text: '> initializing secure tunnel to git_heist_banking_system...', cls: 'dim', pause: 180 },
   { text: '> handshake 0x4f22 — success', cls: 'ok', pause: 140 },
   { text: '> bypassing firewall node layer_01...', cls: 'dim', pause: 200 },
   { text: '> LAYER_01: ACCESS BYPASSED', cls: 'ok', pause: 120 },

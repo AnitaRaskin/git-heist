@@ -81,7 +81,7 @@ const ROOMS = [
     id: 1,
     name: 'THE BLUEPRINT',
     clue: { label: 'ENDPOINT', value: '/internal/v0' },
-    intro: "A previous operative breached Vault Zero's system and buried the access credentials inside their own repo. Never merged. We know it's in here — find the branch, find the commit, read the file.",
+    intro: "A previous operative breached the target's banking system and buried the access credentials inside their own repo. Never merged. We know it's in here — find the branch, find the commit, read the file.",
     stages: [
       {
         foxMsg: "the access map exists. someone on the inside hid it and never merged it. start by figuring out what branches are in this repo.",
@@ -160,7 +160,7 @@ const ROOMS = [
         output: [
           ["", ""],
           ["┌─────────────────────────────────┐", "hl"],
-          ["│     VAULT ZERO — SYSTEM MAP     │", "hl"],
+          ["│     GIT HEIST — SYSTEM MAP      │", "hl"],
           ["│                                 │", "hl"],
           ["│  [INTERNET]                     │", "hl"],
           ["│      │                          │", "hl"],

@@ -1,15 +1,15 @@
-# Vault Zero — Git Escape Room
+# Git Heist — Git Escape Room
 
 A browser-based Git learning game for junior engineers. No install. No setup. Open `index.html` in a tab and start playing.
 
 ## Play it
 
-**[→ Open the game](https://anitaraskin.github.io/vault-zero)** *(enable GitHub Pages to activate this link)*
+**[→ Open the game](https://anitaraskin.github.io/git-heist)** *(enable GitHub Pages to activate this link)*
 
 Or clone and open locally:
 ```bash
-git clone https://github.com/AnitaRaskin/vault-zero.git
-open vault-zero/index.html
+git clone https://github.com/AnitaRaskin/git-heist.git
+open git-heist/index.html
 ```
 
 ## What it is
@@ -37,15 +37,12 @@ You can only move forward by typing the correct Git command. No clicking through
 - **Terminal panel** — type Git commands, get real-looking output
 - **Fox's comms** — mission briefing, stage by stage
 - **Repo state panel** — live SVG diagram of branches, commits, and HEAD — updates as you work
-- **Hint system** — 3 levels per stage; the third level reveals the answer and costs ×3 points — confirmed with a two-click "are you sure?" prompt
-- **Command log** — `[cmd: log]` button tracks every command you've used; downloadable as a cheat sheet at the end
+- **Hint system** — 3 levels per stage; the third reveals the answer and costs points
+- **Live score** — starts at 0, +10 per stage, deductions for hints and wrong answers
+- **Command log** — `[cmd: log]` button tracks every command you've used; downloadable as a cheat sheet
 - **Per-room clue fragments** — each room leaves a piece of the access credentials, assembled on the end screen
-- **Score saving** — finish the game and your score is saved to a live leaderboard (Supabase)
+- **Leaderboard** — finish the game and your score is saved (Supabase)
 - **Progress** saves to localStorage — pick up where you left off
-
-## Curriculum
-
-Based on the **[Beginner Git](./Beginner%20Git.pdf)** course (place the PDF in this folder to activate the link). The 6 rooms cover the course's core sections in difficulty order, from reading a repo to safely undoing shared history.
 
 ## Built with
 
