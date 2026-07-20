@@ -1090,3 +1090,79 @@ body.resizing-col    { user-select: none; }
   background: var(--primary);
   animation: dotPulse 1.2s step-end infinite;
 }
+
+/* ─── POLICE ALERT ─────────────────────────────────────────── */
+#policeAlert {
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: rgba(255,180,171,0.04);
+  border-bottom: 1px solid var(--err);
+}
+#policeAlert.active {
+  display: flex;
+  animation: policeSlideIn 0.25s ease;
+}
+@keyframes policeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.police-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 20px;
+}
+.police-strip-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.police-flash {
+  color: var(--err);
+  animation: blink 0.35s step-end infinite;
+  font-size: 11px;
+}
+.police-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--err);
+  text-transform: uppercase;
+}
+.police-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+}
+.police-strip-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.police-timer-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.police-countdown {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--err);
+  letter-spacing: 3px;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: right;
+}
+.police-countdown.urgent { animation: blink 0.4s step-end infinite; }
+.police-bar { height: 2px; background: var(--surface-top); }
+.police-bar-fill {
+  height: 100%;
+  background: var(--err);
+  width: 100%;
+  transition: width 1s linear;
+}
+.terminal-panel.police-active {
+  box-shadow: 0 0 0 1px rgba(255,180,171,0.18) inset;
+}

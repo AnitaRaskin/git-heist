@@ -144,6 +144,70 @@ function showScoreDelta(delta) {
 function countWrong() {
   G.stageWrongs++;
   if (G.stageWrongs >= 2) addScore(-1);
+  if (G.stageWrongs === POLICE_TRIGGER_WRONGS) triggerPolice();
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// POLICE MECHANIC
+// ═══════════════════════════════════════════════════════════════════════
+
+const POLICE_SECONDS       = 30;
+const POLICE_TRIGGER_WRONGS = 3;
+const POLICE_RISKY_CMDS    = ['git reset --hard', 'git push --force', 'git push -f'];
+const POLICE_WARNINGS      = [
+  "scanner picked up anomalies. you've got 30 seconds to complete this step. move.",
+  "IDS alert — they're watching. 30 seconds. don't freeze.",
+  "police bot flagged your session. 30 seconds. finish the step.",
+];
+
+let policeActive     = false;
+let policeSecondsLeft = 0;
+let policeIntervalId  = null;
+
+function triggerPolice() {
+  if (policeActive) return;
+  policeActive      = true;
+  policeSecondsLeft = POLICE_SECONDS;
+
+  const msg = POLICE_WARNINGS[G.stageWrongs % POLICE_WARNINGS.length];
+  setTimeout(() => foxMsg(msg, 'sys'), 100);
+
+  document.getElementById('policeAlert').classList.add('active');
+  document.querySelector('.terminal-panel').classList.add('police-active');
+  updatePoliceUI();
+
+  policeIntervalId = setInterval(() => {
+    policeSecondsLeft--;
+    updatePoliceUI();
+    if (policeSecondsLeft <= 0) policeRaid();
+  }, 1000);
+}
+
+function clearPolice(silent) {
+  if (!policeActive) return;
+  policeActive = false;
+  clearInterval(policeIntervalId);
+  policeIntervalId = null;
+  document.getElementById('policeAlert').classList.remove('active');
+  document.querySelector('.terminal-panel').classList.remove('police-active');
+  if (!silent) setTimeout(() => foxMsg('clean. they moved on.', 'sys'), 200);
+}
+
+function policeRaid() {
+  clearPolice(true);
+  addScore(-10);
+  setTimeout(() => foxMsg("too slow. they logged the attempt. we took a hit.", 'sys'), 100);
+}
+
+function updatePoliceUI() {
+  const countdownEl = document.getElementById('policeCountdown');
+  const fillEl      = document.getElementById('policeBarFill');
+  if (!countdownEl || !fillEl) return;
+  const s = policeSecondsLeft;
+  countdownEl.textContent = '0:' + String(s).padStart(2, '0');
+  fillEl.style.width = ((s / POLICE_SECONDS) * 100) + '%';
+  countdownEl.classList.toggle('urgent', s <= 10);
 }
 
 
@@ -237,6 +301,11 @@ function parseCmd(raw) {
       ['clear            — clear terminal', 'dim']
     ]);
     return {};
+  }
+
+  // Risky commands — trigger police even if also handled in wrong block
+  if (!policeActive && POLICE_RISKY_CMDS.some(r => cmd === r || cmd.startsWith(r + ' '))) {
+    triggerPolice();
   }
 
   // File edit trigger (generic — uses s.fileName or defaults to security-config.json)
@@ -394,6 +463,7 @@ function updateActiveBranch(treeKey) {
 function advance(treeState) {
   if (treeState) { renderTree(treeState); updateActiveBranch(treeState); }
 
+  clearPolice(false); // player completed step — evaded in time (no-op if not active)
   addScore(10); // correct answer reward
 
   const nextIdx = G.stageIdx + 1;
@@ -457,6 +527,7 @@ function completeRoom() {
 
 function goNextRoom() {
   document.getElementById('roomDone').classList.remove('open');
+  clearPolice(true); // reset silently between rooms
   const next = G.roomIdx + 1;
   if (next >= ROOMS.length) {
     buildEndScreen();
