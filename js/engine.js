@@ -1,13 +1,15 @@
 const G = {
-  roomIdx:  0,
-  stageIdx: 0,
-  hintsUsed: 0,
-  totalHints: 0,
-  hintLevel: 0,
-  roomStart: 0,
-  missionStart: 0,
-  fileEditDone: false,
-  score: 1000,
+  roomIdx:       0,
+  stageIdx:      0,
+  hintsUsed:     0,
+  totalHints:    0,
+  hintLevel:     0,
+  roomStart:     0,
+  missionStart:  0,
+  fileEditDone:  false,
+  score:         0,
+  stageWrongs:   0,   // wrong attempts this stage (first is free)
+  stageHintLevel: -1, // highest hint level charged this stage (-1 = none charged)
   clues: [],
   savedProgress: JSON.parse(localStorage.getItem('vz_progress') || '{}')
 };
@@ -98,30 +100,50 @@ function stage() { return room().stages[G.stageIdx]; }
 // LIVE SCORE
 // ═══════════════════════════════════════════════════════════════════════
 
-function deductScore(amount) {
+function addScore(delta) {
   const chip = document.getElementById('scoreChip');
   const el   = document.getElementById('scoreVal');
   if (!chip || !el) return;
 
-  const target = Math.max(0, G.score - amount);
   const from   = G.score;
-  G.score = target;
+  G.score      = Math.max(0, G.score + delta);
+  const actual = G.score - from; // might differ if floor hit
+  if (actual === 0) return;
 
-  chip.classList.remove('dropping');
-  void chip.offsetWidth; // force reflow so animation restarts
-  chip.classList.add('dropping');
-  setTimeout(() => chip.classList.remove('dropping'), 700);
+  // Flash colour
+  const cls = actual > 0 ? 'gaining' : 'dropping';
+  chip.classList.remove('gaining', 'dropping');
+  void chip.offsetWidth;
+  chip.classList.add(cls);
+  setTimeout(() => chip.classList.remove(cls), 700);
 
-  // Tick the number down visually
-  const steps   = Math.min(amount, 25);
-  const stepVal = Math.ceil((from - target) / steps);
-  let current   = from;
+  // Floating delta indicator
+  showScoreDelta(actual);
+
+  // Tick the number
+  const frameDelay = Math.abs(actual) <= 1 ? 0 : Math.abs(actual) <= 5 ? 50 : 35;
+  let current = from;
   function tick() {
-    current = Math.max(target, current - stepVal);
+    current += actual > 0 ? 1 : -1;
     el.textContent = current;
-    if (current > target) setTimeout(tick, 16);
+    if (current !== G.score) setTimeout(tick, frameDelay);
   }
   tick();
+}
+
+function showScoreDelta(delta) {
+  const chip = document.getElementById('scoreChip');
+  if (!chip) return;
+  const ind = document.createElement('div');
+  ind.className = 'score-delta ' + (delta > 0 ? 'pos' : 'neg');
+  ind.textContent = (delta > 0 ? '+' : '') + delta;
+  chip.appendChild(ind);
+  setTimeout(() => ind.remove(), 850);
+}
+
+function countWrong() {
+  G.stageWrongs++;
+  if (G.stageWrongs >= 2) addScore(-1);
 }
 
 
@@ -289,12 +311,14 @@ function parseCmd(raw) {
   if (s.wrong) {
     for (const [wCmd, wOut] of Object.entries(s.wrong)) {
       if (cmd === normalise(wCmd) || cmd.startsWith(normalise(wCmd) + ' ')) {
-        tprint(wOut); return {};
+        tprint(wOut);
+        countWrong();
+        return {};
       }
     }
   }
 
-  // Soft fallbacks
+  // Soft fallbacks (informational — not counted as wrong)
   if (cmd === 'git status') { tprint(defaultStatus()); return {}; }
   if (cmd === 'git log' || cmd === 'git log --oneline') {
     tprint([['view git log once you\'re on the right branch', 'dim']]); return {};
@@ -302,6 +326,7 @@ function parseCmd(raw) {
 
   tprint([["command not recognized in this environment. type 'help' for available commands.", 'warn']]);
   flashTerminal();
+  countWrong();
   return {};
 }
 
@@ -369,13 +394,17 @@ function updateActiveBranch(treeKey) {
 function advance(treeState) {
   if (treeState) { renderTree(treeState); updateActiveBranch(treeState); }
 
+  addScore(10); // correct answer reward
+
   const nextIdx = G.stageIdx + 1;
   if (nextIdx >= room().stages.length) {
     completeRoom();
   } else {
-    G.stageIdx = nextIdx;
-    G.hintLevel = 0;
-    G.fileEditDone = false;
+    G.stageIdx      = nextIdx;
+    G.hintLevel     = 0;
+    G.fileEditDone  = false;
+    G.stageWrongs   = 0;
+    G.stageHintLevel = -1;
     updateProgress();
 
     setTimeout(() => {
@@ -434,12 +463,14 @@ function goNextRoom() {
     document.getElementById('endScreen').classList.add('open');
     return;
   }
-  G.roomIdx  = next;
-  G.stageIdx = 0;
-  G.hintsUsed = 0;
-  G.hintLevel = 0;
-  G.fileEditDone = false;
-  G.roomStart = Date.now();
+  G.roomIdx        = next;
+  G.stageIdx       = 0;
+  G.hintsUsed      = 0;
+  G.hintLevel      = 0;
+  G.fileEditDone   = false;
+  G.stageWrongs    = 0;
+  G.stageHintLevel = -1;
+  G.roomStart      = Date.now();
   loadRoom();
 }
 
@@ -631,17 +662,27 @@ function openHint() {
   document.getElementById('hintModal').classList.add('open');
   G.hintsUsed++;
   G.totalHints++;
-  deductScore(10);
+  // -1 charged once per stage for opening hint at all
+  if (G.stageHintLevel < 0) {
+    G.stageHintLevel = 0;
+    addScore(-1);
+  }
 }
 
 function moreHint() {
   const hints = room().hints[G.stageIdx];
   G.hintLevel = Math.min(G.hintLevel + 1, hints.length - 1);
 
-  if (G.hintLevel === hints.length - 1) {
+  if (G.hintLevel === 1 && G.stageHintLevel < 1) {
+    // Advanced to hint 2 for first time this stage
+    G.stageHintLevel = 1;
+    addScore(-5);
+  } else if (G.hintLevel === hints.length - 1 && G.stageHintLevel < hints.length - 1) {
+    // Revealed the answer for first time this stage
+    G.stageHintLevel = hints.length - 1;
+    addScore(-15);
     G.totalHints += 3;
-    G.hintsUsed += 3;
-    deductScore(30);
+    G.hintsUsed  += 3;
   }
 
   setHintDisplay(G.hintLevel, hints);

@@ -1036,15 +1036,32 @@ body.resizing-col    { user-select: none; }
   text-align: right;
   transition: color 0.25s;
 }
-.score-chip.dropping .score-chip-val {
-  color: var(--err);
-}
+.score-chip.dropping .score-chip-val { color: var(--err); }
+.score-chip.gaining  .score-chip-val { color: var(--ok); }
 @keyframes chipPop {
-  0%   { transform: scale(1.18); }
+  0%   { transform: scale(1.2); }
   100% { transform: scale(1); }
 }
-.score-chip.dropping {
-  animation: chipPop 0.2s ease-out;
+.score-chip.dropping,
+.score-chip.gaining { animation: chipPop 0.2s ease-out; }
+
+/* Floating +/- indicator */
+.score-chip { position: relative; }
+.score-delta {
+  position: absolute;
+  top: -4px;
+  right: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  pointer-events: none;
+  animation: deltaFloat 0.85s ease-out forwards;
+}
+.score-delta.pos { color: var(--ok); }
+.score-delta.neg { color: var(--err); }
+@keyframes deltaFloat {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-22px); }
 }
 
 /* ─── FOOTER STATUS BAR ───────────────────────────────────── */
