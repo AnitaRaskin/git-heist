@@ -214,12 +214,24 @@
       That's all git ever is — knowing where you are, where you've been, and how to undo what went wrong.<br><br>
       Welcome to the crew."
     </div>
+    <div id="scoreSection">
+      <button id="saveScoreBtn" class="btn primary end-save-btn" onclick="submitScore()">[ SAVE YOUR SCORE ]</button>
+      <div id="scoreSaved" style="display:none">
+        <div class="score-saved-ok">SCORE SAVED ✓</div>
+        <div class="leaderboard-wrap">
+          <div class="leaderboard-header">TOP OPERATIVES</div>
+          <div id="leaderboardRows"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- scripts load in dependency order: data → renderer → engine -->
+<!-- scripts load in dependency order: supabase cdn → data → renderer → supabase → engine -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="js/data.js"></script>
 <script src="js/renderer.js"></script>
+<script src="js/supabase.js"></script>
 <script src="js/engine.js"></script>
 
 </body>

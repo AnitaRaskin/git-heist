@@ -2,6 +2,7 @@ const G = {
   roomIdx:  0,
   stageIdx: 0,
   hintsUsed: 0,
+  totalHints: 0,
   hintLevel: 0,
   roomStart: 0,
   missionStart: 0,
@@ -560,12 +561,29 @@ function cancelFile() {
 // HINT SYSTEM
 // ═══════════════════════════════════════════════════════════════════════
 
+let pendingReveal = false;
+
 function setHintDisplay(lvl, hints) {
   document.getElementById('hintLvl').textContent = `HINT ${lvl + 1} OF ${hints.length}`;
   document.getElementById('hintTxt').textContent = hints[lvl];
-  document.getElementById('nextHintBtn').style.display = lvl < hints.length - 1 ? '' : 'none';
   const bar = document.getElementById('hintProgressBar');
   if (bar) bar.style.width = (((lvl + 1) / hints.length) * 100) + '%';
+
+  const nextBtn = document.getElementById('nextHintBtn');
+  nextBtn.classList.remove('confirm-reveal');
+  nextBtn.textContent = 'DEEPER HINT →';
+
+  if (lvl >= hints.length - 1) {
+    nextBtn.style.display = 'none';
+    nextBtn.removeAttribute('title');
+    return;
+  }
+  nextBtn.style.display = '';
+  if (lvl === hints.length - 2) {
+    nextBtn.setAttribute('title', 'reveals the answer — costs ×3 points');
+  } else {
+    nextBtn.removeAttribute('title');
+  }
 }
 
 function openHint() {
@@ -575,16 +593,37 @@ function openHint() {
   setHintDisplay(lvl, hints);
   document.getElementById('hintModal').classList.add('open');
   G.hintsUsed++;
+  G.totalHints++;
 }
 
 function moreHint() {
   const hints = room().hints[G.stageIdx];
+  const nextLevel = G.hintLevel + 1;
+  const wouldReveal = nextLevel === hints.length - 1;
+
+  if (wouldReveal && !pendingReveal) {
+    pendingReveal = true;
+    const nextBtn = document.getElementById('nextHintBtn');
+    nextBtn.textContent = 'ARE YOU SURE? CONFIRM →';
+    nextBtn.classList.add('confirm-reveal');
+    nextBtn.removeAttribute('title');
+    return;
+  }
+
+  pendingReveal = false;
   G.hintLevel = Math.min(G.hintLevel + 1, hints.length - 1);
+
+  if (G.hintLevel === hints.length - 1) {
+    G.totalHints += 3;
+    G.hintsUsed += 3;
+  }
+
   setHintDisplay(G.hintLevel, hints);
 }
 
 function closeHint() {
   document.getElementById('hintModal').classList.remove('open');
+  pendingReveal = false;
   G.hintLevel = 0;
   inp.focus();
 }
@@ -786,6 +825,55 @@ function runBootSequence() {
   container.addEventListener('click', skip, { once: true });
   const skipBtn = document.getElementById('bootSkipBtn');
   if (skipBtn) skipBtn.addEventListener('click', skip, { once: true });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SCORE SUBMISSION + LEADERBOARD
+// ═══════════════════════════════════════════════════════════════════════
+
+async function submitScore() {
+  const btn = document.getElementById('saveScoreBtn');
+  btn.textContent = '[ SAVING... ]';
+  btn.disabled = true;
+
+  const totalTime = Math.floor((Date.now() - G.missionStart) / 1000);
+  const saved = await saveScore({
+    codename:       G.codename,
+    totalTime,
+    roomsCompleted: G.clues.length,
+    hintsUsed:      G.totalHints,
+    commandsUsed:   cmdLog.map(e => e.cmd)
+  });
+
+  if (saved) {
+    btn.style.display = 'none';
+    document.getElementById('scoreSaved').style.display = '';
+    const board = await getLeaderboard();
+    renderLeaderboard(board);
+  } else {
+    btn.textContent = '[ ERROR — TRY AGAIN ]';
+    btn.disabled = false;
+  }
+}
+
+function renderLeaderboard(board) {
+  const el = document.getElementById('leaderboardRows');
+  if (!board || !board.length) {
+    el.innerHTML = '<div class="lb-empty">no other scores yet. you\'re the first operative.</div>';
+    return;
+  }
+  el.innerHTML = board.map((row, i) => {
+    const t = row.total_time || 0;
+    const m = Math.floor(t / 60);
+    const s = String(t % 60).padStart(2, '0');
+    const rooms = row.rooms_completed || 0;
+    return `<div class="lb-row">
+      <span class="lb-rank">#${i + 1}</span>
+      <span class="lb-name">${row.codename}</span>
+      <span class="lb-time">${m}:${s}</span>
+      <span class="lb-rooms">${rooms}/${ROOMS.length} rooms</span>
+    </div>`;
+  }).join('');
 }
 
 runBootSequence();

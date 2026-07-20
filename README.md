@@ -37,8 +37,10 @@ You can only move forward by typing the correct Git command. No clicking through
 - **Terminal panel** — type Git commands, get real-looking output
 - **Fox's comms** — mission briefing, stage by stage
 - **Repo state panel** — live SVG diagram of branches, commits, and HEAD — updates as you work
-- **Hint system** — 3 levels per stage, no penalty, just tracking
+- **Hint system** — 3 levels per stage; the third level reveals the answer and costs ×3 points — confirmed with a two-click "are you sure?" prompt
 - **Command log** — `[cmd: log]` button tracks every command you've used; downloadable as a cheat sheet at the end
+- **Per-room clue fragments** — each room leaves a piece of the access credentials, assembled on the end screen
+- **Score saving** — finish the game and your score is saved to a live leaderboard (Supabase)
 - **Progress** saves to localStorage — pick up where you left off
 
 ## Curriculum
@@ -47,12 +49,13 @@ Based on the **[Beginner Git](./Beginner%20Git.pdf)** course (place the PDF in t
 
 ## Built with
 
-Vanilla JS. No dependencies, no build step, no login.
+Vanilla JS + Supabase for the leaderboard. No build step, no framework.
 
 ```
-index.html      — structure
-style.css       — design system
-js/data.js      — room content, commands, tree states
-js/renderer.js  — SVG git tree
-js/engine.js    — game logic
+index.html        — structure
+style.css         — design system
+js/data.js        — room content, commands, tree states
+js/renderer.js    — SVG git tree
+js/engine.js      — game logic
+js/supabase.js    — score saving + leaderboard
 ```
