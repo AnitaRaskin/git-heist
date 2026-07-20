@@ -843,7 +843,10 @@ function initResizable() {
 
 initResizable();
 
+let gameStarted = false;
 function startGame() {
+  if (gameStarted) return;
+  gameStarted = true;
   const rawName = (document.getElementById('operativeName').value || '').trim();
   const codename = rawName.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase() || 'operative';
   G.codename = codename;
