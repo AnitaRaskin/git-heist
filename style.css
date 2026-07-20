@@ -536,7 +536,10 @@ body.resizing-col    { user-select: none; }
 #hintModal {
   display: none;
   position: fixed;
-  inset: 0;
+  top: 49px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(13,15,14,0.88);
   z-index: 100;
   align-items: center;
