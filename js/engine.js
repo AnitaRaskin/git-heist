@@ -1,3 +1,34 @@
+// ═══════════════════════════════════════════════════════════════════════
+// RUNTIME HASH GENERATION — each session gets unique commit IDs
+// ═══════════════════════════════════════════════════════════════════════
+
+function genHash() {
+  const chars = '0123456789abcdef';
+  return Array.from({length: 7}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+// H[1]–H[8] replace hardcoded hashes throughout data.js
+// H[1] vault schematics commit (Room 1 checkout target + Room 7 log)
+// H[2] wrong/decoy commit (Room 1 log decoy, wrong command)
+// H[3] maintenance window commit (stash messages, commit output)
+// H[4] bad temp-fix commit (Room 7 git show target, Room 8 revert target)
+// H[5]–H[8] decorative entries in git log output
+const H = [''].concat(Array.from({length: 8}, genHash));
+
+function interp(s) {
+  if (typeof s !== 'string') return s;
+  return s
+    .replace(/\{\{H1\}\}/g, H[1])
+    .replace(/\{\{H2\}\}/g, H[2])
+    .replace(/\{\{H3\}\}/g, H[3])
+    .replace(/\{\{H4\}\}/g, H[4])
+    .replace(/\{\{H5\}\}/g, H[5])
+    .replace(/\{\{H6\}\}/g, H[6])
+    .replace(/\{\{H7\}\}/g, H[7])
+    .replace(/\{\{H8\}\}/g, H[8]);
+}
+
+
 const G = {
   roomIdx:       0,
   stageIdx:      0,
@@ -314,7 +345,7 @@ function tprint(lines) {
   lines.forEach(([text, cls]) => {
     const d = document.createElement('div');
     d.className = 't ' + (cls || '');
-    d.textContent = text;
+    d.textContent = interp(text);
     out.appendChild(d);
   });
   out.scrollTop = out.scrollHeight;
@@ -354,7 +385,7 @@ function foxMsg(text, type) {
   row.appendChild(msg);
   wrap.appendChild(row);
 
-  const fullText = `[fox] > ${text}`;
+  const fullText = `[fox] > ${interp(text)}`;
   let i = 0;
   function next() {
     if (i < fullText.length) {
@@ -437,7 +468,7 @@ function parseCmd(raw) {
       const msg = m[1] || 'committed';
       const branch = (s.tree || '').includes('conflict') ? 'main' : 'operative/entry-window';
       const output = [
-        [`[${branch} f4a2b19] ${msg}`, 'cm'],
+        [`[${branch} ${H[3]}] ${msg}`, 'cm'],
         [' 1 file changed, 1 insertion(+), 1 deletion(-)', 'sys'],
         ['', '']
       ];
@@ -453,7 +484,7 @@ function parseCmd(raw) {
   }
 
   // Exact + near matches
-  const accepted = (s.accepted || []).map(normalise);
+  const accepted = (s.accepted || []).map(a => interp(normalise(a)));
   if (accepted.includes(cmd)) {
     if (s.fileEdit && !G.fileEditDone) {
       const fn = s.fileName || 'security-config.json';
@@ -469,7 +500,7 @@ function parseCmd(raw) {
   // Wrong-command responses
   if (s.wrong) {
     for (const [wCmd, wOut] of Object.entries(s.wrong)) {
-      if (cmd === normalise(wCmd) || cmd.startsWith(normalise(wCmd) + ' ')) {
+      if (cmd === interp(normalise(wCmd)) || cmd.startsWith(interp(normalise(wCmd)) + ' ')) {
         tprint(wOut);
         countWrong();
         return {};
@@ -792,7 +823,7 @@ function setHintDisplay(lvl, hints) {
 
   // Render hint text — split off trailing "run:" or "type:" command line
   const hintTxt = document.getElementById('hintTxt');
-  const text = hints[lvl];
+  const text = interp(hints[lvl]);
   const cmdMatch = text.match(/^([\s\S]+)\n\n((?:run|type): .+)$/);
   if (cmdMatch) {
     hintTxt.innerHTML = cmdMatch[1] + '<br><br><span class="hint-cmd">' + cmdMatch[2] + '</span>';

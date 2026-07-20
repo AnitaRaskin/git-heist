@@ -30,7 +30,7 @@ const ROOMS = [
         task: "View the commit history of this repo.",
         accepted: ["git log --oneline", "git log"],
         output: [
-          ["c1a8f33 (HEAD -> main) initial repo setup", "cm"],
+          ["{{H7}} (HEAD -> main) initial repo setup", "cm"],
           ["", ""],
           ["one commit. the repo is fresh. everything that happens next — you'll be able to trace.", "dim"],
         ],
@@ -129,28 +129,28 @@ const ROOMS = [
         task: "View the commit log on this branch.",
         accepted: ["git log --oneline", "git log", "git log --all", "git log --oneline --all"],
         output: [
-          ["a3f9c12 (HEAD -> fox/vault-schematics) hide the access map — do not merge", "cm"],
-          ["b7e2d45 update access routes", "sys"],
-          ["c1a8f33 initial repo setup", "dim"],
+          ["{{H1}} (HEAD -> fox/vault-schematics) hide the access map — do not merge", "cm"],
+          ["{{H2}} update access routes", "sys"],
+          ["{{H7}} initial repo setup", "dim"],
         ],
         tree: "r1_on_fox",
         wrong: {}
       },
       {
-        foxMsg: "that commit at a3f9c12. go there. you'll detach from the branch — that's expected. read-only.",
+        foxMsg: "that commit at {{H1}}. go there. you'll detach from the branch — that's expected. read-only.",
         task: "Checkout the specific commit where the access map was hidden.",
-        accepted: ["git checkout a3f9c12"],
+        accepted: ["git checkout {{H1}}"],
         output: [
-          ["Note: switching to 'a3f9c12'.", "sys"],
+          ["Note: switching to '{{H1}}'.", "sys"],
           ["", ""],
           ["You are in 'detached HEAD' state. You can look around and make experimental", "warn"],
           ["changes and commit them, but they won't be tracked to any branch.", "warn"],
           ["", ""],
-          ["HEAD is now at a3f9c12 hide the access map — do not merge", "cm"],
+          ["HEAD is now at {{H1}} hide the access map — do not merge", "cm"],
         ],
         tree: "r1_detached",
         wrong: {
-          "git checkout b7e2d45": [["that's the wrong commit. check the log again — you want a3f9c12.", "warn"]]
+          "git checkout {{H2}}": [["that's the wrong commit. check the log again — you want {{H1}}.", "warn"]]
         }
       },
       {
@@ -203,7 +203,7 @@ const ROOMS = [
       [
         "you found the commit hash in the log. now you need to go TO that exact commit.",
         "git checkout works with commit hashes, not just branch names. use the 7-character hash.",
-        "a commit hash is its unique ID. git checkout works with hashes the same way it works with branch names. you'll enter 'detached HEAD' state — that's expected for read-only exploration.\n\nrun: git checkout a3f9c12"
+        "a commit hash is its unique ID. git checkout works with hashes the same way it works with branch names. you'll enter 'detached HEAD' state — that's expected for read-only exploration.\n\nrun: git checkout {{H1}}"
       ],
       [
         "you're at the right commit. the file is there — just read it.",
@@ -430,7 +430,7 @@ const ROOMS = [
         accepted: ["git stash", "git stash push"],
         output: [
           ["Saved working directory and index state", "sys"],
-          ["  stash@{0}: WIP on operative/entry-window: f4a2b19 set maintenance window to 02:00", "dim"],
+          ["  stash@{0}: WIP on operative/entry-window: {{H3}} set maintenance window to 02:00", "dim"],
           ["", ""],
           ["working tree clean. nothing to see here.", "ok"],
         ],
@@ -451,7 +451,7 @@ const ROOMS = [
         task: "List your stashed changes.",
         accepted: ["git stash list"],
         output: [
-          ["stash@{0}: WIP on operative/entry-window: f4a2b19 set maintenance window to 02:00", "sys"],
+          ["stash@{0}: WIP on operative/entry-window: {{H3}} set maintenance window to 02:00", "sys"],
           ["", ""],
           ["your work is safe. hidden. waiting.", "dim"],
         ],
@@ -680,23 +680,23 @@ const ROOMS = [
         task: "Find the suspicious commit in the log.",
         accepted: ["git log --oneline", "git log", "git log --all --oneline", "git log --oneline --all"],
         output: [
-          ["d8f2a11 (HEAD -> main) merge alarm bypass — URGENT", "cm"],
-          ["e3c4b20 temp fix — remove before push", "err"],
-          ["f1a9c33 update monitoring cycle config", "sys"],
-          ["a3f9c12 set maintenance window to 02:00", "sys"],
-          ["c1a8f33 initial repo setup", "dim"],
+          ["{{H5}} (HEAD -> main) merge alarm bypass — URGENT", "cm"],
+          ["{{H4}} temp fix — remove before push", "err"],
+          ["{{H6}} update monitoring cycle config", "sys"],
+          ["{{H1}} set maintenance window to 02:00", "sys"],
+          ["{{H7}} initial repo setup", "dim"],
           ["", ""],
-          ["⚠  note e3c4b20 — 'remove before push'. it was pushed.", "warn"],
+          ["⚠  note {{H4}} — 'remove before push'. it was pushed.", "warn"],
         ],
         tree: "r5_dirty",
         wrong: {}
       },
       {
-        foxMsg: "what did commit e3c4b20 actually do? line by line.",
-        task: "Inspect the exact changes made by commit e3c4b20.",
-        accepted: ["git show e3c4b20", "git diff e3c4b20^ e3c4b20", "git diff e3c4b20^..e3c4b20"],
+        foxMsg: "what did commit {{H4}} actually do? line by line.",
+        task: "Inspect the exact changes made by commit {{H4}}.",
+        accepted: ["git show {{H4}}", "git diff {{H4}}^ {{H4}}", "git diff {{H4}}^..{{H4}}"],
         output: [
-          ["commit e3c4b20", "cm"],
+          ["commit {{H4}}", "cm"],
           ["Author: unknown operative <redacted@vault.local>", "dim"],
           ["Date:   Sat Jul 19 01:44:03 2026 +0000", "dim"],
           ["", ""],
@@ -715,7 +715,7 @@ const ROOMS = [
           "git diff": [
             ["--- a/alarm-config.json  b/alarm-config.json (working dir)", "dim"],
             ["shows current working directory changes — not what's IN a commit.", "warn"],
-            ["try: git show e3c4b20  to inspect a specific commit's changes.", "dim"]
+            ["try: git show {{H4}}  to inspect a specific commit's changes.", "dim"]
           ]
         },
         completionMsg: "there it is. now you know. now fix it."
@@ -735,7 +735,7 @@ const ROOMS = [
       [
         "you have the commit hash. you can see exactly what changed in that commit.",
         "git show <hash> displays the commit message and the full diff of what changed.",
-        "git show <hash> displays the full diff of a specific commit — exactly which lines were added (+) and removed (-). use the 7-character hash from the log output.\n\nrun: git show e3c4b20"
+        "git show <hash> displays the full diff of a specific commit — exactly which lines were added (+) and removed (-). use the 7-character hash from the log output.\n\nrun: git show {{H4}}"
       ]
     ]
   },
@@ -794,19 +794,19 @@ const ROOMS = [
       },
       {
         foxMsg: "that bad commit is on the shared branch. you can't rewrite history — the server logs every push. undo it officially.",
-        task: "Safely undo commit e3c4b20 without rewriting shared history.",
-        accepted: ["git revert e3c4b20", "git revert e3c4b20 --no-edit"],
+        task: "Safely undo commit {{H4}} without rewriting shared history.",
+        accepted: ["git revert {{H4}}", "git revert {{H4}} --no-edit"],
         output: [
-          ["[main 9a1c3e7] Revert \"temp fix — remove before push\"", "cm"],
+          ["[main {{H8}}] Revert \"temp fix — remove before push\"", "cm"],
           [" 1 file changed, 1 deletion(-), 1 insertion(+)", "sys"],
           ["", ""],
           ["✓ a new commit was created. the bad change is undone.", "ok"],
-          ["  the original commit e3c4b20 is still in history — that's correct.", "dim"],
+          ["  the original commit {{H4}} is still in history — that's correct.", "dim"],
           ["  revert adds a commit that cancels it out. history stays intact.", "dim"],
         ],
         tree: "r6_reverted",
         wrong: {
-          "git reset --hard e3c4b20": [
+          "git reset --hard {{H4}}": [
             ["⚠  that rewrites history — removes commits entirely.", "err"],
             ["this is a SHARED branch. others have already pulled it.", "err"],
             ["rewriting it would break their repos.", "err"],
@@ -839,7 +839,7 @@ const ROOMS = [
       [
         "the commit is on a shared branch that others have already pulled. you can't erase it — you must officially undo it.",
         "git revert <hash> creates a new commit that reverses the changes from that commit.",
-        "git revert <hash> creates a new commit that undoes a specific commit's changes — safe for shared branches because it adds to history rather than rewriting it.\n\nrun: git revert e3c4b20"
+        "git revert <hash> creates a new commit that undoes a specific commit's changes — safe for shared branches because it adds to history rather than rewriting it.\n\nrun: git revert {{H4}}"
       ]
     ]
   }
