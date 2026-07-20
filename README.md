@@ -1,10 +1,10 @@
-# Git Heist — Git Escape Room
+# Vault Zero — Git Escape Rooms
 
-A browser-based Git learning game for junior engineers. No install. No setup. Open `index.html` in a tab and start playing.
+A browser-based Git learning game for junior engineers. No install. No setup. Open `index.html` to pick a mission.
 
 ## Play it
 
-**[→ Open the game](https://anitaraskin.github.io/git-heist)** *(enable GitHub Pages to activate this link)*
+**[→ Open the hub](https://anitaraskin.github.io/git-heist)** *(enable GitHub Pages to activate this link)*
 
 Or clone and open locally:
 ```bash
@@ -14,9 +14,15 @@ open git-heist/index.html
 
 ## What it is
 
-A cyber heist escape room where each "room" teaches one cluster of Git concepts. You're a hacker breaking into an online bank's system. Fox — your crew contact — guides you through via encrypted comms.
+A hub of cyber heist escape rooms, each teaching a cluster of Git concepts. You're a hacker. Fox — your encrypted crew contact — guides you through each mission.
 
 You can only move forward by typing the correct Git command. No clicking through slides. No multiple choice. Real commands, real output, real feedback.
+
+## Missions
+
+### GIT_HEIST (`git-heist.html`)
+
+A previous crew left access credentials buried in a repo — never merged, still in there. Navigate branches, stash work, rebase history, and extract the data before the police close in.
 
 ## The rooms
 
@@ -50,7 +56,8 @@ You can only move forward by typing the correct Git command. No clicking through
 Vanilla JS + Supabase for the leaderboard. No build step, no framework.
 
 ```
-index.html        — structure
+index.html        — hub landing page (mission select)
+git-heist.html    — GIT_HEIST escape room
 style.css         — design system
 js/data.js        — room content, commands, tree states
 js/renderer.js    — SVG git tree

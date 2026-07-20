@@ -3,324 +3,569 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GIT_HEIST // SYSTEM_BREACH</title>
+<title>VAULT_ZERO // OPERATIVE TRAINING</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:          #0d0f0e;
+  --surface:     #1a1c1b;
+  --surface-hi:  #1e201f;
+  --surface-top: #282a29;
+  --border:      #2a2c2b;
+  --border-dim:  #3d4943;
+  --primary:     #1D9E75;
+  --primary-dim: #68dbae;
+  --text:        #d1d5db;
+  --text-dim:    #87948c;
+  --text-muted:  #3d4943;
+  --ok:          #68dbae;
+  --warn:        #c8a87a;
+  --font:        'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; cursor: crosshair !important; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── SCANLINE ────────────────────────────────────────────── */
+.scanline {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(to bottom, transparent, rgba(29,158,117,0.13), transparent);
+  pointer-events: none;
+  z-index: 999;
+  animation: scanline 9s linear infinite;
+}
+
+@keyframes scanline { from { transform: translateY(-4px); } to { transform: translateY(100vh); } }
+@keyframes blink    { 50% { opacity: 0.3; } }
+@keyframes fadeUp   { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cur-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes pulse-border { 0%,100% { border-color: var(--border); } 50% { border-color: var(--primary); } }
+
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface-top); }
+
+/* ─── GRID BG ─────────────────────────────────────────────── */
+.hub-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(to right,  rgba(42,44,43,0.28) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(to bottom, rgba(42,44,43,0.28) 1px, transparent 1px) 0 0 / 40px 40px,
+    var(--bg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── TOP BAR ─────────────────────────────────────────────── */
+.hub-topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,15,14,0.85);
+  backdrop-filter: blur(4px);
+}
+.hub-topbar-brand {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--primary);
+}
+.hub-topbar-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 20px;
+}
+.hub-topbar-meta span { animation: blink 3s ease-in-out infinite; }
+.hub-topbar-meta span:nth-child(2) { animation-delay: 1.1s; }
+
+/* ─── HERO ────────────────────────────────────────────────── */
+.hub-hero {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 64px 24px 48px;
+  animation: fadeUp 0.6s ease both;
+}
+.hub-hero-tag {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+.hub-hero-title {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.hub-hero-title span { color: var(--primary); }
+.hub-hero-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.hub-cursor {
+  display: inline-block;
+  width: 9px; height: 16px;
+  background: var(--primary);
+  vertical-align: middle;
+  margin-left: 4px;
+  animation: cur-blink 1s step-end infinite;
+}
+
+/* ─── DIVIDER ─────────────────────────────────────────────── */
+.hub-divider {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.hub-divider-line { flex: 1; height: 1px; background: var(--border); }
+.hub-divider-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ─── GRID ────────────────────────────────────────────────── */
+.hub-grid {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+/* ─── CARD ────────────────────────────────────────────────── */
+.room-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, transform 0.15s;
+  text-decoration: none;
+  color: inherit;
+  animation: fadeUp 0.5s ease both;
+}
+.room-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+.room-card.locked { opacity: 0.4; pointer-events: none; }
+.room-card:nth-child(1) { animation-delay: 0.05s; }
+.room-card:nth-child(2) { animation-delay: 0.12s; }
+.room-card:nth-child(3) { animation-delay: 0.19s; }
+
+/* ─── CARD PREVIEW ────────────────────────────────────────── */
+.card-preview {
+  height: 160px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* mini top bar */
+.cp-topbar {
+  height: 20px;
+  background: var(--surface-top);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.cp-topbar-tag {
+  font-size: 7px;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.cp-topbar-dots { margin-left: auto; display: flex; gap: 4px; }
+.cp-dot { width: 5px; height: 5px; border-radius: 0; background: var(--border); }
+.cp-dot.active { background: var(--primary); }
+.cp-dot.probe  { background: var(--warn); animation: blink 1s ease-in-out infinite; }
+
+/* mini panels row */
+.cp-panels {
+  flex: 1;
+  display: flex;
+  gap: 1px;
+  background: var(--border);
+  overflow: hidden;
+}
+.cp-panel {
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 3px;
+}
+.cp-panel-fox { flex: 1.2; }
+.cp-panel-term { flex: 2; }
+.cp-panel-tree { flex: 1; }
+
+.cp-line {
+  height: 5px;
+  border-radius: 0;
+  background: var(--surface-top);
+}
+.cp-line.accent { background: rgba(29,158,117,0.35); width: 60%; }
+.cp-line.short  { width: 45%; }
+.cp-line.med    { width: 70%; }
+.cp-line.long   { width: 90%; }
+.cp-line.dim    { background: var(--surface); }
+
+/* mini terminal prompt */
+.cp-prompt {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+.cp-prompt-arrow {
+  width: 5px; height: 5px;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+.cp-prompt-text { height: 5px; flex: 1; background: rgba(29,158,117,0.2); }
+
+/* mini git tree nodes */
+.cp-tree-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+}
+.cp-node {
+  width: 8px; height: 8px;
+  border: 1px solid var(--primary);
+  background: var(--bg);
+}
+.cp-node.filled { background: var(--primary); }
+.cp-node-line { width: 1px; height: 10px; background: var(--border-dim); }
+
+/* card content */
+.card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.card-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.card-status-dot {
+  width: 6px; height: 6px;
+  background: var(--primary);
+  animation: blink 2.5s ease-in-out infinite;
+}
+.card-status-dot.locked-dot { background: var(--text-muted); animation: none; }
+.card-status-label {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+.card-status-label.locked-label { color: var(--text-muted); }
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.card-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin-bottom: 16px;
+  flex: 1;
+}
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.card-tag {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  text-transform: uppercase;
+}
+.card-enter {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid var(--primary);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--primary);
+  font-weight: 700;
+  font-family: var(--font);
+  background: transparent;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  cursor: crosshair !important;
+}
+.room-card:hover .card-enter {
+  background: var(--primary);
+  color: var(--bg);
+}
+.card-locked-enter {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-family: var(--font);
+  background: transparent;
+}
+
+/* ─── FOOTER ──────────────────────────────────────────────── */
+.hub-footer {
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: rgba(13,15,14,0.85);
+}
+.hub-footer-live { display: flex; align-items: center; gap: 6px; }
+.hub-footer-live-dot {
+  width: 5px; height: 5px;
+  background: var(--primary);
+  animation: blink 2s ease-in-out infinite;
+}
+</style>
 </head>
 <body>
 
 <div class="scanline"></div>
-<div id="policeVignette" class="police-vignette"></div>
+<div class="hub-bg"></div>
 
-<!-- ═══ INTRO ════════════════════════════════════════════════ -->
-<div id="introScreen">
-  <div class="transmission">
-    <div class="tx-header">▓ ENCRYPTED TRANSMISSION ▓</div>
-    <div class="vault-logo">GIT HEIST</div>
-    <div class="vault-sub">A GIT LEARNING ESCAPE ROOM</div>
-    <div class="boot-skip-row">
-      <button id="bootSkipBtn" class="boot-skip-btn">[ skip ]</button>
-    </div>
-    <div class="boot-terminal" id="bootTerminal"></div>
-    <div class="tx-body tx-fade" id="txBody" style="opacity:0;transform:translateY(8px)">
-      <strong>From: Fox</strong><br><br>
-      "You want in on the Git Heist? Prove you can handle the tools first.<br><br>
-      A previous crew breached the target's system and buried the access credentials inside their own repo. Never merged. Still in there.<br><br>
-      Find it. I'll be watching."
-    </div>
-    <div class="operative-input-row tx-fade" id="operativeRow" style="opacity:0;transform:translateY(8px)">
-      <label class="operative-input-label">operative_codename:</label>
-      <input type="text" id="operativeName" class="operative-input" placeholder="enter codename..." autocomplete="off" spellcheck="false" maxlength="20">
-    </div>
-    <button class="enter-btn tx-fade" id="enterBtn" style="opacity:0;pointer-events:none" onclick="startGame()">[ ENTER THE REPO ]</button>
+<!-- ─── TOP BAR ─────────────────────────────────────────── -->
+<div class="hub-topbar">
+  <div class="hub-topbar-brand">VAULT_ZERO // OPERATIVE TRAINING</div>
+  <div class="hub-topbar-meta">
+    <span>node: training-relay-01</span>
+    <span>enc: aes-256</span>
+    <span>signal: stable</span>
   </div>
 </div>
 
-<!-- ═══ GAME SHELL ════════════════════════════════════════════ -->
-<div id="gameShell">
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <div class="vault-tag">git_heist_v1</div>
-      <div class="top-bar-meta">
-        <span>sec_protocol: aes-256</span>
-        <span>latency: 24ms</span>
-      </div>
-    </div>
-    <div id="roomInfo">target // git heist banking system</div>
-    <div class="top-bar-right">
-      <span class="sec-status" id="secStatus">security_layer_01: bypassed // layer_02: probing</span>
-      <div class="sec-dots">
-        <span class="sec-dot active"></span>
-        <span class="sec-dot probing"></span>
-        <span class="sec-dot"></span>
-        <span class="sec-dot"></span>
-      </div>
-      <div class="score-chip" id="scoreChip">
-        <span class="score-chip-label">score</span>
-        <span class="score-chip-val" id="scoreVal">0</span>
-      </div>
-      <button class="hint-btn" onclick="openCheatSheet()">[cmd: log]</button>
-      <button class="hint-btn" onclick="openHint()">[cmd: hint]</button>
-    </div>
-  </div>
-  <div class="progress-bar">
-    <div class="progress-fill" id="progressFill" style="width:0%"></div>
-  </div>
-  <div id="policeAlert">
-    <div class="police-strip">
-      <div class="police-strip-left">
-        <span class="police-flash">▓</span>
-        <span class="police-label">POLICE INCOMING</span>
-        <span class="police-sub">complete the step to evade</span>
-      </div>
-      <div class="police-strip-right">
-        <span class="police-timer-label">window</span>
-        <span class="police-countdown" id="policeCountdown">0:30</span>
-      </div>
-    </div>
-    <div class="police-bar">
-      <div class="police-bar-fill" id="policeBarFill"></div>
-    </div>
-  </div>
-  <div class="panels" id="panels">
-    <!-- Fox comms -->
-    <div class="panel fox-panel">
-      <div class="fox-header">
-        <svg class="fox-avatar-sm" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="47" fill="none" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
-          <circle cx="50" cy="54" r="34" fill="#131514"/>
-          <polygon points="19,47 28,10 44,43" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
-          <polygon points="56,43 72,10 81,47" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
-          <polygon points="23,45 29,17 41,42" fill="rgba(200,168,122,0.22)"/>
-          <polygon points="59,42 71,17 77,45" fill="rgba(200,168,122,0.22)"/>
-          <circle cx="50" cy="54" r="34" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
-          <rect x="21" y="49" width="58" height="17" rx="5" fill="#0d0f0e" stroke="#1D9E75" stroke-width="1.5"/>
-          <ellipse cx="36" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="36" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="36" cy="57.5" r="2.5" fill="#68dbae"/>
-          <ellipse cx="64" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="64" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="64" cy="57.5" r="2.5" fill="#68dbae"/>
-          <rect x="44" y="55" width="12" height="2" rx="1" fill="#0d0f0e"/>
-          <ellipse cx="50" cy="76" rx="7" ry="4" fill="rgba(200,168,122,0.15)" stroke="#1D9E75" stroke-width="0.8" opacity="0.7"/>
-          <polygon points="47,75 50,79 53,75" fill="rgba(200,168,122,0.35)"/>
-        </svg>
-        <div>
-          <div class="fox-header-title">fox // signal encrypted</div>
-          <div class="fox-header-sub">connection: stable // encryption: active</div>
+<!-- ─── HERO ─────────────────────────────────────────────── -->
+<div class="hub-hero">
+  <div class="hub-hero-tag">▓ classified access only ▓</div>
+  <div class="hub-hero-title">ESCAPE ROOM FOR <span>LEARNING</span><div class="hub-cursor"></div></div>
+  <div class="hub-hero-sub">hands-on missions // learn by doing // no lectures</div>
+</div>
+
+<!-- ─── DIVIDER ───────────────────────────────────────────── -->
+<div class="hub-divider">
+  <div class="hub-divider-line"></div>
+  <div class="hub-divider-label">// select mission</div>
+  <div class="hub-divider-line"></div>
+</div>
+
+<!-- ─── CARDS ─────────────────────────────────────────────── -->
+<div class="hub-grid">
+
+  <!-- GIT HEIST -->
+  <a class="room-card" href="git-heist.html">
+    <div class="card-preview">
+      <div class="cp-topbar">
+        <div class="cp-topbar-tag">GIT_HEIST_V1</div>
+        <div class="cp-topbar-dots">
+          <div class="cp-dot active"></div>
+          <div class="cp-dot probe"></div>
+          <div class="cp-dot"></div>
+          <div class="cp-dot"></div>
         </div>
       </div>
-      <div class="fox-messages" id="foxMessages"></div>
-      <div class="fox-footer">
-        <span class="fox-stream-end">-- end_of_stream --</span>
-        <span class="fox-conn-status">connection: stable</span>
-      </div>
-    </div>
-    <div class="resize-handle" id="resizeLeft"></div>
-    <!-- Terminal -->
-    <div class="panel terminal-panel" onclick="document.getElementById('termInput').focus()">
-      <div class="terminal-header">
-        <span class="operative-tag" id="operativeTag">operative@layer-01:~/vault-repo$</span>
-        <div class="terminal-node-meta">
-          <span>system_node: banking-core-relay</span>
-          <span>tty1</span>
+      <div class="cp-panels">
+        <!-- fox panel -->
+        <div class="cp-panel cp-panel-fox">
+          <div class="cp-line accent"></div>
+          <div class="cp-line short dim"></div>
+          <div class="cp-line med dim"></div>
+          <div class="cp-line short dim"></div>
+          <div class="cp-line long dim"></div>
+          <div class="cp-line med dim"></div>
+          <div class="cp-line short dim"></div>
+          <div class="cp-line accent short"></div>
         </div>
-      </div>
-      <div class="terminal-out" id="termOut"></div>
-      <div class="terminal-in-row">
-        <span class="prompt">&gt;</span>
-        <input type="text" id="termInput" autocomplete="off" spellcheck="false" placeholder="awaiting input...">
-      </div>
-    </div>
-    <div class="resize-handle" id="resizeRight"></div>
-    <!-- Git tree -->
-    <div class="panel tree-panel">
-      <div class="panel-header">REPO STATE</div>
-      <svg id="gitTree" viewBox="0 0 240 360" preserveAspectRatio="xMidYMid meet"></svg>
-      <div class="tree-meta">
-        <div class="tree-meta-title">network_topology // recursive_scan</div>
-        <div class="tree-meta-env-label">active_env</div>
-        <div class="tree-meta-chip">
-          <span class="tree-meta-chip-val" id="activeBranch">local/main</span>
-          <span class="tree-meta-chip-right">secure_link</span>
+        <!-- terminal panel -->
+        <div class="cp-panel cp-panel-term">
+          <div class="cp-line accent med"></div>
+          <div class="cp-line long dim"></div>
+          <div class="cp-line med dim"></div>
+          <div class="cp-line short dim"></div>
+          <div class="cp-line long dim"></div>
+          <div class="cp-line med dim"></div>
+          <div class="cp-prompt">
+            <div class="cp-prompt-arrow"></div>
+            <div class="cp-prompt-text"></div>
+          </div>
         </div>
-        <div class="tree-meta-info">integrity: verified<br>auth_level: operative_01<br>encryption: aes-256</div>
-      </div>
-    </div>
-  </div>
-  <div id="footerBar">
-    <div class="footer-left">
-      <span>enc: active</span>
-      <span>signal: stable</span>
-      <span>node: banking-core-relay</span>
-    </div>
-    <div class="footer-right">
-      <span id="footerClock">00:00:00 utc</span>
-      <span class="footer-live"><span class="footer-live-dot"></span>live_feed</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ HINT MODAL ════════════════════════════════════════════ -->
-<div id="hintModal">
-  <div class="hint-box">
-    <div class="hint-modal-header">
-      <span class="hint-modal-header-tag">[CMD: HINT]</span>
-      <span class="hint-modal-header-label">COGNITIVE_ASSISTANCE</span>
-    </div>
-    <div class="hint-body">
-      <div class="hint-lvl" id="hintLvl">HINT 1 OF 3</div>
-      <div class="hint-txt" id="hintTxt"></div>
-      <div class="hint-progress-wrap">
-        <div class="hint-progress-bar" id="hintProgressBar" style="width:33%"></div>
-      </div>
-      <div class="modal-btns">
-        <button class="btn" onclick="closeHint()">CLOSE</button>
-        <button class="btn primary" id="nextHintBtn" onclick="moreHint()">DEEPER HINT →</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ ROOM COMPLETE ═════════════════════════════════════════ -->
-<div id="roomDone">
-  <div class="done-box">
-    <div class="done-box-header">
-      <span class="done-box-header-tag">ACCESS GRANTED</span>
-      <span class="done-box-header-label">LAYER BREACHED</span>
-    </div>
-    <div class="done-body">
-      <div class="done-title">ROOM CLEARED</div>
-      <div class="done-stats" id="doneStats"></div>
-      <div class="done-msg" id="doneMsg"></div>
-      <div class="clue-fragment" id="clueFragment">
-        <div class="clue-fragment-label">▓ FRAGMENT ACQUIRED</div>
-        <div class="clue-fragment-val">
-          <span class="clue-key" id="clueKey"></span>
-          <span class="clue-sep"> → </span>
-          <span class="clue-val" id="clueVal"></span>
-        </div>
-        <div class="clue-count" id="clueCount"></div>
-      </div>
-      <button class="btn primary" onclick="goNextRoom()">NEXT ROOM →</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ FILE EDITOR ═══════════════════════════════════════════ -->
-<div id="fileEditor">
-  <div class="editor-box">
-    <div class="editor-title" id="editorTitle">EDIT FILE: security-config.json</div>
-    <textarea id="fileContent"></textarea>
-    <div class="editor-hint" id="editorHint">change <code>"maintenance_window": null</code> → <code>"maintenance_window": "02:00"</code></div>
-    <div class="modal-btns">
-      <button class="btn primary" onclick="saveFile()">SAVE FILE</button>
-      <button class="btn" onclick="cancelFile()">CANCEL</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ CHEAT SHEET ════════════════════════════════════════════ -->
-<div id="cheatSheet">
-  <div class="cheat-box">
-    <div class="cheat-header">
-      <span class="cheat-header-tag">[CMD: LOG]</span>
-      <span class="cheat-header-label">COMMAND_RECORD</span>
-    </div>
-    <div class="cheat-body">
-      <div class="cheat-intro">commands used this run — each one you earned.</div>
-      <div id="cheatList"></div>
-      <div class="modal-btns" style="margin-top:20px">
-        <button class="btn" onclick="closeCheatSheet()">CLOSE</button>
-        <button class="btn primary" onclick="downloadCheatSheet()">DOWNLOAD ↓</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ VERIFICATION QUIZ ════════════════════════════════════ -->
-<div id="quizScreen">
-  <div class="quiz-inner">
-    <div class="quiz-header-row">
-      <div class="fox-avatar-wrap">
-        <svg class="fox-avatar-lg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="47" fill="none" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
-          <circle cx="50" cy="54" r="34" fill="#131514"/>
-          <polygon points="19,47 28,10 44,43" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
-          <polygon points="56,43 72,10 81,47" fill="#131514" stroke="#1D9E75" stroke-width="1.5" stroke-linejoin="round"/>
-          <polygon points="23,45 29,17 41,42" fill="rgba(200,168,122,0.22)"/>
-          <polygon points="59,42 71,17 77,45" fill="rgba(200,168,122,0.22)"/>
-          <circle cx="50" cy="54" r="34" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
-          <rect x="21" y="49" width="58" height="17" rx="5" fill="#0d0f0e" stroke="#1D9E75" stroke-width="1.5"/>
-          <ellipse cx="36" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="36" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="36" cy="57.5" r="2.5" fill="#68dbae"/>
-          <ellipse cx="64" cy="57.5" rx="8" ry="5.5" fill="#1D9E75" opacity="0.22"/><ellipse cx="64" cy="57.5" rx="5" ry="3.5" fill="#1D9E75" opacity="0.45"/><circle cx="64" cy="57.5" r="2.5" fill="#68dbae"/>
-          <rect x="44" y="55" width="12" height="2" rx="1" fill="#0d0f0e"/>
-          <ellipse cx="50" cy="76" rx="7" ry="4" fill="rgba(200,168,122,0.15)" stroke="#1D9E75" stroke-width="0.8" opacity="0.7"/>
-          <polygon points="47,75 50,79 53,75" fill="rgba(200,168,122,0.35)"/>
-        </svg>
-        <div class="fox-avatar-tag">// FOX</div>
-      </div>
-      <div class="quiz-title-col">
-        <div class="quiz-title-tag">▓ IDENTITY VERIFICATION ▓</div>
-        <div class="quiz-title-sub">encrypted channel // auth: final check</div>
-      </div>
-    </div>
-
-    <div class="quiz-fox-speech" id="quizFoxSpeech"></div>
-
-    <div id="quizBody">
-      <div class="quiz-meta-row">
-        <span class="quiz-num" id="quizNum">QUESTION 1 / 4</span>
-        <div class="quiz-timer-wrap">
-          <span class="quiz-timer-num" id="quizTimerNum">0:20</span>
-          <div class="quiz-timer-bar"><div class="quiz-timer-fill" id="quizTimerFill"></div></div>
-        </div>
-      </div>
-      <div class="quiz-q" id="quizQ"></div>
-      <div class="quiz-opts" id="quizOpts"></div>
-      <div class="quiz-feedback" id="quizFeedback"></div>
-    </div>
-
-    <div id="quizResult" style="display:none">
-      <div class="quiz-result-score" id="quizResultScore"></div>
-      <button class="btn primary quiz-vault-btn" onclick="finishQuiz()">ENTER THE VAULT →</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ END SCREEN ════════════════════════════════════════════ -->
-<div id="endScreen">
-  <div class="end-inner">
-    <div class="tx-header">▓ TRANSMISSION ▓</div>
-    <div class="end-logo">OPERATION COMPLETE</div>
-    <div class="assembled-key-wrap">
-      <div class="assembled-key-header">GIT HEIST // ACCESS CREDENTIALS</div>
-      <div id="assembledKey"></div>
-    </div>
-    <div class="tx-body">
-      <strong>From: Fox</strong><br><br>
-      "The heist is done. The crew is in.<br><br>
-      You handled the repo. You handled the history. You handled the mess.<br><br>
-      That's all git ever is — knowing where you are, where you've been, and how to undo what went wrong.<br><br>
-      Welcome to the crew."
-    </div>
-    <div id="scoreSection">
-      <button id="saveScoreBtn" class="btn primary end-save-btn" onclick="submitScore()">[ SAVE YOUR SCORE ]</button>
-      <div id="scoreSaved" style="display:none">
-        <div class="score-saved-ok">SCORE SAVED ✓</div>
-        <div class="leaderboard-wrap">
-          <div class="leaderboard-header">TOP OPERATIVES</div>
-          <div id="leaderboardRows"></div>
+        <!-- tree panel -->
+        <div class="cp-panel cp-panel-tree">
+          <div class="cp-line accent short"></div>
+          <div class="cp-tree-col">
+            <div class="cp-node filled"></div>
+            <div class="cp-node-line"></div>
+            <div class="cp-node filled"></div>
+            <div class="cp-node-line"></div>
+            <div class="cp-node"></div>
+            <div class="cp-node-line"></div>
+            <div class="cp-node"></div>
+          </div>
         </div>
       </div>
     </div>
+    <div class="card-body">
+      <div class="card-status-row">
+        <div class="card-status-dot"></div>
+        <div class="card-status-label">active // available now</div>
+      </div>
+      <div class="card-title">GIT_HEIST</div>
+      <div class="card-desc">
+        A previous crew left access credentials buried in a repo — never merged, still in there. Navigate branches, stash work, rebase history, and extract the data before the police close in.
+      </div>
+      <div class="card-tags">
+        <div class="card-tag">git branch</div>
+        <div class="card-tag">git stash</div>
+        <div class="card-tag">git rebase</div>
+        <div class="card-tag">git log</div>
+      </div>
+      <div class="card-enter">[ ENTER THE REPO ]</div>
+    </div>
+  </a>
+
+  <!-- COMING SOON 1 -->
+  <div class="room-card locked">
+    <div class="card-preview" style="opacity:0.3">
+      <div class="cp-topbar">
+        <div class="cp-topbar-tag">MERGE_CONFLICT_V1</div>
+      </div>
+      <div class="cp-panels">
+        <div class="cp-panel cp-panel-term" style="flex:1">
+          <div class="cp-line short dim"></div>
+          <div class="cp-line med dim"></div>
+          <div class="cp-line short dim"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-status-row">
+        <div class="card-status-dot locked-dot"></div>
+        <div class="card-status-label locked-label">coming soon // locked</div>
+      </div>
+      <div class="card-title">MERGE_CONFLICT</div>
+      <div class="card-desc">
+        Two operatives edited the same file. The CI is red. The deploy is blocked. Resolve it before the window closes.
+      </div>
+      <div class="card-tags">
+        <div class="card-tag">git merge</div>
+        <div class="card-tag">conflict resolution</div>
+      </div>
+      <div class="card-locked-enter">[ CLASSIFIED ]</div>
+    </div>
   </div>
+
+  <!-- COMING SOON 2 -->
+  <div class="room-card locked">
+    <div class="card-preview" style="opacity:0.3">
+      <div class="cp-topbar">
+        <div class="cp-topbar-tag">TIME_MACHINE_V1</div>
+      </div>
+      <div class="cp-panels">
+        <div class="cp-panel cp-panel-term" style="flex:1">
+          <div class="cp-line short dim"></div>
+          <div class="cp-line med dim"></div>
+          <div class="cp-line short dim"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-status-row">
+        <div class="card-status-dot locked-dot"></div>
+        <div class="card-status-label locked-label">coming soon // locked</div>
+      </div>
+      <div class="card-title">TIME_MACHINE</div>
+      <div class="card-desc">
+        A bad commit went to production. Roll it back, cherry-pick the good parts, and recover the lost work — without breaking the timeline.
+      </div>
+      <div class="card-tags">
+        <div class="card-tag">git revert</div>
+        <div class="card-tag">git cherry-pick</div>
+        <div class="card-tag">git reflog</div>
+      </div>
+      <div class="card-locked-enter">[ CLASSIFIED ]</div>
+    </div>
+  </div>
+
 </div>
 
-<!-- scripts load in dependency order: supabase cdn → data → renderer → supabase → engine -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/renderer.js"></script>
-<script src="js/supabase.js"></script>
-<script src="js/engine.js"></script>
+<!-- ─── FOOTER ────────────────────────────────────────────── -->
+<div class="hub-footer">
+  <span>vault_zero // operative training facility</span>
+  <div class="hub-footer-live">
+    <div class="hub-footer-live-dot"></div>
+    <span>live_feed</span>
+  </div>
+</div>
 
 </body>
 </html>
