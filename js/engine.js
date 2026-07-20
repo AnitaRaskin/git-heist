@@ -718,7 +718,7 @@ function runBootSequence() {
 
   function hideSkipBtn() {
     const sb = document.getElementById('bootSkipBtn');
-    if (sb) sb.style.display = 'none';
+    if (sb) { sb.style.visibility = 'hidden'; sb.style.pointerEvents = 'none'; }
   }
 
   function revealEnd() {

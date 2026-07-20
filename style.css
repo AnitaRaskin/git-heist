@@ -90,7 +90,8 @@ body {
   padding: 14px 20px;
   background: var(--surface);
   border-left: 1px solid var(--border-dim);
-  min-height: 72px;
+  height: 182px;
+  overflow: hidden;
 }
 .boot-line       { display: block; }
 .boot-line.dim   { color: var(--text-muted); }
