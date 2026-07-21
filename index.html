@@ -6,7 +6,7 @@
 <title>VAULT_ZERO // OPERATIVE TRAINING</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/shared.css">
 <link rel="stylesheet" href="css/hub.css">
 </head>
@@ -17,21 +17,35 @@
 
 <!-- ─── TOP BAR ─────────────────────────────────────────── -->
 <header class="hub-topbar">
-  <div class="hub-topbar-brand">VAULT_ZERO</div>
-  <div class="hub-topbar-meta">
-    <span>station: london-relay-01</span>
-    <span>cipher: one-time-pad</span>
-    <span>signal: stable</span>
+  <div class="hub-topbar-brand">VAULT<span>_</span>ZERO <span>// GIC</span></div>
+  <div class="hub-topbar-center">
+    <div class="hub-status-block">
+      <div class="hub-status-label">Current Status</div>
+      <div class="hub-status-val"><span class="hub-status-dot"></span>ALL SYSTEMS NOMINAL</div>
+    </div>
+    <div class="hub-status-block">
+      <div class="hub-status-label">Threat Level</div>
+      <div class="hub-threat">
+        <div class="hub-threat-bar on"></div>
+        <div class="hub-threat-bar on"></div>
+        <div class="hub-threat-bar"></div>
+        <div class="hub-threat-bar"></div>
+        <div class="hub-threat-bar"></div>
+      </div>
+    </div>
   </div>
-  <div id="hubAuthBar" class="hub-topbar-auth"></div>
+  <div class="hub-topbar-right">
+    <div class="hub-gic-badge"><span class="hub-gic-dot"></span>GIC-NET: SECURE</div>
+    <div id="hubAuthBar" class="hub-topbar-auth"></div>
+  </div>
 </header>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
 <section class="hub-hero">
   <div class="hub-hero-content">
     <div class="hub-hero-tag" id="heroTag"></div>
-    <h1 class="hub-hero-title">Escape Room<br>for <span>Learning</span><span class="hub-cursor"></span></h1>
-    <p class="hub-hero-sub">Hands-on missions. Real commands. Each room teaches a cluster of dev concepts — learn by surviving the scenario.</p>
+    <h1 class="hub-hero-title">Operational<br><span>Command</span> Hub<span class="hub-cursor"></span></h1>
+    <p class="hub-hero-sub">Intercepting global signals. Execute learning directives via tactical simulations. Your clearance grants access to high-priority git-based operations.</p>
     <div class="hub-stats">
       <div class="hub-stat">
         <span class="hub-stat-num">2</span>
@@ -44,128 +58,170 @@
       </div>
     </div>
   </div>
-
-  <aside class="hub-hero-tele" aria-hidden="true">
-    <div class="tele-label-row">SYSTEM TELEMETRY</div>
-    <div class="tele-row"><span class="tele-k">SYS_TIME</span><span class="tele-v" id="teleClock">--:--:-- UTC</span></div>
-    <div class="tele-row"><span class="tele-k">OPERATIVE</span><span class="tele-v tele-warn" id="teleOperative">UNVERIFIED</span></div>
-    <div class="tele-row"><span class="tele-k">NODE</span><span class="tele-v">training-relay-01</span></div>
-    <div class="tele-row"><span class="tele-k">SIGNAL</span><span class="tele-v tele-ok">STABLE</span></div>
-    <div class="tele-row"><span class="tele-k">CLEARANCE</span><span class="tele-v tele-warn" id="teleClearance">PENDING</span></div>
-    <div class="tele-divider"></div>
-    <div class="tele-row"><span class="tele-k">MISSIONS</span><span class="tele-v">2 LOADED</span></div>
-    <div class="tele-row"><span class="tele-k">ACTIVE</span><span class="tele-v tele-ok">2</span></div>
-  </aside>
+  <div class="hub-hero-coords">
+    <div class="hub-coords-label">Local Time // Coordinates</div>
+    <div class="hub-coords-val" id="teleClock">--:--:-- UTC // 51.5074° N, 0.1278° W</div>
+  </div>
 </section>
 
-<!-- ─── MISSION FILES ────────────────────────────────────── -->
+<!-- ─── OPERATIONS ────────────────────────────────────────── -->
 <div class="hub-section-label">
-  <span class="hub-section-text">Mission Files</span>
+  <span class="hub-section-text">Operations // Active Deployments</span>
   <div class="hub-section-line"></div>
 </div>
 
 <div class="hub-missions">
+
   <!-- ═══ MISSION 001: GIT HEIST ═══ -->
-  <a class="mission-card mission-card--active" href="missions/git-heist/git-heist.html" style="--card-accent: #68dbae">
-    <div class="mission-preview">
-      <div class="mp-topbar">
-        <span class="mp-tag">vault_repo // live session</span>
-        <div class="mp-dots">
-          <span class="mp-dot mp-dot--on"></span>
-          <span class="mp-dot mp-dot--pulse"></span>
-          <span class="mp-dot"></span>
+  <a class="gic-card" href="missions/git-heist/git-heist.html" style="--card-accent: #10b981">
+    <div class="gic-card-hdr">
+      <div class="gic-card-hdr-inner">
+        <span class="gic-chip">MISSION_001</span>
+        <span class="gic-card-name">Git Heist // Bank Breach</span>
+      </div>
+      <span class="gic-card-badge">◈ ACTIVE</span>
+    </div>
+    <div class="gic-card-body">
+      <div class="gic-card-data">
+        <div class="gic-field">
+          <div class="gic-field-label">Objective</div>
+          <p class="gic-field-val">Navigate branches, recover stashed credentials, and extract the data before the security sweep closes your window.</p>
+        </div>
+        <div class="gic-field-grid">
+          <div class="gic-field">
+            <div class="gic-field-label">Difficulty</div>
+            <div class="gic-field-accent">02/05</div>
+          </div>
+          <div class="gic-field">
+            <div class="gic-field-label">Status</div>
+            <div class="gic-field-accent">READY</div>
+          </div>
+          <div class="gic-field gic-field--wide">
+            <div class="gic-field-label">Concept Focus</div>
+            <div class="gic-field-dim">GIT BASICS</div>
+          </div>
         </div>
       </div>
-      <div class="fp-terminal">
-        <div class="fp-cmd">$ git log --oneline --all</div>
-        <div class="fp-commit"><span class="fp-hash">f4a2c3d</span> (main) security: rotate API keys</div>
-        <div class="fp-commit"><span class="fp-hash">8e3b901</span> fix: remove debug output</div>
-        <div class="fp-commit fp-commit--hot"><span class="fp-hash">e72d4f1</span> (feature/vault) WIP: hide credentials</div>
-        <div class="fp-commit"><span class="fp-hash">c8f2a14</span> feat: vault access module</div>
-        <div class="fp-commit"><span class="fp-hash">31d4e7a</span> init: banking-core setup</div>
-        <div class="fp-spacer"></div>
-        <div class="fp-prompt">$ <span class="fp-cursor"></span></div>
+      <div class="gic-card-vis">
+        <div class="gic-vis-cmd">$ git log --oneline --all</div>
+        <div class="gic-vis-line"><span class="gic-vis-hash">f4a2c3d</span> (main) security: rotate API keys</div>
+        <div class="gic-vis-line"><span class="gic-vis-hash">8e3b901</span> fix: remove debug output</div>
+        <div class="gic-vis-line gic-vis-line--hot"><span class="gic-vis-hash">e72d4f1</span> (feature/vault) WIP: hide credentials</div>
+        <div class="gic-vis-line"><span class="gic-vis-hash">c8f2a14</span> feat: vault access module</div>
+        <div class="gic-vis-line"><span class="gic-vis-hash">31d4e7a</span> init: banking-core setup</div>
+        <div class="gic-vis-spacer"></div>
+        <div class="gic-vis-prompt">$ <span class="gic-vis-cursor"></span></div>
       </div>
     </div>
-
-    <div class="mission-body">
-      <div class="mission-header">
-        <div class="mission-id">MISSION_001 <span class="mission-id-sep">//</span> GIT</div>
-        <div class="mission-badge mission-badge--active">● Active</div>
+    <div class="gic-card-footer">
+      <div class="gic-meta">
+        <span>⏱ ~45 min</span>
+        <span>⚿ LEVEL 2</span>
+        <span>☰ 8 rooms</span>
       </div>
-      <h2 class="mission-title">Git Heist</h2>
-      <p class="mission-story">A previous crew broke into the target bank and buried the access credentials inside their own repo — never merged, still buried in the history. Navigate branches, recover stashed work, and extract the data before the security sweep closes your window.</p>
-      <div class="mission-tools">
-        <div class="mission-tools-label">Tools Required</div>
-        <div class="mission-tools-tags">
-          <span>git log</span><span>git branch</span><span>git stash</span><span>git rebase</span><span>git diff</span>
-        </div>
-      </div>
-      <div class="mission-meta">
-        <span>~45 min</span>
-        <span class="mission-diff">
-          <span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
-          Medium
-        </span>
-        <span>8 rooms</span>
-      </div>
-      <div class="mission-cta">[ Enter the Repo ]</div>
+      <span class="gic-deploy">DEPLOY MISSION</span>
     </div>
   </a>
 
   <!-- ═══ MISSION 002: OPERATION NIGHTSHADE ═══ -->
-  <a class="mission-card mission-card--active" href="missions/nightshade/nightshade.html" style="--card-accent: #00dbe7">
-    <div class="mission-preview">
-      <div class="mp-topbar">
-        <span class="mp-tag">gchq-atlas // classified</span>
-        <div class="mp-dots">
-          <span class="mp-dot mp-dot--on"></span>
-          <span class="mp-dot mp-dot--pulse"></span>
-          <span class="mp-dot"></span>
+  <a class="gic-card" href="missions/nightshade/nightshade.html" style="--card-accent: #00dbe7">
+    <div class="gic-card-hdr">
+      <div class="gic-card-hdr-inner">
+        <span class="gic-chip">MISSION_002</span>
+        <span class="gic-card-name">Operation Nightshade // Forensics</span>
+      </div>
+      <span class="gic-card-badge">⊙ ACTIVE_COUNTDOWN</span>
+    </div>
+    <div class="gic-card-body">
+      <div class="gic-card-data">
+        <div class="gic-field">
+          <div class="gic-field-label">Objective</div>
+          <p class="gic-field-val">A dead man's switch will exfiltrate ATLAS at midnight. Six layers. The weapon is in the history, the remote, and the stash.</p>
+        </div>
+        <div class="gic-field-grid">
+          <div class="gic-field">
+            <div class="gic-field-label">Difficulty</div>
+            <div class="gic-field-accent">04/05</div>
+          </div>
+          <div class="gic-field">
+            <div class="gic-field-label">Status</div>
+            <div class="gic-field-accent" style="animation: blink 1.2s ease-in-out infinite">ACTIVE</div>
+          </div>
+          <div class="gic-field gic-field--wide">
+            <div class="gic-field-label">Concept Focus</div>
+            <div class="gic-field-dim">GIT FORENSICS</div>
+          </div>
         </div>
       </div>
-      <div class="fp-terminal">
-        <div class="fp-cmd">$ git reflog</div>
-        <div class="fp-commit"><span class="fp-hash">a3f9c21</span> HEAD@{0}: merge: nightshade/inject</div>
-        <div class="fp-commit fp-commit--hot"><span class="fp-hash">d8e4b07</span> HEAD@{2}: commit: shutdown: arming switch</div>
-        <div class="fp-commit"><span class="fp-hash">cc4b812</span> HEAD@{4}: reset: moving to HEAD~3</div>
-        <div class="fp-spacer"></div>
-        <div class="fp-prompt">$ <span class="fp-cursor"></span></div>
+      <div class="gic-card-vis">
+        <div class="gic-vis-cmd">$ git reflog</div>
+        <div class="gic-vis-line"><span class="gic-vis-hash">a3f9c21</span> HEAD@{0}: merge: nightshade/inject</div>
+        <div class="gic-vis-line gic-vis-line--hot"><span class="gic-vis-hash">d8e4b07</span> HEAD@{2}: commit: shutdown: arming switch</div>
+        <div class="gic-vis-line"><span class="gic-vis-hash">cc4b812</span> HEAD@{4}: reset: moving to HEAD~3</div>
+        <div class="gic-vis-spacer"></div>
+        <div class="gic-vis-prompt">$ <span class="gic-vis-cursor"></span></div>
       </div>
     </div>
-
-    <div class="mission-body">
-      <div class="mission-header">
-        <div class="mission-id">MISSION_002 <span class="mission-id-sep">//</span> GIT</div>
-        <div class="mission-badge mission-badge--active">● Active</div>
+    <div class="gic-card-footer">
+      <div class="gic-meta">
+        <span>⏱ ~60 min</span>
+        <span>⚿ LEVEL 4</span>
+        <span>☰ 6 rooms</span>
       </div>
-      <h2 class="mission-title">Operation: Nightshade</h2>
-      <p class="mission-story">A double agent inside British intelligence has armed a dead man's switch — a script that will exfiltrate the entire ATLAS repository to fourteen mirrors at midnight. Six layers. The weapon is in the staging area, the history, the remote, and the stash.</p>
-      <div class="mission-tools">
-        <div class="mission-tools-label">Tools Required</div>
-        <div class="mission-tools-tags">
-          <span>git diff --staged</span><span>git reflog</span><span>git cherry-pick</span><span>git fetch</span><span>git stash</span>
-        </div>
-      </div>
-      <div class="mission-meta">
-        <span>~60 min</span>
-        <span class="mission-diff">
-          <span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip diff-on"></span><span class="diff-pip"></span>
-          Hard
-        </span>
-        <span>6 rooms</span>
-      </div>
-      <div class="mission-cta">[ Access Atlas ]</div>
+      <span class="gic-deploy">DEPLOY MISSION</span>
     </div>
   </a>
+
+</div>
+
+<!-- ─── INTEL PANELS ─────────────────────────────────────── -->
+<div class="hub-panels">
+
+  <div class="hub-panel">
+    <div class="hub-panel-hdr">
+      <span class="hub-panel-title">⏱ Recent Activity Log</span>
+      <span class="hub-panel-live">● LIVE</span>
+    </div>
+    <div id="activityLog">
+      <div class="gic-log-entry">
+        <span class="gic-log-ts" id="logTs0">[--:--:--]</span>
+        <span class="gic-log-msg">COMMAND HUB INITIALISED. AWAITING OPERATIVE.</span>
+      </div>
+      <div class="gic-log-entry">
+        <span class="gic-log-ts">[--:--:--]</span>
+        <span class="gic-log-msg">SIGNAL LOCK: GIC-NET ACTIVE.</span>
+      </div>
+      <div class="gic-log-entry">
+        <span class="gic-log-ts">[--:--:--]</span>
+        <span class="gic-log-msg">ENCRYPTION PROTOCOL: RSA-4096 LOADED.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hub-panel">
+    <div class="hub-panel-hdr">
+      <span class="hub-panel-title">◎ Global Signal Monitor</span>
+      <span class="hub-panel-live">LIVE FEED // ENCRYPTED</span>
+    </div>
+    <div class="hub-signal-vis">
+      <div class="hub-signal-grid"></div>
+      <div class="hub-signal-label">SIGNAL STRENGTH: OPTIMAL</div>
+      <div class="hub-signal-stats">
+        <span>FRQ: 142.00 MHZ</span>
+        <span>SIG: −45 DBM</span>
+        <span>BITRATE: 1.2 GBPS</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ─── FOOTER ────────────────────────────────────────────── -->
 <footer class="hub-footer">
-  <span>VAULT_ZERO // OPERATIVE TRAINING FACILITY</span>
-  <div class="hub-footer-live">
-    <div class="hub-footer-live-dot"></div>
-    <span>LIVE FEED</span>
+  <span>© 2124 GLOBAL INTELLIGENCE COMMAND. ALL RIGHTS RESERVED.</span>
+  <div class="hub-footer-right">
+    <span>ENCRYPTION PROTOCOL: RSA-4096</span>
+    <a class="clearance" href="#">CLEARANCE: LEVEL 5</a>
   </div>
 </footer>
 
@@ -326,10 +382,45 @@
     var h = String(t.getUTCHours()).padStart(2, '0');
     var m = String(t.getUTCMinutes()).padStart(2, '0');
     var s = String(t.getUTCSeconds()).padStart(2, '0');
-    clock.textContent = h + ':' + m + ':' + s + ' UTC';
+    clock.textContent = h + ':' + m + ':' + s + ' UTC // 51.5074° N, 0.1278° W';
   }
   setInterval(updateClock, 1000);
   updateClock();
+
+  // Activity log
+  var logMsgs = [
+    'INBOUND TRANSMISSION: ENCRYPTED DATA DETECTED.',
+    'SUBSYSTEM REBOOT COMPLETE.',
+    'GEO-LOCATION SYNC: LONDON COMMAND HUB.',
+    'CLEANUP PROTOCOL: ARCHIVING SESSION LOGS.',
+    'KERNEL UPGRADE: VERSION 9.0.4 APPLIED.',
+    'OPERATIVE AUTHENTICATION: SUCCESS.',
+    'MISSION_001 STATE: READY.',
+    'MISSION_002 STATE: COUNTDOWN ACTIVE.',
+  ];
+  var logContainer = document.getElementById('activityLog');
+  function addLogEntry() {
+    if (!logContainer) return;
+    var now = new Date();
+    var h = String(now.getUTCHours()).padStart(2,'0');
+    var m = String(now.getUTCMinutes()).padStart(2,'0');
+    var s = String(now.getUTCSeconds()).padStart(2,'0');
+    var ts = '[' + h + ':' + m + ':' + s + ']';
+    var msg = logMsgs[Math.floor(Math.random() * logMsgs.length)];
+    var entry = document.createElement('div');
+    entry.className = 'gic-log-entry';
+    entry.innerHTML = '<span class="gic-log-ts">' + ts + '</span><span class="gic-log-msg">' + msg + '</span>';
+    logContainer.insertBefore(entry, logContainer.firstChild);
+    while (logContainer.children.length > 5) logContainer.removeChild(logContainer.lastChild);
+  }
+  setInterval(addLogEntry, 8000);
+  // Stamp initial log entries with current time
+  var logTsEls = logContainer ? logContainer.querySelectorAll('.gic-log-ts') : [];
+  var now0 = new Date();
+  logTsEls.forEach(function(el, i) {
+    var d = new Date(now0 - i * 45000);
+    el.textContent = '[' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ':' + String(d.getUTCSeconds()).padStart(2,'0') + ']';
+  });
 })();
 </script>
 </body>
