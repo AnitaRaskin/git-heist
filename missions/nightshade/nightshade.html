@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIGHTSHADE // CLASSIFIED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/shared.css">
+<link rel="stylesheet" href="../../css/game.css">
+</head>
+<body>
+
+<div class="scanline"></div>
+<div id="policeVignette" class="police-vignette"></div>
+
+<!-- ═══ INTRO ════════════════════════════════════════════════ -->
+<div id="introScreen">
+  <a href="../../index.html" class="intro-back-btn">← hub</a>
+  <div class="transmission">
+    <div class="tx-header">▓ ENCRYPTED TRANSMISSION ▓</div>
+    <div class="vault-logo">OPERATION: NIGHTSHADE</div>
+    <div class="vault-sub">A CLASSIFIED INTELLIGENCE OPERATION</div>
+    <div class="boot-skip-row">
+      <button id="bootSkipBtn" class="boot-skip-btn">[ skip ]</button>
+    </div>
+    <div class="boot-terminal" id="bootTerminal"></div>
+    <div class="tx-body tx-fade" id="txBody" style="opacity:0;transform:translateY(8px)">
+      <strong>From: CONTROL</strong><br><br>
+      "A double agent inside our operation has been uncovered. Before detention, NIGHTSHADE armed a dead man's switch — a script that will exfiltrate the entire ATLAS repository to fourteen mirrors simultaneously at midnight.<br><br>
+      The weapon is in the git history. In the staging area. In the stash. In the remote.<br><br>
+      You have six layers to neutralise. Start with what's staged."
+    </div>
+    <div class="operative-input-row tx-fade" id="operativeRow" style="opacity:0;transform:translateY(8px)">
+      <label class="operative-input-label">operative_codename:</label>
+      <input type="text" id="operativeName" class="operative-input" placeholder="enter codename..." autocomplete="off" spellcheck="false" maxlength="20">
+    </div>
+    <button class="enter-btn tx-fade" id="enterBtn" style="opacity:0;pointer-events:none" onclick="startGame()">[ ACCESS ATLAS ]</button>
+  </div>
+</div>
+
+<!-- ═══ GAME SHELL ════════════════════════════════════════════ -->
+<div id="gameShell">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="top-bar-leave" onclick="openLeaveModal()">← leave</button>
+      <div class="vault-tag">nightshade_v1</div>
+      <div class="top-bar-meta">
+        <span>clearance: TOP_SECRET/SCI</span>
+        <span>latency: 31ms</span>
+      </div>
+    </div>
+    <div id="roomInfo">target // nightshade / atlas-node</div>
+    <div class="top-bar-right">
+      <span class="sec-status" id="secStatus">layer_01: probing</span>
+      <div class="sec-dots">
+        <span class="sec-dot active"></span>
+        <span class="sec-dot probing"></span>
+        <span class="sec-dot"></span>
+        <span class="sec-dot"></span>
+      </div>
+      <div class="score-chip" id="scoreChip">
+        <span class="score-chip-label">score</span>
+        <span class="score-chip-val" id="scoreVal">0</span>
+      </div>
+      <button class="hint-btn" onclick="openCheatSheet()">[cmd: log]</button>
+      <button class="hint-btn" onclick="openHint()">[cmd: hint]</button>
+    </div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div id="policeAlert">
+    <div class="police-strip">
+      <div class="police-strip-left">
+        <span class="police-flash">▓</span>
+        <span class="police-label">DEAD MAN SWITCH PING</span>
+        <span class="police-sub">complete the step to neutralise</span>
+      </div>
+      <div class="police-strip-right">
+        <span class="police-timer-label">window</span>
+        <span class="police-countdown" id="policeCountdown">0:30</span>
+      </div>
+    </div>
+    <div class="police-bar">
+      <div class="police-bar-fill" id="policeBarFill"></div>
+    </div>
+  </div>
+  <div class="panels" id="panels">
+    <!-- CONTROL comms -->
+    <div class="panel fox-panel">
+      <div class="fox-header">
+        <svg class="fox-avatar-sm" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="48" fill="#0a0f0d" stroke="#1D9E75" stroke-opacity="0.5" stroke-width="1.2"/>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#1D9E75" stroke-opacity="0.18" stroke-width="1"/>
+          <path d="M10 50 Q50 16 90 50 Q50 84 10 50 Z" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.85"/>
+          <circle cx="50" cy="50" r="13" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
+          <circle cx="50" cy="50" r="7" fill="#1D9E75" opacity="0.9"/>
+          <circle cx="50" cy="50" r="2.8" fill="#68dbae"/>
+          <line x1="50" y1="7" x2="50" y2="16" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="50" y1="84" x2="50" y2="93" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="7" y1="50" x2="16" y2="50" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="84" y1="50" x2="93" y2="50" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="18" y1="18" x2="24" y2="24" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="76" y1="76" x2="82" y2="82" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="82" y1="18" x2="76" y2="24" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="18" y1="82" x2="24" y2="76" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+        </svg>
+        <div>
+          <div class="fox-header-title">CONTROL // signal encrypted</div>
+          <div class="fox-header-sub">connection: stable // encryption: active</div>
+        </div>
+      </div>
+      <div class="fox-messages" id="foxMessages"></div>
+      <div class="fox-footer">
+        <span class="fox-stream-end">-- end_of_stream --</span>
+        <span class="fox-conn-status">connection: stable</span>
+      </div>
+    </div>
+    <div class="resize-handle" id="resizeLeft"></div>
+    <!-- Terminal -->
+    <div class="panel terminal-panel">
+      <div class="terminal-header">
+        <span class="operative-tag" id="operativeTag">operative@gchq-atlas:~/atlas-repo$</span>
+        <div class="terminal-node-meta">
+          <span>system_node: gchq-atlas-01</span>
+          <span>tty1</span>
+        </div>
+      </div>
+      <div class="terminal-out" id="termOut"></div>
+      <div class="terminal-in-row">
+        <span class="prompt">&gt;</span>
+        <input type="text" id="termInput" autocomplete="off" spellcheck="false" placeholder="awaiting input...">
+      </div>
+    </div>
+    <div class="resize-handle" id="resizeRight"></div>
+    <!-- Git tree -->
+    <div class="panel tree-panel">
+      <div class="panel-header tree-panel-hdr">
+        REPO STATE
+        <span class="tree-live-badge"><span class="tree-live-dot"></span>LIVE</span>
+      </div>
+      <div class="tree-svg-wrap">
+        <svg id="gitTree" viewBox="0 0 240 300" preserveAspectRatio="xMinYMin meet"></svg>
+        <div id="treeTooltip" class="tree-tooltip"></div>
+      </div>
+      <div class="tree-status-bar">
+        <div class="tree-stat-row">
+          <span class="tree-stat-key">branch</span>
+          <span class="tree-stat-val" id="activeBranch">main</span>
+        </div>
+        <div class="tree-stat-row">
+          <span class="tree-stat-key">status</span>
+          <span class="tree-stat-val ts-clean" id="treeStatus">clean</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="footerBar">
+    <div class="footer-left">
+      <span>enc: active</span>
+      <span>signal: stable</span>
+      <span>node: gchq-atlas-01</span>
+    </div>
+    <div class="footer-right">
+      <span id="footerClock">00:00:00 utc</span>
+      <span class="footer-live"><span class="footer-live-dot"></span>live_feed</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HINT MODAL ════════════════════════════════════════════ -->
+<div id="hintModal">
+  <div class="hint-box">
+    <div class="hint-modal-header">
+      <span class="hint-modal-header-tag">[CMD: HINT]</span>
+      <span class="hint-modal-header-label">COGNITIVE_ASSISTANCE</span>
+    </div>
+    <div class="hint-body">
+      <div class="hint-lvl" id="hintLvl">HINT 1 OF 3</div>
+      <div class="hint-txt" id="hintTxt"></div>
+      <div class="hint-progress-wrap">
+        <div class="hint-progress-bar" id="hintProgressBar" style="width:33%"></div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn" onclick="closeHint()">CLOSE</button>
+        <button class="btn primary" id="nextHintBtn" onclick="moreHint()">DEEPER HINT →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ROOM COMPLETE ═════════════════════════════════════════ -->
+<div id="roomDone">
+  <div class="done-box">
+    <div class="done-box-header">
+      <span class="done-box-header-tag">LAYER NEUTRALISED</span>
+      <span class="done-box-header-label">THREAT CONTAINED</span>
+    </div>
+    <div class="done-body">
+      <div class="done-title">ROOM CLEARED</div>
+      <div class="done-stats" id="doneStats"></div>
+      <div class="done-msg" id="doneMsg"></div>
+      <div class="clue-fragment" id="clueFragment">
+        <div class="clue-fragment-label">▓ CREDENTIAL FRAGMENT ACQUIRED</div>
+        <div class="clue-fragment-val">
+          <span class="clue-key" id="clueKey"></span>
+          <span class="clue-sep"> → </span>
+          <span class="clue-val" id="clueVal"></span>
+        </div>
+        <div class="clue-count" id="clueCount"></div>
+      </div>
+      <button class="btn primary" onclick="goNextRoom()">NEXT LAYER →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FILE EDITOR ═══════════════════════════════════════════ -->
+<div id="fileEditor">
+  <div class="editor-box">
+    <div class="editor-title" id="editorTitle">EDIT FILE</div>
+    <textarea id="fileContent"></textarea>
+    <div class="editor-hint" id="editorHint"></div>
+    <div class="modal-btns">
+      <button class="btn primary" onclick="saveFile()">SAVE FILE</button>
+      <button class="btn" onclick="cancelFile()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONCEPT BRIEF ══════════════════════════════════════════ -->
+<div id="conceptModal">
+  <div class="concept-box">
+    <div class="concept-header">
+      <span class="concept-tag">▓ CONCEPT BRIEF ▓</span>
+      <span class="concept-title" id="conceptTitle"></span>
+    </div>
+    <div class="concept-body">
+      <div class="concept-bullets" id="conceptBullets"></div>
+      <pre class="concept-ascii" id="conceptAscii"></pre>
+      <button class="btn primary concept-btn" id="conceptBtn">[ GOT IT ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRE-POLICE CONTROL POPUP ══════════════════════════════ -->
+<div id="policeWarnModal">
+  <div class="pwarn-box">
+    <div class="pwarn-header">
+      <span class="pwarn-flash">▓</span>
+      <span class="pwarn-title">INCOMING TRANSMISSION // CONTROL</span>
+      <span class="pwarn-flash">▓</span>
+    </div>
+    <div class="pwarn-body">
+      <div class="pwarn-msg" id="pwarnMsg"></div>
+      <button class="btn pwarn-btn" id="pwarnBtn">[ UNDERSTOOD — START CLOCK ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CHEAT SHEET ════════════════════════════════════════════ -->
+<div id="cheatSheet">
+  <div class="cheat-box">
+    <div class="cheat-header">
+      <span class="cheat-header-tag">[CMD: LOG]</span>
+      <span class="cheat-header-label">COMMAND_RECORD</span>
+    </div>
+    <div class="cheat-body">
+      <div class="cheat-intro">commands used this run — each one you earned.</div>
+      <div id="cheatList"></div>
+      <div class="modal-btns" style="margin-top:20px">
+        <button class="btn" onclick="closeCheatSheet()">CLOSE</button>
+        <button class="btn primary" onclick="downloadCheatSheet()">DOWNLOAD ↓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VERIFICATION QUIZ ════════════════════════════════════ -->
+<div id="quizScreen">
+  <div class="quiz-inner">
+    <div class="quiz-header-row">
+      <div class="fox-avatar-wrap">
+        <svg class="fox-avatar-lg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="48" fill="#0a0f0d" stroke="#1D9E75" stroke-opacity="0.5" stroke-width="1.2"/>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#1D9E75" stroke-opacity="0.18" stroke-width="1"/>
+          <path d="M10 50 Q50 16 90 50 Q50 84 10 50 Z" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.85"/>
+          <circle cx="50" cy="50" r="13" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
+          <circle cx="50" cy="50" r="7" fill="#1D9E75" opacity="0.9"/>
+          <circle cx="50" cy="50" r="2.8" fill="#68dbae"/>
+          <line x1="50" y1="7" x2="50" y2="16" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="50" y1="84" x2="50" y2="93" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="7" y1="50" x2="16" y2="50" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="84" y1="50" x2="93" y2="50" stroke="#1D9E75" stroke-width="1.5" stroke-opacity="0.55"/>
+          <line x1="18" y1="18" x2="24" y2="24" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="76" y1="76" x2="82" y2="82" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="82" y1="18" x2="76" y2="24" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="18" y1="82" x2="24" y2="76" stroke="#1D9E75" stroke-width="1" stroke-opacity="0.35"/>
+        </svg>
+        <div class="fox-avatar-tag">// CONTROL</div>
+      </div>
+      <div class="quiz-title-col">
+        <div class="quiz-title-tag">▓ IDENTITY VERIFICATION ▓</div>
+        <div class="quiz-title-sub">encrypted channel // auth: final check</div>
+      </div>
+    </div>
+
+    <div class="quiz-fox-speech" id="quizFoxSpeech"></div>
+
+    <div id="quizStartWrap" style="display:none; text-align:center; margin-bottom:24px;">
+      <button class="btn primary" style="font-size:11px;letter-spacing:3px;padding:12px 32px;" onclick="startQuiz()">[ START VERIFICATION ]</button>
+    </div>
+
+    <div id="quizBody">
+      <div class="quiz-meta-row">
+        <span class="quiz-num" id="quizNum">QUESTION 1 / 4</span>
+        <div class="quiz-timer-wrap">
+          <span class="quiz-timer-num" id="quizTimerNum">0:30</span>
+          <div class="quiz-timer-bar"><div class="quiz-timer-fill" id="quizTimerFill"></div></div>
+        </div>
+      </div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="btn primary quiz-next-btn" id="quizNextBtn" onclick="nextQuizStep()" style="display:none">NEXT QUESTION →</button>
+    </div>
+
+    <div id="quizResult" style="display:none">
+      <div class="quiz-result-score" id="quizResultScore"></div>
+      <button class="btn primary quiz-vault-btn" onclick="finishQuiz()">DEBRIEF COMPLETE →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ END SCREEN ════════════════════════════════════════════ -->
+<div id="endScreen">
+  <div class="end-inner">
+    <div class="tx-header">▓ TRANSMISSION COMPLETE ▓</div>
+    <div class="end-fox-hero">
+      <div class="end-fox-glow"></div>
+      <svg class="fox-avatar-xl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="#0a0f0d" stroke="#1D9E75" stroke-opacity="0.6" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#1D9E75" stroke-opacity="0.22" stroke-width="1"/>
+        <path d="M10 50 Q50 16 90 50 Q50 84 10 50 Z" fill="none" stroke="#1D9E75" stroke-width="1.8" stroke-opacity="0.9"/>
+        <circle cx="50" cy="50" r="14" fill="none" stroke="#1D9E75" stroke-width="1.8"/>
+        <circle cx="50" cy="50" r="8" fill="#1D9E75" opacity="0.95"/>
+        <circle cx="50" cy="50" r="3.2" fill="#68dbae"/>
+        <line x1="50" y1="6" x2="50" y2="17" stroke="#1D9E75" stroke-width="1.8" stroke-opacity="0.6"/>
+        <line x1="50" y1="83" x2="50" y2="94" stroke="#1D9E75" stroke-width="1.8" stroke-opacity="0.6"/>
+        <line x1="6" y1="50" x2="17" y2="50" stroke="#1D9E75" stroke-width="1.8" stroke-opacity="0.6"/>
+        <line x1="83" y1="50" x2="94" y2="50" stroke="#1D9E75" stroke-width="1.8" stroke-opacity="0.6"/>
+        <line x1="17" y1="17" x2="23" y2="23" stroke="#1D9E75" stroke-width="1.2" stroke-opacity="0.4"/>
+        <line x1="77" y1="77" x2="83" y2="83" stroke="#1D9E75" stroke-width="1.2" stroke-opacity="0.4"/>
+        <line x1="83" y1="17" x2="77" y2="23" stroke="#1D9E75" stroke-width="1.2" stroke-opacity="0.4"/>
+        <line x1="17" y1="83" x2="23" y2="77" stroke="#1D9E75" stroke-width="1.2" stroke-opacity="0.4"/>
+      </svg>
+      <div class="end-fox-tag">// CONTROL</div>
+      <div class="end-fox-status">connection: secure // operative: confirmed</div>
+    </div>
+    <div class="end-logo">MISSION COMPLETE.</div>
+    <div class="end-crew-tag">▓ OPERATION NIGHTSHADE: NEUTRALISED ▓</div>
+    <div class="assembled-key-wrap">
+      <div class="assembled-key-header">NIGHTSHADE // RECOVERED CREDENTIALS</div>
+      <div id="assembledKey"></div>
+    </div>
+    <div class="end-cmdlog-section">
+      <button class="btn end-cmdlog-btn" onclick="openCheatSheet()">[cmd: log] — view &amp; download your command record</button>
+    </div>
+    <div class="tx-body end-fox-msg-body">
+      <div class="end-fox-speech-label">[ CONTROL // final transmission ]</div>
+      "Six layers. Six threats. All neutralised.<br><br>
+      NIGHTSHADE armed every one of them knowing most operatives would never look past git log. You looked deeper.<br><br>
+      Staging area. Detached HEAD. Merge conflicts. Orphaned commits. Remote branches. The stash.<br><br>
+      These are the places people hide things. Now you know how to find them."
+    </div>
+    <div id="scoreSection">
+      <button id="saveScoreBtn" class="btn primary end-save-btn" onclick="submitScore()">[ SAVE YOUR SCORE ]</button>
+      <div id="scoreSaved" style="display:none">
+        <div class="score-saved-ok">SCORE SAVED ✓</div>
+        <div class="leaderboard-wrap">
+          <div class="leaderboard-header">TOP OPERATIVES</div>
+          <div id="leaderboardRows"></div>
+        </div>
+      </div>
+    </div>
+    <div class="end-hub-row">
+      <a href="../../index.html" class="btn end-hub-btn">← RETURN TO HUB</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESUME MODAL ════════════════════════════════════════════════ -->
+<div id="resumeModal">
+  <div class="leave-box">
+    <div class="leave-header">
+      <span class="leave-tag">▓ OPERATIVE DATA RECOVERED ▓</span>
+    </div>
+    <div class="leave-body">
+      <div class="leave-msg">you left a mission unfinished.<br><br>room <span id="resumeRoomNum">0</span> of <span id="resumeRoomsTotal">8</span> cleared — score: <span id="resumeScore">0</span></div>
+      <div class="modal-btns">
+        <button class="btn" onclick="doStartFresh()">[ START FRESH ]</button>
+        <button class="btn primary" onclick="doResume()">[ RESUME MISSION ] →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LEAVE ROOM MODAL ═════════════════════════════════════════════ -->
+<div id="leaveModal">
+  <div class="leave-box">
+    <div class="leave-header">
+      <span class="leave-tag">▓ ABORT MISSION ▓</span>
+    </div>
+    <div class="leave-body">
+      <div class="leave-msg">abandon the mission?<br><br>progress is saved through your last completed room — you can resume next time. your in-room score for this session will be lost.</div>
+      <div class="modal-btns">
+        <button class="btn" onclick="closeLeaveModal()">STAY IN</button>
+        <button class="btn primary" onclick="leaveRoom()">← RETURN TO HUB</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FIRST-RUN TOUR ══════════════════════════════════════════ -->
+<div id="tourOverlay" style="display:none">
+  <div id="tourDimTop"></div>
+  <div id="tourDimBottom"></div>
+  <div id="tourDimLeft"></div>
+  <div id="tourDimRight"></div>
+  <div id="tourSpotlight"></div>
+  <div id="tourTooltip">
+    <div class="tour-step-num" id="tourStepNum"></div>
+    <div class="tour-tt-title" id="tourTtTitle"></div>
+    <div class="tour-tt-body" id="tourTtBody"></div>
+    <div class="tour-tt-btns">
+      <button class="btn tour-skip-btn" onclick="skipTour()">SKIP TOUR</button>
+      <button class="btn primary" id="tourNextBtn" onclick="nextTourStep()">NEXT →</button>
+    </div>
+  </div>
+</div>
+
+<!-- scripts: config → data → renderer → supabase → engine -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="./config.js"></script>
+<script src="./data.js"></script>
+<script src="../../js/renderer.js"></script>
+<script src="../../js/supabase.js"></script>
+<script src="../../js/engine.js"></script>
+
+</body>
+</html>
