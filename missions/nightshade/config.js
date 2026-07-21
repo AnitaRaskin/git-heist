@@ -53,6 +53,9 @@ function _nsDefaultStatus(stage) {
 
 const GAME_CONFIG = {
 
+  // ── Tour behaviour ──────────────────────────────────────────────────
+  tourAfterConceptBrief: true, // show Room 0 brief first, then tour
+
   // ── Identity ────────────────────────────────────────────────────────
   title:        'OPERATION: NIGHTSHADE',
   promptSuffix: 'gchq-atlas:~/atlas-repo$',

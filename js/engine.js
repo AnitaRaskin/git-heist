@@ -675,7 +675,9 @@ function loadRoom() {
   updateProgress();
   renderTree(r.initialTree || ('r' + r.id + '_initial'));
   setTimeout(() => {
-    if (_tourPending) {
+    if (_tourPending && s.conceptBrief && GAME_CONFIG.tourAfterConceptBrief) {
+      maybeShowConceptBrief(s.conceptBrief, startTour);
+    } else if (_tourPending) {
       startTour();
     } else if (s.conceptBrief) {
       maybeShowConceptBrief(s.conceptBrief, loadNextStageUI);
