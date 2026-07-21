@@ -676,7 +676,8 @@ function loadRoom() {
   renderTree(r.initialTree || ('r' + r.id + '_initial'));
   setTimeout(() => {
     if (_tourPending && s.conceptBrief && GAME_CONFIG.tourAfterConceptBrief) {
-      maybeShowConceptBrief(s.conceptBrief, startTour);
+      localStorage.setItem(_briefKey(G.roomIdx, G.stageIdx), '1');
+      showConceptBrief(s.conceptBrief, startTour);
     } else if (_tourPending) {
       startTour();
     } else if (s.conceptBrief) {
