@@ -33,7 +33,7 @@ function _setupResizeObserver(svg) {
     clearTimeout(_roTimer);
     _roTimer = setTimeout(() => {
       if (_currentStateKey != null) renderTree(_currentStateKey);
-    }, 60);
+    }, 280);
   }).observe(target);
 }
 
