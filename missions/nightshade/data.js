@@ -19,15 +19,15 @@ const ROOMS = [
     stages: [
       {
         conceptBrief: {
-          title: 'THE THREE ZONES',
+          title: 'HOW THE NAMES ARE BEING PUBLISHED',
           bullets: [
-            "git tracks three separate realities: your working directory (what you see), the staging area (what's been marked for the next commit), and the repository (what's already committed)",
-            "git status shows all three at once — modified files, staged files, and untracked files",
-            "git diff shows what changed in your working directory vs the staging area (unstaged changes only)",
-            "git diff --staged shows what's staged vs the last commit — exactly what would be committed right now",
-            "most accidental commits happen because people run git commit without reading what's staged. the staging area is silent — it will never warn you"
+            "NIGHTSHADE built a CI/CD pipeline — CI/CD stands for Continuous Integration / Continuous Delivery. it's automated code that runs on a schedule, no button, no human",
+            "every hour, a cron job fires: a script reads the next 5 entries from the ATLAS registry and publishes them to a public mirror. cron is a system scheduler — set a time, it runs, forever",
+            "the script is committed inside this git repository. that commit is what keeps the machine alive",
+            "at midnight the script runs with --all. every remaining name, all at once",
+            "you're not chasing NIGHTSHADE — you're dismantling the repository layers that keep the pipeline running"
           ],
-          ascii: '  working dir      →   staging area     →   repository\n  (what you see)        (marked for commit)   (committed)\n\n  git diff              git diff --staged    git log\n  (shows: WD vs stage)  (shows: stage vs repo)  (committed history)'
+          ascii: '  cron (every hour)\n    └─ runs publish.sh\n         └─ reads registry.enc → publishes 5 names\n\n  cron (00:00 UTC)\n    └─ runs publish.sh --all → publishes everything'
         },
         foxMsg: "LION: \"NIGHTSHADE's session is still open. Run git status — tell me what's in this repo right now.\"",
         task: 'Check the full state of the repository.',
@@ -50,6 +50,16 @@ const ROOMS = [
         wrong: {}
       },
       {
+        conceptBrief: {
+          title: 'THE THREE ZONES',
+          bullets: [
+            "git tracks three separate zones: working directory (what you see), staging area (what's marked for the next commit), repository (what's already committed)",
+            "git diff shows changes in your working directory vs staging — unstaged changes only",
+            "git diff --staged shows what's in the staging area vs the last commit — exactly what would be committed right now",
+            "the staging area is silent. it never warns you. you have to look"
+          ],
+          ascii: '  working dir      →   staging area     →   repository\n  git diff              git diff --staged    git log\n  (WD vs stage)         (stage vs repo)      (committed history)'
+        },
         foxMsg: "LION: \"Check what's actually in the staging area — not the working directory. You need to see exactly what the next commit would contain.\"",
         task: 'Inspect what is currently staged for commit.',
         accepted: ['git diff --staged', 'git diff --cached'],
