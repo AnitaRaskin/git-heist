@@ -28,6 +28,9 @@ function interp(s) {
 }
 
 
+// ─── Admin access ────────────────────────────────────────────────────
+const ADMIN_CODENAMES = ['anitar'];
+
 // ─── Global game state ───────────────────────────────────────────────
 
 const G = {
@@ -45,7 +48,8 @@ const G = {
   clues: [],
   savedProgress: JSON.parse(localStorage.getItem('vz_progress') || '{}'),
   userId:        null,
-  isAuthenticated: false
+  isAuthenticated: false,
+  isAdmin:       false
 };
 
 function room()  { return ROOMS[G.roomIdx]; }
@@ -426,7 +430,10 @@ function parseCmd(raw) {
   // Universal commands
   if (cmd === 'clear') { out.innerHTML = ''; return {}; }
   if (cmd === 'hint')  { openHint(); return {}; }
-  if (cmd === '//jump') { toggleAdminPanel(); return {}; }
+  if (cmd === '//jump') {
+    if (!G.isAdmin) { tprint([['access denied.', 'err']]); return {}; }
+    toggleAdminPanel(); return {};
+  }
   if (cmd === 'help')  {
     const avail = (GAME_CONFIG.alwaysAvailableHelp || []).map(l => [l, 'dim']);
     tprint([
@@ -1389,6 +1396,7 @@ function doStartFresh() {
 
 function _launchGame(codename, elapsed, showTour) {
   G.codename = codename;
+  G.isAdmin  = ADMIN_CODENAMES.includes(codename.toLowerCase());
   document.getElementById('operativeTag').textContent = `${codename}@${GAME_CONFIG.promptSuffix || 'local:~$'}`;
   document.getElementById('introScreen').style.display = 'none';
   document.getElementById('gameShell').style.display   = 'flex';
@@ -1461,7 +1469,7 @@ function adminJumpToRoom(idx) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.ctrlKey && e.shiftKey && e.key === 'J') { e.preventDefault(); toggleAdminPanel(); }
+  if (e.ctrlKey && e.shiftKey && e.key === 'J') { e.preventDefault(); if (G.isAdmin) toggleAdminPanel(); }
 });
 
 // ─── Session check on load ────────────────────────────────────────────
