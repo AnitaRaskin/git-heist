@@ -1804,6 +1804,28 @@ body.resizing-col    { user-select: none; }
   opacity: 0.5;
   padding: 7px 12px;
 }
+#tourSkipBar {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1003;
+  pointer-events: all;
+}
+.tour-skip-bar-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  opacity: 0.55;
+  text-transform: lowercase;
+  transition: opacity 0.2s;
+}
+.tour-skip-bar-btn:hover { opacity: 1; color: var(--text); }
 
 /* ─── Admin panel ────────────────────────────────────────────── */
 .admin-panel {

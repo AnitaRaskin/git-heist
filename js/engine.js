@@ -1341,7 +1341,6 @@ function nextTourStep() {
 }
 
 function skipTour() {
-  localStorage.setItem('vz_tour_done', '1');
   _tourPending = false;
   document.getElementById('tourOverlay').style.display = 'none';
   document.removeEventListener('keydown', _tourKeyHandler);
@@ -1408,7 +1407,7 @@ function _launchGame(codename, elapsed, showTour) {
   G.missionStart = Date.now() - elapsed;
   G.roomStart    = Date.now();
   startFooterClock();
-  if (showTour && !localStorage.getItem('vz_tour_done')) _tourPending = true;
+  if (showTour) _tourPending = true;
   loadRoom();
 }
 
