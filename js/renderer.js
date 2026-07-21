@@ -73,9 +73,9 @@ function renderTree(stateKey) {
   // Quantize: assign a discrete row to each unique depth value, and a
   // discrete column to each unique lane value. This means commit spacing
   // is always fixed (ROW_H px) regardless of raw data coordinate spread.
-  const ROW_H = 68, COL_W = 68;
   const PAD_X = 76, PAD_Y = 36; // room for HEAD chip (left) and labels (top)
 
+  // Quantize: assign a discrete row/col to each unique depth/lane value.
   const uniqueDepths = [...new Set(branches.flatMap(b => b.commits.map(c => c.x)))].sort((a,b)=>a-b);
   const uniqueLanes  = [...new Set(branches.map(b => b.y))].sort((a,b)=>a-b);
   const depthRow = Object.fromEntries(uniqueDepths.map((d,i)=>[d,i]));
@@ -84,9 +84,18 @@ function renderTree(stateKey) {
   const numRows = Math.max(uniqueDepths.length, 1);
   const numCols = Math.max(uniqueLanes.length,  1);
 
-  // Natural content size — capped to panel, never stretched beyond it
-  const contentH = Math.min((numRows - 1) * ROW_H, CH - PAD_Y * 2);
-  const contentW = Math.min((numCols - 1) * COL_W, CW - PAD_X * 2);
+  // Row/col spacing: fill 82% of the available panel space, clamped to
+  // [55, 160]px per row and [55, 110]px per col.
+  const availH = CH - PAD_Y * 2;
+  const availW = CW - PAD_X * 2;
+
+  const rowH = numRows <= 1 ? 0 :
+    Math.max(55, Math.min(160, availH * 0.82 / (numRows - 1)));
+  const colW = numCols <= 1 ? 0 :
+    Math.max(55, Math.min(110, availW * 0.78 / (numCols - 1)));
+
+  const contentH = (numRows - 1) * rowH;
+  const contentW = (numCols - 1) * colW;
 
   // Center content in the panel
   const offsetY = (CH - contentH) / 2;
