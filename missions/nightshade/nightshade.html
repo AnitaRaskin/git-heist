@@ -29,9 +29,13 @@
     <div class="boot-terminal" id="bootTerminal"></div>
     <div class="tx-body tx-fade" id="txBody" style="opacity:0;transform:translateY(8px)">
       <strong>From: LION</strong><br><br>
-      "A double agent inside our operation has been uncovered. Before detention, NIGHTSHADE armed a dead man's switch — a script that will exfiltrate the entire ATLAS repository to fourteen mirrors simultaneously at midnight.<br><br>
-      The weapon is in the git history. In the staging area. In the stash. In the remote.<br><br>
-      You have six layers to neutralise. Start with what's staged."
+      "Three hours ago, NIGHTSHADE went dark.<br><br>
+      Before we cut their access, they pushed one last commit. Not a file. A pipeline.<br><br>
+      You know what CI/CD is? Code that runs automatically — on a schedule, no button, no human. NIGHTSHADE built one inside our own repository. Every hour, on the clock, a script wakes up and reads the next five names from the ATLAS registry. Then publishes them. That's it. The machine is already running. It doesn't know NIGHTSHADE is in custody. It doesn't care. It just runs.<br><br>
+      At midnight, it runs one final time. Full dump. Every name remaining — all at once.<br><br>
+      The pipeline is kept alive by six layers buried across the repository. Each one is a git state that keeps the machine breathing. You dismantle them one by one.<br><br>
+      The clock doesn't stop while you work.<br><br>
+      Get in."
     </div>
     <div class="operative-input-row tx-fade" id="operativeRow" style="opacity:0;transform:translateY(8px)">
       <label class="operative-input-label">operative_codename:</label>
@@ -54,6 +58,10 @@
     </div>
     <div id="roomInfo">target // nightshade / atlas-node</div>
     <div class="top-bar-right">
+      <span class="leak-countdown" id="leakCountdown">
+        <span class="leak-label">next leak</span>
+        <span class="leak-time" id="leakTime">--:--</span>
+      </span>
       <span class="sec-status" id="secStatus">layer_01: probing</span>
       <div class="sec-dots">
         <span class="sec-dot active"></span>
@@ -76,8 +84,8 @@
     <div class="police-strip">
       <div class="police-strip-left">
         <span class="police-flash">▓</span>
-        <span class="police-label">DEAD MAN SWITCH PING</span>
-        <span class="police-sub">complete the step to neutralise</span>
+        <span class="police-label">LEAK CYCLE COMPLETE</span>
+        <span class="police-sub">5 identities published to public mirror</span>
       </div>
       <div class="police-strip-right">
         <span class="police-timer-label">window</span>
@@ -403,10 +411,11 @@
     </div>
     <div class="tx-body end-fox-msg-body">
       <div class="end-fox-speech-label">[ LION // final transmission ]</div>
-      "Six layers. Six threats. All neutralised.<br><br>
-      NIGHTSHADE armed every one of them knowing most operatives would never look past git log. You looked deeper.<br><br>
-      Staging area. Detached HEAD. Merge conflicts. Orphaned commits. Remote branches. The stash.<br><br>
-      These are the places people hide things. Now you know how to find them."
+      "NIGHTSHADE built a machine and walked out the door. No remote control. No button. Just a pipeline — running on schedule, relentless, indifferent.<br><br>
+      They counted on the machine outlasting us. Committed scripts buried in the history. A remote branch waiting for midnight. A stash full of decoys.<br><br>
+      You didn't let it.<br><br>
+      Six layers. Six git states keeping that pipeline alive. Staging area. Orphaned commits. Detached HEAD. History rewrite. Remote branch. The stash.<br><br>
+      That's where things get hidden. Now you know where to look."
     </div>
     <div id="scoreSection">
       <button id="saveScoreBtn" class="btn primary end-save-btn" onclick="submitScore()">[ SAVE YOUR SCORE ]</button>
@@ -473,6 +482,53 @@
     </div>
   </div>
 </div>
+
+<!-- ═══ LEAK COUNTDOWN TIMER ══════════════════════════════════ -->
+<script>
+(function () {
+  const CYCLE = 5 * 60; // 5-minute leak cycle
+  let remaining = Math.floor(Math.random() * CYCLE) + 30; // random start: 30s–5min
+  let interval = null;
+
+  function fmt(s) {
+    const m = Math.floor(s / 60), sec = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+  }
+
+  function triggerLeak() {
+    const alert = document.getElementById('policeAlert');
+    const leakEl = document.getElementById('leakTime');
+    if (alert) {
+      alert.style.display = 'block';
+      if (leakEl) leakEl.classList.add('leak-flash');
+      setTimeout(function () {
+        alert.style.display = 'none';
+        if (leakEl) leakEl.classList.remove('leak-flash');
+      }, 5000);
+    }
+    remaining = CYCLE;
+  }
+
+  function tick() {
+    const el = document.getElementById('leakTime');
+    if (!el) return;
+    if (remaining <= 0) {
+      triggerLeak();
+    } else {
+      remaining--;
+      el.textContent = fmt(remaining);
+      if (remaining <= 60) el.classList.add('leak-urgent');
+      else el.classList.remove('leak-urgent');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const el = document.getElementById('leakTime');
+    if (el) el.textContent = fmt(remaining);
+    interval = setInterval(tick, 1000);
+  });
+})();
+</script>
 
 <!-- scripts: config → data → renderer → supabase → engine -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

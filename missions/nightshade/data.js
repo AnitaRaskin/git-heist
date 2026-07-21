@@ -15,7 +15,7 @@ const ROOMS = [
     name: 'CONTAINMENT',
     initialTree: 'n0_initial',
     clue: { label: 'PROTOCOL', value: 'ATLAS-LOCK-01' },
-    intro: "NIGHTSHADE's last session is still open. Something was staged alongside a legitimate change. You need to understand what's in each zone before you commit anything — or you arm the first layer yourself.",
+    intro: "NIGHTSHADE's workstation. Still logged in. Last thing they did before detention: ran git add. Something got staged alongside a legitimate audit entry — sitting quietly in the index, invisible unless you look. Whatever's in there commits the moment anyone types git commit. Read what's actually staged before you touch anything.",
     stages: [
       {
         conceptBrief: {
@@ -23,9 +23,11 @@ const ROOMS = [
           bullets: [
             "git tracks three separate realities: your working directory (what you see), the staging area (what's been marked for the next commit), and the repository (what's already committed)",
             "git status shows all three at once — modified files, staged files, and untracked files",
-            "git diff shows what changed in your working directory vs the staging area (unstaged changes)",
-            "git diff --staged shows what's staged vs the last commit — exactly what would be committed right now"
-          ]
+            "git diff shows what changed in your working directory vs the staging area (unstaged changes only)",
+            "git diff --staged shows what's staged vs the last commit — exactly what would be committed right now",
+            "most accidental commits happen because people run git commit without reading what's staged. the staging area is silent — it will never warn you"
+          ],
+          ascii: '  working dir      →   staging area     →   repository\n  (what you see)        (marked for commit)   (committed)\n\n  git diff              git diff --staged    git log\n  (shows: WD vs stage)  (shows: stage vs repo)  (committed history)'
         },
         foxMsg: "LION: \"NIGHTSHADE's session is still open. Run git status — tell me what's in this repo right now.\"",
         task: 'Check the full state of the repository.',
@@ -154,7 +156,7 @@ const ROOMS = [
     name: 'DEAD RECKONING',
     initialTree: 'n1_log',
     clue: { label: 'TIMESTAMP', value: '2024-03-12T23:42:07Z' },
-    intro: "The commit history holds a coordinate. NIGHTSHADE planted the cardinal trigger six weeks ago — long before anyone suspected. Get to that commit. When the terminal gives you a warning, read it carefully. You are not lost. You are exactly where you need to be.",
+    intro: "The pipeline didn't appear overnight. NIGHTSHADE planted it six weeks ago — one commit in the history, disguised as a config update, long before anyone was looking. The timestamp inside that commit tells you when the registry was first loaded. You need to reach it. The terminal is going to say something alarming when you get there. Read it carefully. You are not broken. You are exactly where you need to be.",
     stages: [
       {
         conceptBrief: {
@@ -283,18 +285,19 @@ const ROOMS = [
     name: 'CONFLICTED LOYALTIES',
     initialTree: 'n2_conflict',
     clue: { label: 'SECTOR', value: 'MERIDIAN-NET' },
-    intro: "NIGHTSHADE merged their inject branch before detention. The merge left conflict markers in assets.enc — the file governing classification and whether export is enabled. Every second it stays broken is a second the system is unstable. Three steps to fix it.",
+    intro: "Before detention, NIGHTSHADE forced a merge. Their inject branch carries the version of assets.enc that has export enabled — the flag the pipeline reads every cycle to decide whether to publish. The merge left conflict markers in the file. Broken files can't be committed clean, but if you resolve it wrong — keep their side — the registry goes live on the next cycle. Three steps. Don't skip any of them.",
     stages: [
       {
         conceptBrief: {
           title: 'MERGE CONFLICTS — THREE STEPS',
           bullets: [
             'a merge conflict happens when two branches edit the same lines differently — git cannot decide which to keep',
-            "conflict markers divide the two versions: <<<<<<< HEAD is your version, >>>>>>> branch is the incoming version",
-            'step 1: edit the file — remove the markers, keep what you want',
-            'step 2: git add <file> — mark the conflict as resolved',
-            'step 3: git commit — seal the merge. skipping either step leaves the merge unfinished'
-          ]
+            "conflict markers divide the two versions: <<<<<<< HEAD is your version, >>>>>>> branch is the incoming version, ======= is the dividing line",
+            'step 1: edit the file — remove ALL three marker lines, keep what you want (can be a mix of both sides)',
+            'step 2: git add <file> — this is how you tell git the conflict is resolved. git status will still show unmerged until you do this',
+            'step 3: git commit — seals the merge. most people forget steps 2 or 3 and wonder why git is still angry'
+          ],
+          ascii: '  <<<<<<< HEAD\n  EXPORT_ENABLED: false    ← your version (keep this)\n  =======\n  EXPORT_ENABLED: true\n  EXFIL_TARGET: darknet   ← incoming (remove this)\n  >>>>>>> nightshade/inject\n\n  delete all 3 marker lines. keep only what belongs.'
         },
         foxMsg: "LION: \"Run git status. Find the conflicted file.\"",
         task: 'Check which files are in a conflicted state.',
@@ -312,7 +315,23 @@ const ROOMS = [
           ['open the file, resolve the conflict, then stage it.', 'sys'],
         ],
         tree: 'n2_conflict',
-        wrong: {}
+        wrong: {
+          'git merge --abort': [
+            ['merge aborted — back to pre-merge state.', 'warn'],
+            ['', ''],
+            ['git merge --abort works when you want to give up entirely.', 'dim'],
+            ['but this conflict has to be resolved — the system is unstable until it is.', 'dim'],
+            ['run git status to see the conflicted file and proceed.', 'sys']
+          ],
+          'git commit': [
+            ['error: Committing is not possible because you have unmerged files.', 'err'],
+            ['hint: Fix them up in the work tree, and then use', 'dim'],
+            ["hint: 'git add/rm <file>' as appropriate to mark resolution.", 'dim'],
+            ['', ''],
+            ['you cannot commit a merge until all conflicts are resolved and staged.', 'dim'],
+            ['run git status first — find the conflicted file.', 'sys']
+          ]
+        }
       },
       {
         foxMsg: "LION: \"Open assets.enc. Two versions separated by markers. HEAD is ours. The other side is NIGHTSHADE's. Keep ours. Delete everything else.\"",
@@ -392,17 +411,18 @@ const ROOMS = [
     name: 'THE GREAT ERASURE',
     initialTree: 'n3_reset',
     clue: { label: 'CREDENTIAL', value: 'NS-DISABLE-7731' },
-    intro: "Before detention, NIGHTSHADE ran git reset --hard. Three commits are gone from the log — including the shutdown credential that permanently disarms the dead man's switch. From git log, it looks like they never existed. They did. Git does not delete. Git orphans.",
+    intro: "NIGHTSHADE wasn't just building — they were covering tracks. Before detention: git reset --hard to wipe three commits from the local log, then git push --force to overwrite the remote too. From everywhere a normal investigation would look, those commits don't exist. The shutdown credential — the flag that makes the pipeline abort on every future run — was in one of them. Git doesn't delete. It orphans. And there's one place a force push can't reach.",
     stages: [
       {
         conceptBrief: {
-          title: "GIT REFLOG — GIT'S PRIVATE DIARY",
+          title: "REWRITING HISTORY — THREE LEVELS OF DANGER",
           bullets: [
-            'git log only shows commits reachable from HEAD through the history chain',
-            'git reset --hard moves the branch pointer backward — commits above it become orphaned (no branch points to them)',
-            'git reflog records every movement of HEAD — even after resets, detached checkouts, and branch switches',
-            'orphaned commits survive in the repository for ~90 days. cherry-pick brings a single specific commit to your current branch'
-          ]
+            'git reset --hard moves the branch pointer backward locally — commits above it become orphaned. recoverable via reflog for ~90 days',
+            'git rebase rewrites commits in place — each rebased commit gets a brand new hash. any teammate who branched off the old hashes now has a diverged history they cannot cleanly merge',
+            'git push --force overwrites the remote branch — it destroys history for everyone who already fetched. reflog only records YOUR local movements, not theirs. there is no recovery once others have pulled the new state',
+            'git reflog is the escape hatch for local disasters. it records every HEAD movement: resets, checkouts, branch switches — even moves that git log hides'
+          ],
+          ascii: '  DANGER SCALE:\n  reset --hard  →  local only, reflog recovers it\n  rebase        →  rewrites hashes, breaks teammates\' branches\n  push --force  →  overwrites remote, no recovery for others\n\n  reflog: YOUR private diary. exists locally only.'
         },
         foxMsg: "LION: \"Run git log. Tell me what's there — and what's obviously missing.\"",
         task: 'Check the current commit history.',
@@ -467,7 +487,22 @@ const ROOMS = [
         tree: 'n3_cherry',
         wrong: {
           'git cherry-pick {{H6}}': [['that commit contains staging data, not the shutdown credential. check the reflog — you need HEAD@{2}.', 'warn']],
-          'git cherry-pick {{H8}}': [['that is the reset operation entry, not a content commit. look for HEAD@{2} in the reflog.', 'err']]
+          'git cherry-pick {{H8}}': [['that is the reset operation entry, not a content commit. look for HEAD@{2} in the reflog.', 'err']],
+          'git push --force origin main': [
+            ['ABORT: refusing force push.', 'err'],
+            ['', ''],
+            ['force pushing rewrites the remote branch for every person on your team.', 'warn'],
+            ['any teammate who fetched before this push now has a diverged branch they cannot cleanly merge.', 'dim'],
+            ['their local history and the remote are no longer compatible.', 'dim'],
+            ['', ''],
+            ['force push is how nightshade tried to make the deletion permanent.', 'sys'],
+            ['reflog only exists locally — they knew remote history is unrecoverable.', 'dim'],
+            ["use cherry-pick to bring the commit forward instead. don't rewrite shared history.", 'sys']
+          ],
+          'git push --force': [
+            ['ABORT: refusing force push to shared branch.', 'err'],
+            ['force push destroys remote history for the whole team. use cherry-pick instead.', 'sys']
+          ]
         }
       },
       {
@@ -486,7 +521,7 @@ const ROOMS = [
         ],
         tree: 'n3_cherry',
         wrong: {},
-        completionMsg: "orphaned commits recovered. git reset --hard moves a pointer. it does not delete history. reflog is the evidence trail git always keeps — nightshade did not know you knew about it."
+        completionMsg: "orphaned commits recovered. git reset --hard moves a pointer — locally. git push --force takes it further: it overwrites the remote and destroys history for every teammate who had already fetched. reflog records your movements only, not theirs. nightshade knew this. they force pushed before detention specifically because remote history is unrecoverable. cherry-pick brought one commit back. force push would have taken the whole team down."
       }
     ],
     hints: [
@@ -522,17 +557,19 @@ const ROOMS = [
     name: 'INCOMING SIGNAL',
     initialTree: 'n4_local',
     clue: { label: 'VECTOR', value: 'origin/nightshade/transmit' },
-    intro: "NIGHTSHADE pushed the final payload to the remote four hours ago, before we cut their access. Your local repository does not know it is there. The CI pipeline is configured to auto-merge any branch matching 'nightshade/*' at midnight. Do not pull — pulling merges. Fetch first.",
+    intro: "This is the engine room. Four hours ago NIGHTSHADE pushed nightshade/transmit to the remote — a branch containing the actual CI job definition. The scheduled pipeline config. The thing that tells the system to wake up every hour and run publish.sh. Our CI server auto-merges any nightshade/* branch at midnight. Once that merge lands, the pipeline is baked into main — permanent, independent of anything else you fixed. Do not pull. Pulling merges automatically. Fetch first, look at what's there, then decide.",
     stages: [
       {
         conceptBrief: {
-          title: 'FETCH vs PULL — SAFE vs IMMEDIATE',
+          title: 'FETCH vs PULL — AND WHY THE BRANCH MATTERS',
           bullets: [
-            'git fetch downloads remote changes without touching your working directory or current branch',
-            'git pull = git fetch + git merge in one step — it immediately integrates what it downloads',
-            'origin/main is a local pointer — a snapshot of what the remote looked like when you last fetched',
-            'always fetch + inspect before merging: you decide what happens to your branch, not the network'
-          ]
+            'CI/CD (Continuous Integration / Continuous Delivery) is code that runs automatically — triggered by a git event or a schedule. no button, no human required after the first commit',
+            'nightshade/transmit contains the CI job definition: the script the server runs every hour. once it merges into main, the server picks it up permanently and runs it on schedule forever',
+            'git fetch downloads remote changes without touching your working directory or current branch — safe, read-only',
+            'git pull = git fetch + git merge in one step — it immediately integrates what it downloads into your current branch. that is why you do NOT pull here',
+            'origin/main is a local tracking pointer — a snapshot of what the remote looked like the last time you fetched. it goes stale. always fetch first, inspect what came in, then decide'
+          ],
+          ascii: '  remote:       origin/main ─── C4 ─── C5  (new commits exist)\n  your machine:  main        ─── C4          (stale — you haven\'t fetched)\n                 origin/main ─── C4          (stale local snapshot)\n\n  after git fetch:\n                 origin/main ─── C4 ─── C5  (snapshot updated)\n                 main        ─── C4          (untouched — you decide)\n\n  after git merge origin/main:\n                 main        ─── C4 ─── C5  (now in sync)'
         },
         foxMsg: "LION: \"Check your local state first. Then we deal with the remote.\"",
         task: 'Verify the current local commit history.',
@@ -689,17 +726,19 @@ const ROOMS = [
     name: 'THE DEAD DROP',
     initialTree: 'n5_stash',
     clue: { label: 'STATUS', value: 'DISARMED' },
-    intro: "Three stashes on NIGHTSHADE's machine. One is the killswitch — the credential that permanently disarms the dead man's switch. One is a decoy designed to look identical but re-arms the trigger on apply. One is noise. Never pop without reading.",
+    intro: "Three stashes on NIGHTSHADE's machine. One is a killswitch — a flag that tells the pipeline to abort every future run, even if the CI job is still configured. One is a trap: looks almost identical, but applying it re-enables the trigger. One is noise. The labels in the stash list were written by NIGHTSHADE. They're not helping you. Read the actual diff before you touch anything. Never pop without reading.",
     stages: [
       {
         conceptBrief: {
           title: 'THE STASH IS A STACK — NOT A SAFE',
           bullets: [
             'git stash saves uncommitted changes to a private LIFO stack — last in, first out',
-            'stash@{0} is always the newest entry. stash@{1} is one older. stash@{2} older still',
-            'git stash pop = apply the top stash AND remove it from the stack — cannot be undone',
-            'git stash show -p stash@{N} lets you inspect any stash before applying — always do this first'
-          ]
+            'stash@{0} is ALWAYS the newest entry — indices shift every time you stash. what was stash@{1} yesterday may be stash@{2} today',
+            'git stash pop = apply stash@{0} AND remove it from the stack — ignores any index argument you pass. cannot be undone',
+            'git stash apply stash@{N} applies a specific entry WITHOUT removing it from the stack — safer than pop when you\'re unsure',
+            'git stash show -p stash@{N} lets you inspect any stash before applying — always do this first. the names in stash list are set by whoever stashed, not git'
+          ],
+          ascii: '  stash twice, then check indices:\n\n  git stash    →  stash@{0}: newest work\n  git stash    →  stash@{0}: even newer work  ← indices SHIFT\n                   stash@{1}: newest work     ← this is now {1}\n\n  git stash pop  always pops {0} regardless of flags\n  git stash apply stash@{1}  applies {1} safely, leaves it in stack'
         },
         foxMsg: "LION: \"Read the stash list. Three entries. Tell me what's there before you touch anything.\"",
         task: 'List all stashed entries on this machine.',

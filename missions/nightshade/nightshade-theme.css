@@ -43,6 +43,51 @@
 /* amber briefing borders */
 .boot-terminal { border-left-color: var(--secondary); }
 
+/* ─── LEAK COUNTDOWN ────────────────────────────────────────── */
+.leak-countdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid rgba(255, 62, 62, 0.25);
+  border-radius: 2px;
+  background: rgba(255, 62, 62, 0.05);
+}
+
+.leak-label {
+  color: var(--text-muted);
+}
+
+.leak-time {
+  color: var(--err);
+  font-weight: 700;
+  letter-spacing: 3px;
+  min-width: 36px;
+}
+
+.leak-time.leak-urgent {
+  animation: leak-pulse 0.8s ease-in-out infinite;
+}
+
+.leak-time.leak-flash {
+  color: #fff;
+  animation: leak-flash-anim 0.3s ease-in-out 5;
+}
+
+@keyframes leak-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes leak-flash-anim {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* intro grid — horizontal data-stream lines */
 #introScreen {
   background:
