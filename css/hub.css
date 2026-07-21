@@ -7,14 +7,14 @@
   --surface-3:       #22253a;
   --border:          rgba(195,198,207,0.08);
   --border-hi:       #45474b;
-  --primary:         #10b981;
+  --primary:         #f59e0b;
   --secondary:       #00dbe7;
   --amber:           #f59e0b;
   --text:            #e5e2e2;
   --text-dim:        #c6c6cb;
   --text-muted:      #8f9095;
   --text-faint:      #45474b;
-  --ok:              #10b981;
+  --ok:              #1D9E75;
   --err:             #ffb4ab;
   --warn:            #f59e0b;
   --font-display:    'Sora', sans-serif;
@@ -25,7 +25,7 @@
   --surface-top:     #2a2d42;
   --border-solid:    #45474b;
   --border-dim:      #45474b;
-  --primary-dim:     #0a7a56;
+  --primary-dim:     #92600a;
   --text-muted-old:  #8f9095;
   --font:            'JetBrains Mono', 'Courier New', monospace;
 }
@@ -56,8 +56,8 @@ body {
 .hub-bg {
   position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(16,185,129,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0,219,231,0.03) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(245,158,11,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(245,158,11,0.02) 0%, transparent 55%),
     var(--bg);
   pointer-events: none; z-index: 0;
 }
