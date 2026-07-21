@@ -29,7 +29,7 @@ function interp(s) {
 
 
 // ─── Admin access ────────────────────────────────────────────────────
-const ADMIN_CODENAMES = ['anitar'];
+// Role is set in the profiles table in Supabase (role = 'admin').
 
 // ─── Global game state ───────────────────────────────────────────────
 
@@ -1396,7 +1396,6 @@ function doStartFresh() {
 
 function _launchGame(codename, elapsed, showTour) {
   G.codename = codename;
-  G.isAdmin  = ADMIN_CODENAMES.includes(codename.toLowerCase());
   document.getElementById('operativeTag').textContent = `${codename}@${GAME_CONFIG.promptSuffix || 'local:~$'}`;
   document.getElementById('introScreen').style.display = 'none';
   document.getElementById('gameShell').style.display   = 'flex';
@@ -1479,6 +1478,7 @@ document.addEventListener('keydown', e => {
   if (!user) return;
   G.userId = user.userId;
   G.isAuthenticated = true;
+  G.isAdmin = user.role === 'admin';
   const nameEl = document.getElementById('operativeName');
   if (nameEl && user.codename) {
     nameEl.value    = user.codename;

@@ -114,8 +114,8 @@ async function getLeaderboard() {
 async function getSessionUser() {
   const { data } = await sb.auth.getUser();
   if (!data?.user) return null;
-  const { data: profile } = await sb.from('profiles').select('username').eq('id', data.user.id).single();
-  return { userId: data.user.id, codename: profile?.username || '' };
+  const { data: profile } = await sb.from('profiles').select('username, role').eq('id', data.user.id).single();
+  return { userId: data.user.id, codename: profile?.username || '', role: profile?.role || 'player' };
 }
 
 async function authSignInWithGoogle() {
