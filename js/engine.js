@@ -1202,12 +1202,16 @@ function initResizable() {
 
 // ─── First-run tour ──────────────────────────────────────────────────
 
+const _handler = (window.HANDLER_NAME || 'fox').toUpperCase();
+const _handlerName = (window.HANDLER_NAME || 'fox');
+const _missionWord = _handlerName === 'lion' ? 'mission' : 'heist';
+
 const TOUR_STEPS = [
   {
     sel: '.fox-panel',
     pos: 'right',
-    title: 'FOX // COMMS',
-    body: 'Your encrypted contact. Fox briefs you stage by stage — read her message before you type anything.'
+    title: `${_handler} // COMMS`,
+    body: `Your encrypted contact. ${_handlerName.charAt(0).toUpperCase() + _handlerName.slice(1)} briefs you stage by stage — read the message before you type anything.`
   },
   {
     sel: '.terminal-panel',
@@ -1231,13 +1235,13 @@ const TOUR_STEPS = [
     sel: 'button[onclick*="openCheatSheet"]',
     pos: 'bottom',
     title: '[CMD: LOG]',
-    body: 'Every command you type is recorded here. Download it as a cheat sheet when the heist is done.'
+    body: `Every command you type is recorded here. Download it as a cheat sheet when the ${_missionWord} is done.`
   },
   {
     sel: '#scoreChip',
     pos: 'bottom',
     title: 'SCORE',
-    body: 'Earn points for each stage. Deductions for hints and wrong answers. Finish the heist and save to the leaderboard.'
+    body: `Earn points for each stage. Deductions for hints and wrong answers. Finish the ${_missionWord} and save to the leaderboard.`
   },
 ];
 
