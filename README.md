@@ -21,7 +21,7 @@ A previous crew left access credentials buried in a target's git repository — 
 
 **Commands taught:** `git log`, `git status`, `git branch`, `git checkout`, `git stash`, `git pull`, `git add`, `git commit`, `git push`, `git revert`, and more — across 8 rooms.
 
-→ `missions/git-heist/git-heist.html`
+→ [https://anitaraskin.github.io/git-heist/missions/git-heist/git-heist.html](https://anitaraskin.github.io/git-heist/missions/git-heist/git-heist.html)
 
 ---
 
