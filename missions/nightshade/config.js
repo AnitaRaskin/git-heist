@@ -254,6 +254,7 @@ ARCHIVE_DATE: 2024-03-15`,
             ['markers removed. HEAD version preserved.', 'dim'],
             ['', ''],
             ['now stage the resolved file.', 'sys'],
+            ['run: git add assets.enc', 'dim'],
           ]
         };
       }
