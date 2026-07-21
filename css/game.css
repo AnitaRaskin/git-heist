@@ -1792,4 +1792,72 @@ body.resizing-col    { user-select: none; }
   opacity: 0.5;
   padding: 7px 12px;
 }
+
+/* ─── Admin panel ────────────────────────────────────────────── */
+.admin-panel {
+  display: none;
+  position: fixed;
+  top: 56px; right: 16px;
+  z-index: 9000;
+  min-width: 220px;
+  background: var(--bg, #0a0e14);
+  border: 1px solid #f59e0b;
+  box-shadow: 0 0 24px rgba(245,158,11,0.15);
+  font-family: 'JetBrains Mono', monospace;
+}
+.admin-panel.open { display: block; }
+
+.admin-panel-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px;
+  background: rgba(245,158,11,0.08);
+  border-bottom: 1px solid rgba(245,158,11,0.3);
+  font-size: 9px; letter-spacing: 0.18em;
+  color: #f59e0b; text-transform: uppercase;
+}
+.admin-panel-close {
+  background: none; border: none;
+  color: #f59e0b; cursor: pointer;
+  font-size: 13px; padding: 0; line-height: 1;
+  transition: color 0.15s;
+}
+.admin-panel-close:hover { color: #fff; }
+
+.admin-panel-rooms { display: flex; flex-direction: column; }
+
+.admin-room-btn {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 10px 14px;
+  background: transparent; border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer; text-align: left;
+  transition: background 0.12s;
+  width: 100%;
+}
+.admin-room-btn:last-child { border-bottom: none; }
+.admin-room-btn:hover { background: rgba(255,255,255,0.04); }
+.admin-room-btn--active { background: rgba(245,158,11,0.08); }
+.admin-room-btn--active .admin-room-id { color: #f59e0b; }
+
+.admin-room-id {
+  font-size: 9px; letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.35); text-transform: uppercase;
+  flex-shrink: 0;
+}
+.admin-room-name {
+  font-size: 12px; color: #e5e2e2;
+  flex: 1;
+}
+.admin-room-stages {
+  font-size: 9px; color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+.admin-panel-tip {
+  padding: 7px 14px;
+  font-size: 9px; letter-spacing: 0.1em;
+  color: rgba(245,158,11,0.4);
+  border-top: 1px solid rgba(245,158,11,0.15);
+  text-align: center;
+}
 .tour-skip-btn:hover { opacity: 1; }

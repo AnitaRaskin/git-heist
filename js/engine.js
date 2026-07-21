@@ -426,6 +426,7 @@ function parseCmd(raw) {
   // Universal commands
   if (cmd === 'clear') { out.innerHTML = ''; return {}; }
   if (cmd === 'hint')  { openHint(); return {}; }
+  if (cmd === '//jump') { toggleAdminPanel(); return {}; }
   if (cmd === 'help')  {
     const avail = (GAME_CONFIG.alwaysAvailableHelp || []).map(l => [l, 'dim']);
     tprint([
@@ -1405,6 +1406,63 @@ function leaveRoom() {
   localStorage.removeItem('vz_progress');
   window.location.href = '../../index.html';
 }
+
+// ─── Admin panel (room jump) ──────────────────────────────────────────
+function _ensureAdminPanel() {
+  if (document.getElementById('adminPanel')) return;
+  const el = document.createElement('div');
+  el.id = 'adminPanel';
+  el.className = 'admin-panel';
+  document.body.appendChild(el);
+  el.addEventListener('click', e => e.stopPropagation());
+}
+
+function toggleAdminPanel() {
+  _ensureAdminPanel();
+  const panel = document.getElementById('adminPanel');
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    return;
+  }
+  const rooms = ROOMS.map((r, i) => `
+    <button class="admin-room-btn ${i === G.roomIdx ? 'admin-room-btn--active' : ''}" onclick="adminJumpToRoom(${i})">
+      <span class="admin-room-id">ROOM ${r.id}</span>
+      <span class="admin-room-name">${r.name}</span>
+      <span class="admin-room-stages">${r.stages.length} stages</span>
+    </button>
+  `).join('');
+  panel.innerHTML = `
+    <div class="admin-panel-hdr">
+      <span>▓ ADMIN // ROOM SELECT ▓</span>
+      <button class="admin-panel-close" onclick="toggleAdminPanel()">✕</button>
+    </div>
+    <div class="admin-panel-rooms">${rooms}</div>
+    <div class="admin-panel-tip">Ctrl+Shift+J · or type //jump</div>
+  `;
+  panel.classList.add('open');
+}
+
+function adminJumpToRoom(idx) {
+  toggleAdminPanel();
+  ['roomDone', 'quizScreen', 'fileEditor', 'hintModal', 'leaveModal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  });
+  clearPolice(true);
+  G.roomIdx        = idx;
+  G.stageIdx       = 0;
+  G.hintsUsed      = 0;
+  G.hintLevel      = 0;
+  G.fileEditDone   = false;
+  G.stageWrongs    = 0;
+  G.stageHintLevel = -1;
+  G.roomStart      = Date.now();
+  loadRoom();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'J') { e.preventDefault(); toggleAdminPanel(); }
+});
 
 // ─── Session check on load ────────────────────────────────────────────
 (async function () {
