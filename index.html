@@ -23,6 +23,7 @@
     <span>enc: aes-256</span>
     <span>signal: stable</span>
   </div>
+  <div id="hubAuthBar" class="hub-topbar-auth"></div>
 </header>
 
 <!-- ─── HERO ─────────────────────────────────────────────── -->
@@ -52,10 +53,10 @@
   <aside class="hub-hero-tele" aria-hidden="true">
     <div class="tele-label-row">SYSTEM TELEMETRY</div>
     <div class="tele-row"><span class="tele-k">SYS_TIME</span><span class="tele-v" id="teleClock">--:--:-- UTC</span></div>
-    <div class="tele-row"><span class="tele-k">OPERATIVE</span><span class="tele-v tele-warn">UNVERIFIED</span></div>
+    <div class="tele-row"><span class="tele-k">OPERATIVE</span><span class="tele-v tele-warn" id="teleOperative">UNVERIFIED</span></div>
     <div class="tele-row"><span class="tele-k">NODE</span><span class="tele-v">training-relay-01</span></div>
     <div class="tele-row"><span class="tele-k">SIGNAL</span><span class="tele-v tele-ok">STABLE</span></div>
-    <div class="tele-row"><span class="tele-k">CLEARANCE</span><span class="tele-v tele-warn">PENDING</span></div>
+    <div class="tele-row"><span class="tele-k">CLEARANCE</span><span class="tele-v tele-warn" id="teleClearance">PENDING</span></div>
     <div class="tele-divider"></div>
     <div class="tele-row"><span class="tele-k">MISSIONS</span><span class="tele-v">3 LOADED</span></div>
     <div class="tele-row"><span class="tele-k">ACTIVE</span><span class="tele-v tele-ok">1</span></div>
@@ -214,9 +215,149 @@
   </div>
 </footer>
 
+<!-- ─── AUTH OVERLAY ──────────────────────────────────────── -->
+<div id="authOverlay">
+  <div class="auth-modal-box">
+    <div class="auth-modal-header">
+      <span class="auth-modal-tag">▓ OPERATIVE IDENTIFICATION ▓</span>
+      <button class="auth-modal-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-hub-tabs">
+      <button class="auth-hub-tab active" id="tabLogin" onclick="setHubAuthMode('login')">[ LOG IN ]</button>
+      <button class="auth-hub-tab" id="tabRegister" onclick="setHubAuthMode('register')">[ NEW OPERATIVE ]</button>
+    </div>
+    <div class="auth-hub-field">
+      <label class="auth-hub-label">operative_codename</label>
+      <input type="text" id="hubCodename" class="auth-hub-input" placeholder="enter codename..." autocomplete="off" maxlength="20">
+    </div>
+    <div class="auth-hub-field">
+      <label class="auth-hub-label">password</label>
+      <input type="password" id="hubPassword" class="auth-hub-input" placeholder="enter password...">
+    </div>
+    <div class="auth-hub-field" id="hubConfirmField" style="display:none">
+      <label class="auth-hub-label">confirm_password</label>
+      <input type="password" id="hubConfirm" class="auth-hub-input" placeholder="confirm password...">
+    </div>
+    <div class="auth-hub-error" id="hubAuthError"></div>
+    <button class="auth-hub-submit" id="hubAuthSubmit" onclick="handleHubAuth()">[ IDENTIFY ]</button>
+    <div class="auth-hub-divider">
+      <div class="auth-hub-divider-line"></div>
+      <span class="auth-hub-divider-text">or</span>
+      <div class="auth-hub-divider-line"></div>
+    </div>
+    <button class="auth-hub-google" onclick="handleGoogleAuth()">[ G ] continue with Google</button>
+    <button class="auth-hub-anon" onclick="closeAuthModal()">— skip, play anonymously —</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase.js"></script>
 <script>
 (function() {
-  // Typing animation for hero tag
+  var hubAuthMode = 'login';
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function openAuthModal() {
+    document.getElementById('authOverlay').classList.add('open');
+    setTimeout(function() { document.getElementById('hubCodename').focus(); }, 100);
+  }
+  function closeAuthModal() {
+    document.getElementById('authOverlay').classList.remove('open');
+    document.getElementById('hubAuthError').textContent = '';
+  }
+  function setHubAuthMode(mode) {
+    hubAuthMode = mode;
+    document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+    document.getElementById('hubConfirmField').style.display = mode === 'register' ? '' : 'none';
+    document.getElementById('hubAuthError').textContent = '';
+  }
+  function showHubAuthError(msg) { document.getElementById('hubAuthError').textContent = msg; }
+
+  function updateHubUI(codename) {
+    var bar     = document.getElementById('hubAuthBar');
+    var teleOp  = document.getElementById('teleOperative');
+    var teleClr = document.getElementById('teleClearance');
+    if (codename) {
+      bar.innerHTML = '<span class="hub-operative-tag">operative: ' + esc(codename) + '</span>'
+        + '<button class="hub-logout-btn" onclick="handleHubLogout()">[ log out ]</button>';
+      if (teleOp)  { teleOp.textContent  = codename.toUpperCase(); teleOp.className  = 'tele-v tele-ok'; }
+      if (teleClr) { teleClr.textContent = 'GRANTED';              teleClr.className = 'tele-v tele-ok'; }
+    } else {
+      bar.innerHTML = '<button class="hub-auth-identify-btn" onclick="openAuthModal()">[ identify ]</button>';
+      if (teleOp)  { teleOp.textContent  = 'UNVERIFIED'; teleOp.className  = 'tele-v tele-warn'; }
+      if (teleClr) { teleClr.textContent = 'PENDING';    teleClr.className = 'tele-v tele-warn'; }
+    }
+  }
+
+  async function handleHubAuth() {
+    var codename = document.getElementById('hubCodename').value.trim();
+    var password = document.getElementById('hubPassword').value;
+    showHubAuthError('');
+    if (!codename) { showHubAuthError('enter your operative codename'); return; }
+    if (!password) { showHubAuthError('enter your password'); return; }
+    var btn = document.getElementById('hubAuthSubmit');
+    btn.textContent = '[ CONNECTING... ]'; btn.disabled = true;
+    var result;
+    if (hubAuthMode === 'register') {
+      var confirm = document.getElementById('hubConfirm').value;
+      if (password.length < 6) { showHubAuthError('password must be at least 6 characters'); btn.textContent = '[ IDENTIFY ]'; btn.disabled = false; return; }
+      if (password !== confirm)  { showHubAuthError('passwords do not match'); btn.textContent = '[ IDENTIFY ]'; btn.disabled = false; return; }
+      result = await authSignUp(codename, password);
+    } else {
+      result = await authSignIn(codename, password);
+    }
+    btn.textContent = '[ IDENTIFY ]'; btn.disabled = false;
+    if (result.error) { showHubAuthError(result.error); return; }
+    closeAuthModal();
+    updateHubUI(codename);
+  }
+
+  async function handleGoogleAuth() {
+    showHubAuthError('');
+    var result = await authSignInWithGoogle();
+    if (result.error) showHubAuthError(result.error);
+    // On success the browser redirects to Google; session is restored on return
+  }
+
+  async function handleHubLogout() {
+    await authSignOut();
+    updateHubUI(null);
+  }
+
+  window.openAuthModal    = openAuthModal;
+  window.closeAuthModal   = closeAuthModal;
+  window.setHubAuthMode   = setHubAuthMode;
+  window.handleHubAuth    = handleHubAuth;
+  window.handleGoogleAuth = handleGoogleAuth;
+  window.handleHubLogout  = handleHubLogout;
+
+  ['hubCodename', 'hubPassword', 'hubConfirm'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleHubAuth(); });
+  });
+
+  document.getElementById('authOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeAuthModal();
+  });
+
+  // Handles session restore on page load and OAuth redirect callback
+  sb.auth.onAuthStateChange(async function(event, session) {
+    if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+      if (session) {
+        var codename = await ensureProfile(session.user);
+        updateHubUI(codename);
+        if (event === 'SIGNED_IN') closeAuthModal();
+      } else {
+        updateHubUI(null);
+      }
+    } else if (event === 'SIGNED_OUT') {
+      updateHubUI(null);
+    }
+  });
+
+  // Typing animation
   var el = document.getElementById('heroTag');
   var msg = '// incoming transmission // you have been selected';
   var i = 0;
@@ -226,7 +367,7 @@
   }
   setTimeout(tick, 500);
 
-  // Live UTC clock in telemetry panel
+  // Live UTC clock
   var clock = document.getElementById('teleClock');
   function updateClock() {
     var t = new Date();

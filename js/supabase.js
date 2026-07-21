@@ -110,3 +110,32 @@ async function getLeaderboard() {
     return true;
   }).slice(0, 10);
 }
+
+async function getSessionUser() {
+  const { data } = await sb.auth.getUser();
+  if (!data?.user) return null;
+  const { data: profile } = await sb.from('profiles').select('username').eq('id', data.user.id).single();
+  return { userId: data.user.id, codename: profile?.username || '' };
+}
+
+async function authSignInWithGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href.split('?')[0].split('#')[0] }
+  });
+  return error ? { error: error.message } : {};
+}
+
+async function ensureProfile(user) {
+  const { data: existing } = await sb.from('profiles').select('username').eq('id', user.id).single();
+  if (existing) return existing.username;
+  const base = ((user.user_metadata?.full_name || user.email.split('@')[0]) + '')
+    .toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 18) || 'operative';
+  let username = base;
+  const { error } = await sb.from('profiles').insert({ id: user.id, username });
+  if (error?.code === '23505') {
+    username = base.slice(0, 15) + Math.floor(Math.random() * 999);
+    await sb.from('profiles').insert({ id: user.id, username });
+  }
+  return username;
+}
