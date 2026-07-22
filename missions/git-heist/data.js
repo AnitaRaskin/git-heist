@@ -130,7 +130,7 @@ const ROOMS = [
         output: [
           ["* main", "br"],
           ["  remotes/origin/main", "dim"],
-          ["  remotes/origin/security-audit-2019", "dim"],
+          ["  remotes/origin/hr-headcount-archive", "dim"],
           ["  remotes/origin/vault-schematics", "hl"],
         ],
         tree: "r1_branches",
@@ -165,10 +165,10 @@ const ROOMS = [
         ],
         tree: "r1_on_fox",
         wrong: {
-          "git checkout security-audit-2019": [
-            ["Switched to branch 'security-audit-2019'", "warn"],
+          "git checkout hr-headcount-archive": [
+            ["Switched to branch 'hr-headcount-archive'", "warn"],
             ["", ""],
-            ["old audit logs from 2019. dead end. try the other one.", "err"]
+            ["HR headcount records. nothing here. try the other branch.", "err"]
           ],
           "git checkout main": [["you're already on main. look for a different branch.", "warn"]]
         }
@@ -277,7 +277,7 @@ const ROOMS = [
 
   // ──────────────────────────────────────────────────────
   // ROOM 2: GET A COPY
-  // git remote -v, fork, git clone
+  // git remote -v, git clone, git remote -v (verify), git remote add upstream
   // ──────────────────────────────────────────────────────
   {
     id: 2,
@@ -317,31 +317,14 @@ const ROOMS = [
         conceptBrief: {
           title: "FORK vs CLONE",
           bullets: [
-            "fork — creates a server-side copy of someone else's repo under your own account (e.g. GitHub)",
-            "clone — downloads a repo from a server to your local machine",
-            "the typical workflow: fork first (you now own a copy on the server), then clone it locally",
-            "forking is a GitHub/GitLab feature — not a core git command — used so you can push without touching the original"
+            "fork — creates a server-side copy of a repo under your own account (a GitHub/GitLab feature, not a git command)",
+            "we already forked it for you — there's now a clean copy at operative.vault/access-system.git that you own",
+            "clone — downloads a repo from a server to your local machine — this is a core git command",
+            "the flow: fork on the server (done) → clone to your machine (your turn)"
           ]
         },
-        foxMsg: "fork it first. create a version that belongs to you — on your own account on the server. no writes to theirs.",
-        task: "Fork the repository to your own account.",
-        accepted: ["gh repo fork", "fork"],
-        output: [
-          ["✓ Created fork operative/access-system", "ok"],
-          ["", ""],
-          ["  Your fork: https://operative.vault/access-system.git", "hl"],
-          ["  Upstream:  https://syndicate-server.vault/access-system.git", "dim"],
-          ["", ""],
-          ["the original is untouched. you now have your own copy on the server.", "sys"],
-        ],
-        tree: "r2_fork",
-        wrong: {
-          "git fork": [["not a standard git command. use: gh repo fork (GitHub CLI style)", "warn"]]
-        }
-      },
-      {
-        foxMsg: "now pull it down to your machine. you need it local.",
-        task: "Clone your fork locally.",
+        foxMsg: "we forked the syndicate's repo to your account — your copy, your rules, no writes to theirs. now clone it. get it on your machine.",
+        task: "Clone your fork to get a local copy.",
         accepted: [
           "git clone https://operative.vault/access-system.git",
           "git clone operative/access-system"
@@ -352,8 +335,7 @@ const ROOMS = [
           ["remote: Compressing objects: 100% (31/31), done.", "dim"],
           ["Receiving objects: 100% (47/47), 22.1 KiB | 4.4 MiB/s, done.", "sys"],
           ["", ""],
-          ["✓ local copy ready. origin points to your fork.", "ok"],
-          ["  upstream (syndicate) is read-only — no trace.", "dim"],
+          ["✓ local copy ready.", "ok"],
         ],
         tree: "r2_cloned",
         wrong: {
@@ -361,9 +343,51 @@ const ROOMS = [
             ["⚠  ALARM TRIGGERED — write access to syndicate server detected.", "err"],
             ["", ""],
             ["clone from YOUR fork, not the original.", "warn"]
+          ],
+          "git pull": [["'pull' syncs an existing local repo. you don't have a local copy yet — use git clone to create one.", "warn"]]
+        }
+      },
+      {
+        foxMsg: "verify your setup. confirm origin is pointing to YOUR fork — not theirs.",
+        task: "Check your remote connections.",
+        accepted: ["git remote -v", "git remote"],
+        output: [
+          ["origin  https://operative.vault/access-system.git (fetch)", "ok"],
+          ["origin  https://operative.vault/access-system.git (push)", "ok"],
+          ["", ""],
+          ["✓ origin is yours. the syndicate's server is out of the picture.", "ok"],
+        ],
+        tree: "r2_cloned",
+        wrong: {}
+      },
+      {
+        conceptBrief: {
+          title: "ORIGIN vs UPSTREAM",
+          bullets: [
+            "after forking, 'origin' points to YOUR fork — you can push to it freely",
+            "the original repo you forked from is conventionally called 'upstream'",
+            "adding 'upstream' as a remote lets you pull their future changes without touching their server",
+            "standard setup: origin = yours (read/write), upstream = theirs (read-only)"
           ]
         },
-        completionMsg: "it's yours. local copy, your remote, no trace on theirs. now we can work."
+        foxMsg: "one more move. register their repo as 'upstream' — read-only reference. you'll be able to pull their changes without ever writing to them.",
+        task: "Add the syndicate's original repo as a remote named 'upstream'.",
+        accepted: ["git remote add upstream https://syndicate-server.vault/access-system.git"],
+        output: [
+          ["✓ remote 'upstream' added.", "ok"],
+          ["", ""],
+          ["origin     https://operative.vault/access-system.git", "ok"],
+          ["upstream   https://syndicate-server.vault/access-system.git", "dim"],
+          ["", ""],
+          ["push to origin. pull from upstream. their server stays clean.", "sys"],
+        ],
+        tree: "r2_upstream",
+        wrong: {
+          "git remote add upstream https://operative.vault/access-system.git": [
+            ["that's your own fork — upstream should point to the syndicate's server, not yours.", "warn"]
+          ]
+        },
+        completionMsg: "fork. clone. verify. upstream. local copy ready — no trace on theirs."
       }
     ],
     hints: [
@@ -373,14 +397,19 @@ const ROOMS = [
         "git remote -v lists every remote connection with its full URL. -v stands for verbose. you'll see at least one entry: origin.\n\nrun: git remote -v"
       ],
       [
-        "forking means creating a copy of the repo on the server under your own account — not downloading it yet.",
-        "the GitHub CLI command for forking is a single command.",
-        "forking creates a server-side copy under your account — safe to write to, no risk to the original. the GitHub CLI command is two words.\n\nrun: gh repo fork"
+        "cloning downloads the repo to your local machine. clone YOUR fork, not the syndicate's original.",
+        "git clone <url> — use the URL of your fork: https://operative.vault/access-system.git",
+        "git clone <url> creates a local copy of a repo. clone your fork — its URL points to your account, not the syndicate's server.\n\nrun: git clone https://operative.vault/access-system.git"
       ],
       [
-        "cloning downloads the repo to your local machine. you want to clone YOUR fork, not the syndicate's.",
-        "git clone <url> — use the URL of your fork: https://operative.vault/access-system.git",
-        "git clone <url> downloads a repo to your machine. clone YOUR fork — its URL points to your account, not the syndicate's server.\n\nrun: git clone https://operative.vault/access-system.git"
+        "you need to confirm that your local copy is connected to your fork, not the original.",
+        "git remote -v shows all remote connections — check which URL 'origin' points to.",
+        "git remote -v lists all remotes with their full URLs. origin should now point to your fork at operative.vault.\n\nrun: git remote -v"
+      ],
+      [
+        "you need to register the original repo as a named remote so you can pull from it without writing to it.",
+        "git remote add <name> <url> registers a new remote. the conventional name for the original is 'upstream'.",
+        "git remote add upstream <url> registers the original repo under the name 'upstream'. push to origin, pull from upstream — their server never sees your writes.\n\nrun: git remote add upstream https://syndicate-server.vault/access-system.git"
       ]
     ]
   },
@@ -990,10 +1019,10 @@ const TREE = {
         {x:40, hash:'a1b2c3d', msg:'initial repo setup'},
         {x:85, hash:'f4e5b6a', msg:'add vault config'}
       ]},
-      { name: "security-audit-2019", y: 130, color: "#3d4943", commits: [
+      { name: "hr-headcount-archive", y: 130, color: "#3d4943", commits: [
         {x:40, hash:'a1b2c3d', msg:'initial repo setup'},
         {x:85, hash:'f4e5b6a', msg:'add vault config'},
-        {x:130, hash:'9d0e1f2', msg:'archive audit log'}
+        {x:130, hash:'9d0e1f2', msg:'update headcount records'}
       ]},
       { name: "vault-schematics", y: 210, color: "#1D9E75", commits: [
         {x:40, hash:'a1b2c3d', msg:'initial repo setup'},
@@ -1045,7 +1074,7 @@ const TREE = {
     ],
     HEAD: { type: "branch", ref: "main", ci: 2, branchY: 80 },
     extras: [
-      { type: "remote-box", x: 165, y: 65, label: "origin (syndicate)", color: "#cc4444" }
+      { type: "remote-box", x: 195, y: 65, label: "origin (syndicate)", color: "#cc4444" }
     ]
   },
   r2_fork: {
@@ -1072,6 +1101,26 @@ const TREE = {
       ], dashed: true }
     ],
     HEAD: { type: "branch", ref: "main", ci: 2, branchY: 70 }
+  },
+  r2_upstream: {
+    branches: [
+      { name: "main (local)", y: 55, color: "#1D9E75", commits: [
+        {x:40, hash:'a1b2c3d', msg:'initial repo setup'},
+        {x:90, hash:'f4e5b6a', msg:'add vault config'},
+        {x:140, hash:'b2c3d4e', msg:'update route table'}
+      ]},
+      { name: "origin/main (fork)", y: 125, color: "#1D9E7566", commits: [
+        {x:40, hash:'a1b2c3d', msg:'initial repo setup'},
+        {x:90, hash:'f4e5b6a', msg:'add vault config'},
+        {x:140, hash:'b2c3d4e', msg:'update route table'}
+      ], dashed: true },
+      { name: "upstream/main", y: 195, color: "#cc444455", commits: [
+        {x:40, hash:'a1b2c3d', msg:'initial repo setup'},
+        {x:90, hash:'f4e5b6a', msg:'add vault config'},
+        {x:140, hash:'b2c3d4e', msg:'update route table'}
+      ], dashed: true }
+    ],
+    HEAD: { type: "branch", ref: "main", ci: 2, branchY: 55 }
   },
   r3_clean: {
     branches: [

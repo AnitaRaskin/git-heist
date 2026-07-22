@@ -520,6 +520,7 @@ body.resizing-col    { user-select: none; }
   opacity: 1;
 }
 
+/* ─── GIT TREE ────────────────────────────────────────────── */
 /* ─── TREE PANEL ──────────────────────────────────────────── */
 .tree-panel {
   background: var(--bg);
@@ -551,6 +552,7 @@ body.resizing-col    { user-select: none; }
 
 .tree-svg-wrap {
   flex: 1;
+  position: relative;
   min-height: 0;
   overflow: hidden;
 }
@@ -558,100 +560,109 @@ body.resizing-col    { user-select: none; }
 #gitTree {
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-/* ─── GIT GRAPH TABLE ─────────────────────────────────────── */
-.gg-loading {
-  padding: 12px;
-  font-family: var(--font);
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.gg-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  height: 26px;
-  padding-right: 8px;
-  flex-shrink: 0;
-  cursor: default;
-}
-.gg-row:hover {
-  background: var(--surface);
-}
-.gg-row-head {
-  background: rgba(29, 158, 117, 0.05);
-}
-.gg-row-head:hover {
-  background: rgba(29, 158, 117, 0.09);
-}
-
-.gg-graph {
-  flex-shrink: 0;
   display: block;
 }
 
-.gg-content {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
+/* ─── HEAD PULSE RING ─────────────────────────────────────── */
+.head-pulse-ring {
+  animation: headPulse 2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
-.gg-chip {
-  font-family: var(--font);
-  font-size: 7px;
-  padding: 1px 4px;
-  border: 0.5px solid;
-  flex-shrink: 0;
-  white-space: nowrap;
-  letter-spacing: 0.2px;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
+/* ─── COMMIT HOVER TOOLTIP ────────────────────────────────── */
+.tree-tooltip {
+  display: none;
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 7px 11px;
+  pointer-events: none;
+  z-index: 20;
+  max-width: 180px;
+  animation: fadeUp 0.12s ease;
 }
-.gg-chip-head {
-  font-weight: 700;
+.tree-tooltip .tt-main {
+  display: block;
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
 }
-
-.gg-msg {
-  font-family: var(--font);
+.tree-tooltip .tt-sub {
+  display: block;
   font-size: 9px;
   color: var(--text-muted);
-  opacity: 0.6;
+  letter-spacing: 0.3px;
+}
+
+/* ─── TREE ANIMATION CLASSES ─────────────────────────────── */
+.commit-appear {
+  animation: commitAppear 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes commitAppear {
+  from { opacity: 0; transform: scale(0.2); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.head-flash {
+  animation: headFlash 0.55s ease forwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes headFlash {
+  0%   { opacity: 0.2; transform: scale(2); }
+  65%  { opacity: 1;   transform: scale(1); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+
+.tree-elem-new {
+  animation: treeElemFadeIn 0.4s ease forwards;
+}
+@keyframes treeElemFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tree-line-new {
+  stroke-dasharray: var(--line-len) var(--line-len) !important;
+  stroke-dashoffset: var(--line-len);
+  animation: drawLine 0.45s ease-out forwards;
+}
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─── ACTION STRIP ────────────────────────────────────────── */
+.tree-action-strip {
+  height: 26px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--primary);
+  border-top: 1px solid var(--border);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  opacity: 0.75;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1;
-  min-width: 0;
-  letter-spacing: 0.2px;
 }
-.gg-row-head .gg-msg {
-  color: var(--text);
-  opacity: 0.85;
+.tree-action-strip:empty {
+  opacity: 0;
 }
-
-.gg-hash {
-  font-family: var(--font);
-  font-size: 8px;
-  color: var(--text-muted);
-  letter-spacing: 0.3px;
-  flex-shrink: 0;
-  opacity: 0.35;
-  min-width: 44px;
-  text-align: right;
+.tree-action-strip.flash {
+  animation: stripFlash 0.6s ease forwards;
 }
-.gg-row-head .gg-hash {
-  color: var(--primary);
-  opacity: 0.6;
+@keyframes stripFlash {
+  0%   { color: var(--bg); background: rgba(29,158,117,0.25); opacity: 1; }
+  50%  { color: var(--primary); background: rgba(29,158,117,0.06); opacity: 1; }
+  100% { color: var(--primary); background: transparent; opacity: 0.75; }
 }
 
 /* ─── TREE STATUS BAR ─────────────────────────────────────── */

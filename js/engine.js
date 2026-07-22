@@ -766,7 +766,11 @@ function _launchGame(codename, elapsed, showTour) {
   G.missionStart = Date.now() - elapsed;
   G.roomStart    = Date.now();
   startFooterClock();
-  if (showTour && !localStorage.getItem('vz_tour_done')) _tourPending = true;
+  if (showTour) {
+    _tourPending = true;
+    localStorage.removeItem('vz_tour_done');
+    localStorage.removeItem('vz_brief_0_0'); // always show git repo brief on fresh start
+  }
   loadRoom();
 }
 
