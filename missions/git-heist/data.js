@@ -276,14 +276,16 @@ const ROOMS = [
   },
 
   // ──────────────────────────────────────────────────────
-  // ROOM 2: GET A COPY
-  // git remote -v, git clone, git remote -v (verify), git remote add upstream
+  // ROOM 2: INTO POSITION
+  // git remote -v, git clone, git status, git checkout -b,
+  // git add, git commit, git push
   // ──────────────────────────────────────────────────────
   {
     id: 2,
-    name: 'GET A COPY',
-    clue: { label: 'NODE', value: 'banking-core-relay' },
-    intro: "The syndicate's server has the live vault access system. You can't touch the original — any write operation trips the alarm. You need your own working copy.",
+    name: 'INTO POSITION',
+    initialTree: 'r2_remote',
+    clue: { label: 'WINDOW', value: '02:00 — 02:15' },
+    intro: "The syndicate's access system is live on their server. You can't touch the original — any write trips the alarm. Get your own copy, get on the right branch, and start working.",
     stages: [
       {
         conceptBrief: {
@@ -323,7 +325,7 @@ const ROOMS = [
             "the flow: fork on the server (done) → clone to your machine (your turn)"
           ]
         },
-        foxMsg: "we forked the syndicate's repo to your account — your copy, your rules, no writes to theirs. now clone it. get it on your machine.",
+        foxMsg: "we forked the syndicate's repo to your account — your copy, your rules, no writes to theirs. your fork: https://operative.vault/access-system.git. now open it locally.",
         task: "Clone your fork to get a local copy.",
         accepted: [
           "git clone https://operative.vault/access-system.git",
@@ -348,84 +350,7 @@ const ROOMS = [
         }
       },
       {
-        foxMsg: "verify your setup. confirm origin is pointing to YOUR fork — not theirs.",
-        task: "Check your remote connections.",
-        accepted: ["git remote -v", "git remote"],
-        output: [
-          ["origin  https://operative.vault/access-system.git (fetch)", "ok"],
-          ["origin  https://operative.vault/access-system.git (push)", "ok"],
-          ["", ""],
-          ["✓ origin is yours. the syndicate's server is out of the picture.", "ok"],
-        ],
-        tree: "r2_cloned",
-        wrong: {}
-      },
-      {
-        conceptBrief: {
-          title: "ORIGIN vs UPSTREAM",
-          bullets: [
-            "after forking, 'origin' points to YOUR fork — you can push to it freely",
-            "the original repo you forked from is conventionally called 'upstream'",
-            "adding 'upstream' as a remote lets you pull their future changes without touching their server",
-            "standard setup: origin = yours (read/write), upstream = theirs (read-only)"
-          ]
-        },
-        foxMsg: "one more move. register their repo as 'upstream' — read-only reference. you'll be able to pull their changes without ever writing to them.",
-        task: "Add the syndicate's original repo as a remote named 'upstream'.",
-        accepted: ["git remote add upstream https://syndicate-server.vault/access-system.git"],
-        output: [
-          ["✓ remote 'upstream' added.", "ok"],
-          ["", ""],
-          ["origin     https://operative.vault/access-system.git", "ok"],
-          ["upstream   https://syndicate-server.vault/access-system.git", "dim"],
-          ["", ""],
-          ["push to origin. pull from upstream. their server stays clean.", "sys"],
-        ],
-        tree: "r2_upstream",
-        wrong: {
-          "git remote add upstream https://operative.vault/access-system.git": [
-            ["that's your own fork — upstream should point to the syndicate's server, not yours.", "warn"]
-          ]
-        },
-        completionMsg: "fork. clone. verify. upstream. local copy ready — no trace on theirs."
-      }
-    ],
-    hints: [
-      [
-        "there's a command to see what remote server this repo is connected to.",
-        "it starts with 'git remote'. the -v flag gives you the full URLs.",
-        "git remote -v lists every remote connection with its full URL. -v stands for verbose. you'll see at least one entry: origin.\n\nrun: git remote -v"
-      ],
-      [
-        "cloning downloads the repo to your local machine. clone YOUR fork, not the syndicate's original.",
-        "git clone <url> — use the URL of your fork: https://operative.vault/access-system.git",
-        "git clone <url> creates a local copy of a repo. clone your fork — its URL points to your account, not the syndicate's server.\n\nrun: git clone https://operative.vault/access-system.git"
-      ],
-      [
-        "you need to confirm that your local copy is connected to your fork, not the original.",
-        "git remote -v shows all remote connections — check which URL 'origin' points to.",
-        "git remote -v lists all remotes with their full URLs. origin should now point to your fork at operative.vault.\n\nrun: git remote -v"
-      ],
-      [
-        "you need to register the original repo as a named remote so you can pull from it without writing to it.",
-        "git remote add <name> <url> registers a new remote. the conventional name for the original is 'upstream'.",
-        "git remote add upstream <url> registers the original repo under the name 'upstream'. push to origin, pull from upstream — their server never sees your writes.\n\nrun: git remote add upstream https://syndicate-server.vault/access-system.git"
-      ]
-    ]
-  },
-
-  // ──────────────────────────────────────────────────────
-  // ROOM 3: INTO POSITION
-  // git status, git checkout -b, edit file, git add, git commit
-  // ──────────────────────────────────────────────────────
-  {
-    id: 3,
-    name: 'INTO POSITION',
-    clue: { label: 'WINDOW', value: '02:00 — 02:15' },
-    intro: "You're inside the access system. You need to modify the security config — but not on main. Work on your own route. Save checkpoints as you go.",
-    stages: [
-      {
-        foxMsg: "before you touch anything — where are you? what state is the repo in?",
+        foxMsg: "you're in. before you touch anything — where are you? what state is the repo in?",
         task: "Check the current state of the repository.",
         accepted: ["git status"],
         output: [
@@ -470,7 +395,7 @@ const ROOMS = [
         task: "Stage all current changes immediately — one command, full sweep.",
         policeOnLoad: true,
         policeWarnModal: true,
-        policePopupMsg: "scanner picked up activity on this node.\n\nthis is standard git workflow — you have modified files open and need to stage them before moving on.\n\nuse git add . to stage everything at once. one command, covers all files.\n\nthe 30-second clock starts when you close this. no pressure — git add . is the only command you need.",
+        policePopupMsg: "scanner picked up activity on this node.\n\nthis is standard workflow — you have a lot of modified files open and need to stage them before moving on.\n\nthe 30-second clock starts when you close this.",
         accepted: ["git add ."],
         output: [
           ["Changes staged for commit:", "sys"],
@@ -544,6 +469,16 @@ const ROOMS = [
     ],
     hints: [
       [
+        "there's a command to see what remote server this repo is connected to.",
+        "it starts with 'git remote'. the -v flag gives you the full URLs.",
+        "git remote -v lists every remote connection with its full URL. -v stands for verbose. you'll see at least one entry: origin.\n\nrun: git remote -v"
+      ],
+      [
+        "cloning downloads the repo to your local machine. clone YOUR fork, not the syndicate's original.",
+        "git clone <url> — use the URL of your fork: https://operative.vault/access-system.git",
+        "git clone <url> creates a local copy of a repo. clone your fork — its URL points to your account, not the syndicate's server.\n\nrun: git clone https://operative.vault/access-system.git"
+      ],
+      [
         "there's a command that tells you which branch you're on and what files have changed.",
         "it's one of the most-used git commands. just two words.",
         "git status shows your current branch, any modified files, and whether anything is staged — always your first move.\n\nrun: git status"
@@ -577,11 +512,11 @@ const ROOMS = [
   },
 
   // ──────────────────────────────────────────────────────
-  // ROOM 4: HIDE THE EVIDENCE
+  // ROOM 3: HIDE THE EVIDENCE
   // git stash, git stash list, git stash pop
   // ──────────────────────────────────────────────────────
   {
-    id: 4,
+    id: 3,
     name: 'HIDE THE EVIDENCE',
     initialTree: 'r_stash_dirty',
     clue: { label: 'BYPASS', value: 'sweep_clean' },
@@ -687,11 +622,11 @@ const ROOMS = [
   },
 
   // ──────────────────────────────────────────────────────
-  // ROOM 5: THE CREW CONFLICT
+  // ROOM 4: THE CREW CONFLICT
   // git pull, resolve conflict, git add, git commit
   // ──────────────────────────────────────────────────────
   {
-    id: 5,
+    id: 4,
     name: 'THE CREW CONFLICT',
     initialTree: 'r_conflict_initial',
     clue: { label: 'TOKEN', value: 'tok_override_9x77' },
@@ -767,11 +702,11 @@ const ROOMS = [
   },
 
   // ──────────────────────────────────────────────────────
-  // ROOM 6: READ THE ROOM
+  // ROOM 5: READ THE ROOM
   // git status, git log --oneline, git show / git diff
   // ──────────────────────────────────────────────────────
   {
-    id: 6,
+    id: 5,
     name: 'READ THE ROOM',
     initialTree: 'r5_dirty',
     clue: { label: 'VECTOR', value: 'ids_threshold' },
@@ -869,11 +804,11 @@ const ROOMS = [
   },
 
   // ──────────────────────────────────────────────────────
-  // ROOM 7: ERASE THE TRAIL
+  // ROOM 6: ERASE THE TRAIL
   // git clean -fd, git restore, git revert, git reset
   // ──────────────────────────────────────────────────────
   {
-    id: 7,
+    id: 6,
     initialTree: 'r6_dirty',
     clue: { label: 'STATUS', value: 'history_clean' },
     name: 'ERASE THE TRAIL',
