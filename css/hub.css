@@ -119,7 +119,7 @@ body {
 .hub-gic-dot { width: 5px; height: 5px; background: var(--primary); animation: dotPulse 1.8s ease-in-out infinite; }
 .hub-topbar-auth { display: flex; align-items: center; gap: 10px; }
 @media (max-width: 900px) { .hub-topbar-center { display: none; } }
-@media (max-width: 640px) { .hub-topbar { padding: 0 16px; } }
+@media (max-width: 640px) { .hub-topbar { padding: 0 16px; } .hub-gic-badge { display: none; } }
 
 /* ─── HERO / COMMAND HEADER ───────────────────────────────── */
 .hub-hero {
