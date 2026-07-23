@@ -26,6 +26,8 @@ before(() => {
     win.document.head.appendChild(s);
   };
 
+  inject('missions/nightshade/nightshade_pool.js', '');
+
   inject('missions/nightshade/config.js', `
     window._GAME_CONFIG = GAME_CONFIG;
   `);
@@ -106,40 +108,31 @@ describe('Nightshade ROOMS data integrity', () => {
 // ─── Quiz pool integrity ──────────────────────────────────────────────
 
 describe('Nightshade quiz pool data integrity', () => {
-  test('CMD_QUIZ_POOL: every entry has required fields', () => {
-    Object.entries(GAME_CONFIG.cmdQuizPool).forEach(([cmd, q]) => {
-      assert.ok(typeof q.q       === 'string', `${cmd}: missing q`);
-      assert.ok(Array.isArray(q.options),      `${cmd}: missing options`);
-      assert.ok(typeof q.correct === 'number', `${cmd}: correct not a number`);
-      assert.ok(typeof q.explain === 'string', `${cmd}: missing explain`);
+  test('quizPool is a non-empty array', () => {
+    assert.ok(Array.isArray(GAME_CONFIG.quizPool), 'quizPool is not an array');
+    assert.ok(GAME_CONFIG.quizPool.length > 0, 'quizPool is empty');
+  });
+  test('every entry has required fields', () => {
+    GAME_CONFIG.quizPool.forEach((q, i) => {
+      assert.ok(typeof q.q       === 'string', `[${i}]: missing q`);
+      assert.ok(Array.isArray(q.options),      `[${i}]: missing options`);
+      assert.ok(q.options.length === 4,        `[${i}]: expected 4 options, got ${q.options.length}`);
+      assert.ok(typeof q.correct === 'number', `[${i}]: correct not a number`);
+      assert.ok(typeof q.explain === 'string', `[${i}]: missing explain`);
     });
   });
-  test('CMD_QUIZ_POOL: correct index is in bounds for every entry', () => {
-    Object.entries(GAME_CONFIG.cmdQuizPool).forEach(([cmd, q]) =>
+  test('every correct index is in bounds', () => {
+    GAME_CONFIG.quizPool.forEach((q, i) =>
       assert.ok(q.correct >= 0 && q.correct < q.options.length,
-        `${cmd}: correct=${q.correct} but ${q.options.length} options`));
+        `[${i}]: correct=${q.correct} but ${q.options.length} options`));
   });
-  test('CMD_QUIZ_POOL: all keys appear in cmdDescriptions', () => {
-    Object.keys(GAME_CONFIG.cmdQuizPool).forEach(key =>
-      assert.ok(key in GAME_CONFIG.cmdDescriptions,
-        `quiz pool key "${key}" not in cmdDescriptions`));
+  test('at least 50 questions in the pool', () => {
+    assert.ok(GAME_CONFIG.quizPool.length >= 50,
+      `expected >= 50 questions, got ${GAME_CONFIG.quizPool.length}`);
   });
-  test('STATIC_QUIZ: all entries have required fields', () => {
-    GAME_CONFIG.staticQuiz.forEach((q, i) => {
-      assert.ok(typeof q.q       === 'string', `static[${i}]: missing q`);
-      assert.ok(Array.isArray(q.options),      `static[${i}]: missing options`);
-      assert.ok(typeof q.correct === 'number', `static[${i}]: correct not a number`);
-      assert.ok(typeof q.explain === 'string', `static[${i}]: missing explain`);
-    });
-  });
-  test('STATIC_QUIZ: every correct index is in bounds', () => {
-    GAME_CONFIG.staticQuiz.forEach((q, i) =>
-      assert.ok(q.correct >= 0 && q.correct < q.options.length,
-        `static[${i}]: correct=${q.correct} out of ${q.options.length}`));
-  });
-  test('at least 5 static quiz questions', () => {
-    assert.ok(GAME_CONFIG.staticQuiz.length >= 5,
-      `expected >= 5 static questions, got ${GAME_CONFIG.staticQuiz.length}`);
+  test('no duplicate questions', () => {
+    const qs = new Set(GAME_CONFIG.quizPool.map(q => q.q));
+    assert.equal(qs.size, GAME_CONFIG.quizPool.length, 'duplicate question text found');
   });
 });
 

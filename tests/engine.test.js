@@ -73,7 +73,7 @@ function buildDOM() {
 }
 
 // Shared references — set in before(), used across all describe blocks
-let G, H, ROOMS, CMD_QUIZ_POOL, STATIC_QUIZ, CMD_DESCRIPTIONS, cmdLog;
+let G, H, ROOMS, QUIZ_POOL, CMD_DESCRIPTIONS, cmdLog;
 let win; // jsdom window
 
 before(() => {
@@ -140,8 +140,7 @@ before(() => {
     window._G              = G;
     window._H              = H;
     window._cmdLog         = cmdLog;
-    window._CMD_QUIZ_POOL  = GAME_CONFIG.cmdQuizPool;
-    window._STATIC_QUIZ    = GAME_CONFIG.staticQuiz;
+    window._QUIZ_POOL      = GAME_CONFIG.quizPool;
     window._CMD_DESC       = GAME_CONFIG.cmdDescriptions;
     // Getters for primitives that get re-assigned (let, not const)
     window._getQuizQs      = () => quizQuestions;
@@ -168,8 +167,7 @@ before(() => {
   H              = win._H;
   ROOMS          = win._ROOMS;
   cmdLog         = win._cmdLog;
-  CMD_QUIZ_POOL  = win._CMD_QUIZ_POOL;
-  STATIC_QUIZ    = win._STATIC_QUIZ;
+  QUIZ_POOL        = win._QUIZ_POOL;
   CMD_DESCRIPTIONS = win._CMD_DESC;
 });
 
@@ -316,35 +314,26 @@ describe('ROOMS data integrity', () => {
 // ─── Quiz pool data integrity ─────────────────────────────────────────
 
 describe('Quiz pool data integrity', () => {
-  test('CMD_QUIZ_POOL: every entry has required fields', () => {
-    Object.entries(CMD_QUIZ_POOL).forEach(([cmd, q]) => {
-      assert.ok(typeof q.q       === 'string', `${cmd}: missing q`);
-      assert.ok(Array.isArray(q.options),      `${cmd}: missing options`);
-      assert.ok(typeof q.correct === 'number', `${cmd}: correct not a number`);
-      assert.ok(typeof q.explain === 'string', `${cmd}: missing explain`);
+  test('quizPool is a non-empty array', () => {
+    assert.ok(Array.isArray(QUIZ_POOL), 'quizPool is not an array');
+    assert.ok(QUIZ_POOL.length > 0, 'quizPool is empty');
+  });
+  test('every entry has required fields', () => {
+    QUIZ_POOL.forEach((q, i) => {
+      assert.ok(typeof q.q       === 'string', `[${i}]: missing q`);
+      assert.ok(Array.isArray(q.options),      `[${i}]: missing options`);
+      assert.ok(q.options.length === 4,        `[${i}]: expected 4 options, got ${q.options.length}`);
+      assert.ok(typeof q.correct === 'number', `[${i}]: correct not a number`);
+      assert.ok(typeof q.explain === 'string', `[${i}]: missing explain`);
     });
   });
-  test('CMD_QUIZ_POOL: correct index is in bounds', () => {
-    Object.entries(CMD_QUIZ_POOL).forEach(([cmd, q]) =>
+  test('every correct index is in bounds', () => {
+    QUIZ_POOL.forEach((q, i) =>
       assert.ok(q.correct >= 0 && q.correct < q.options.length,
-        `${cmd}: correct=${q.correct} but ${q.options.length} options`));
+        `[${i}]: correct=${q.correct} but ${q.options.length} options`));
   });
-  test('CMD_QUIZ_POOL: all keys are known CMD_DESCRIPTIONS keys', () => {
-    Object.keys(CMD_QUIZ_POOL).forEach(key =>
-      assert.ok(key in CMD_DESCRIPTIONS, `quiz pool key "${key}" not in CMD_DESCRIPTIONS`));
-  });
-  test('STATIC_QUIZ: all entries have required fields', () => {
-    STATIC_QUIZ.forEach((q, i) => {
-      assert.ok(typeof q.q       === 'string', `static[${i}]: missing q`);
-      assert.ok(Array.isArray(q.options),      `static[${i}]: missing options`);
-      assert.ok(typeof q.correct === 'number', `static[${i}]: correct not a number`);
-      assert.ok(typeof q.explain === 'string', `static[${i}]: missing explain`);
-    });
-  });
-  test('STATIC_QUIZ: every correct index is in bounds', () => {
-    STATIC_QUIZ.forEach((q, i) =>
-      assert.ok(q.correct >= 0 && q.correct < q.options.length,
-        `static[${i}]: correct=${q.correct} out of ${q.options.length}`));
+  test('at least 20 questions in the pool', () => {
+    assert.ok(QUIZ_POOL.length >= 20, `expected >= 20 questions, got ${QUIZ_POOL.length}`);
   });
 });
 
@@ -352,28 +341,25 @@ describe('Quiz pool data integrity', () => {
 // ─── buildQuiz() ──────────────────────────────────────────────────────
 
 describe('buildQuiz()', () => {
-  test('produces up to 7 questions with empty cmdLog', () => {
+  test('produces 8 questions from the pool', () => {
     resetG();
     win.buildQuiz();
     const len = win._getQuizQs().length;
-    assert.ok(len > 0 && len <= 7, `expected 1–7 questions, got ${len}`);
+    assert.equal(len, 8, `expected 8 questions, got ${len}`);
   });
-  test('picks a dynamic question from cmdLog', () => {
+  test('all selected questions come from quizPool', () => {
     resetG();
-    cmdLog.push({ cmd: 'git stash', desc: CMD_DESCRIPTIONS['git stash'] });
     win.buildQuiz();
-    assert.ok(win._getQuizQs().some(q => q === CMD_QUIZ_POOL['git stash']),
-      'stash question not selected despite being in cmdLog');
+    win._getQuizQs().forEach((q, i) =>
+      assert.ok(QUIZ_POOL.includes(q), `question ${i} not in quizPool`));
   });
-  test('caps total at 7 even with large cmdLog', () => {
+  test('caps total at 8 even with large cmdLog', () => {
     resetG();
     ['git stash', 'git push', 'git pull', 'git revert', 'git checkout'].forEach(cmd =>
       cmdLog.push({ cmd, desc: '' }));
     win.buildQuiz();
     const len = win._getQuizQs().length;
-    assert.ok(len > 0 && len <= 7, `expected 1–7 questions, got ${len}`);
-    const dynamic = win._getQuizQs().filter(q => Object.values(CMD_QUIZ_POOL).includes(q));
-    assert.ok(dynamic.length <= 4, `${dynamic.length} dynamic questions, max is 4`);
+    assert.equal(len, 8, `expected 8 questions, got ${len}`);
   });
   test('no duplicate questions in quiz', () => {
     resetG();
